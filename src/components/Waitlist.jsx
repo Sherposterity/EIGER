@@ -8,7 +8,6 @@ const Waitlist = () => {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [remainingAttempts, setRemainingAttempts] = useState(3);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const sectionRef = useRef(null);
 
@@ -42,12 +41,6 @@ const Waitlist = () => {
         };
     }, []);
 
-    // Check rate limit on mount
-    useEffect(() => {
-        const rateCheck = checkRateLimit();
-        setRemainingAttempts(rateCheck.remainingAttempts);
-    }, []);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!email) return;
@@ -73,9 +66,6 @@ const Waitlist = () => {
             setHoneypot('');
         } else {
             setError(result.error || 'Something went wrong. Please try again.');
-            // Update remaining attempts
-            const newRateCheck = checkRateLimit();
-            setRemainingAttempts(newRateCheck.remainingAttempts);
         }
     };
 

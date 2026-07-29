@@ -6,8 +6,18 @@ const Hero = () => {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const heroRef = useRef(null);
 
+    const scrollToWaitlist = () => {
+        const section = document.getElementById('waitlist');
+        if (!section) return;
+        // Aim for the email input so the form lands in view, not just the section heading.
+        const target = section.querySelector('input[type="email"]') || section;
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
     useEffect(() => {
-        setIsVisible(true);
+        const reveal = window.requestAnimationFrame(() => {
+            setIsVisible(true);
+        });
 
         const handleMouseMove = (e) => {
             if (heroRef.current) {
@@ -19,7 +29,10 @@ const Hero = () => {
         };
 
         window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
+        return () => {
+            window.cancelAnimationFrame(reveal);
+            window.removeEventListener('mousemove', handleMouseMove);
+        };
     }, []);
 
     return (
@@ -126,12 +139,13 @@ const Hero = () => {
 
                         {/* CTA Button */}
                         <div className="mt-6 md:mt-12">
-                            <a
-                                href="#waitlist"
+                            <button
+                                type="button"
+                                onClick={scrollToWaitlist}
                                 className="inline-block px-10 py-4 bg-white text-black font-semibold text-lg rounded-full hover:bg-white/90 hover:scale-105 transition-all duration-300 shadow-2xl"
                             >
                                 Join the Waitlist
-                            </a>
+                            </button>
                         </div>
 
                     </div>
