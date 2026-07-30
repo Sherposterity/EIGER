@@ -37,6 +37,14 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+        env:
+          # Supabase config comes from repo Actions variables (Settings >
+          # Secrets and variables > Actions > Variables) instead of a
+          # committed .env. The anon key is public-by-design (ships in the
+          # bundle; RLS is the actual protection) — variables, not secrets,
+          # keep that honest and debuggable.
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

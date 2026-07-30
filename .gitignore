@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Env files — CI injects these via GitHub Actions variables (see
+# .github/workflows/static.yml); local dev copies from .env.example.
+.env
+.env.*
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
