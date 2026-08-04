@@ -1,10 +1,45 @@
 import { useEffect, useState, useRef } from 'react';
 import EigerLogo from '../assets/EigerLogo.png';
 
+// Background footage playlist (the founders' own climbing trips), rotated with
+// a crossfade. Compressed 720p/no-audio in public/videos — keep clips lean;
+// this is the heaviest asset on the page and loads one clip at a time.
+const HERO_VIDEOS = [
+    '/videos/hero-1.mp4',
+    '/videos/hero-2.mp4',
+    '/videos/hero-3.mp4',
+    '/videos/hero-4.mp4',
+];
+
 const Hero = () => {
     const [isVisible, setIsVisible] = useState(false);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const heroRef = useRef(null);
+
+    // Two stacked <video> layers crossfade between playlist clips: the ended
+    // layer holds its last frame while the other starts, so there is no black
+    // flash. Reduced-motion users keep the static poster.
+    const videoARef = useRef(null);
+    const videoBRef = useRef(null);
+    const videoIndexRef = useRef(0);
+    const [activeLayer, setActiveLayer] = useState(0);
+
+    useEffect(() => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const first = videoARef.current;
+        if (!first) return;
+        first.src = HERO_VIDEOS[0];
+        first.play().catch(() => {});
+    }, []);
+
+    const handleVideoEnded = (endedLayer) => {
+        videoIndexRef.current = (videoIndexRef.current + 1) % HERO_VIDEOS.length;
+        const next = endedLayer === 0 ? videoBRef.current : videoARef.current;
+        if (!next) return;
+        next.src = HERO_VIDEOS[videoIndexRef.current];
+        next.play().catch(() => {});
+        setActiveLayer(endedLayer === 0 ? 1 : 0);
+    };
 
     const scrollToWaitlist = () => {
         const section = document.getElementById('waitlist');
@@ -40,20 +75,25 @@ const Hero = () => {
             ref={heroRef}
             className="relative h-screen w-full overflow-hidden"
         >
-            {/* Full-Screen Video Background */}
+            {/* Full-Screen Video Background — rotating climbing footage */}
             <div className="absolute inset-0 z-0">
-                {/* Video Placeholder - Replace src with actual video */}
                 <video
-                    autoPlay
+                    ref={videoARef}
                     muted
-                    loop
                     playsInline
-                    className="absolute inset-0 w-full h-full object-cover"
-                    poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3E%3Crect fill='%23111' width='1920' height='1080'/%3E%3C/svg%3E"
-                >
-                    {/* Add your video source here */}
-                    {/* <source src="/your-video.mp4" type="video/mp4" /> */}
-                </video>
+                    preload="auto"
+                    poster="/videos/hero-poster.jpg"
+                    onEnded={() => handleVideoEnded(0)}
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${activeLayer === 0 ? 'opacity-100' : 'opacity-0'}`}
+                />
+                <video
+                    ref={videoBRef}
+                    muted
+                    playsInline
+                    preload="auto"
+                    onEnded={() => handleVideoEnded(1)}
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${activeLayer === 1 ? 'opacity-100' : 'opacity-0'}`}
+                />
 
                 {/* Dark Overlay for text readability */}
                 <div className="absolute inset-0 bg-black/60" />
