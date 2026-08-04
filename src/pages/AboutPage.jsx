@@ -54,19 +54,19 @@ const founders = [
     name: 'Rishav Akilla',
     role: 'Co-Founder',
     photo: RishavPhoto,
-    body: 'Biochemistry student at the University of Houston with a deep passion for mountaineering and climbing. Trips through Canada and Colorado showed him just how scattered the climbing world’s information really is — EIGER started as his answer.',
+    body: 'Rishav is a biochemistry student at the University of Houston whose weekends belong to the mountains. Climbing trips through Canada and Colorado kept ending the same way — hours of scattered research for a single ascent — and EIGER began as his answer to that gap.',
   },
   {
     name: 'Muad Shaikh',
     role: 'Co-Founder',
     photo: MuadPhoto,
-    body: 'Also studying biochemistry at the University of Houston, with a heavy background in computer science and data analysis. He turns messy mountain data into things climbers can actually use, and spends his free hours climbing and bouldering.',
+    body: 'Muad studies biochemistry at the University of Houston and brings a heavy background in computer science and data analysis to the rope team. His gym hours go to boulder problems; his laptop hours go to turning messy mountain data into something climbers can actually plan around.',
   },
   {
     name: 'Cody Luc',
     role: 'Co-Founder',
     photo: CodyPhoto,
-    body: 'Computer science student at the University of Houston and the main technical co-founder — he runs the app’s infrastructure end to end. When he’s not shipping, he’s on a wall: extremely into rock climbing.',
+    body: 'Cody is a computer science student at the University of Houston and EIGER’s technical backbone, running the app’s infrastructure end to end. Between deploys you’ll find him where he’s happiest — on the wall, chasing the next grade.',
   },
 ];
 
