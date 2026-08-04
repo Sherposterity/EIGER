@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Hero from './components/Hero';
+import SiteNav from './components/SiteNav';
 import Features from './components/Features';
 import MissionBanner from './components/MissionBanner';
 import Platforms from './components/Platforms';
@@ -31,6 +32,7 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
+      <SiteNav />
       <Hero />
       <Features />
       <MissionBanner />
