@@ -9,11 +9,12 @@ const HERO_VIDEOS = [
     '/videos/hero-2.mp4',
     '/videos/hero-3.mp4',
     '/videos/hero-4.mp4',
+    '/videos/hero-5.mp4',
+    '/videos/hero-6.mp4',
 ];
 
 const Hero = () => {
     const [isVisible, setIsVisible] = useState(false);
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const heroRef = useRef(null);
 
     // Two stacked <video> layers crossfade between playlist clips: the ended
@@ -53,21 +54,7 @@ const Hero = () => {
         const reveal = window.requestAnimationFrame(() => {
             setIsVisible(true);
         });
-
-        const handleMouseMove = (e) => {
-            if (heroRef.current) {
-                const rect = heroRef.current.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / rect.width - 0.5;
-                const y = (e.clientY - rect.top) / rect.height - 0.5;
-                setMousePosition({ x, y });
-            }
-        };
-
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => {
-            window.cancelAnimationFrame(reveal);
-            window.removeEventListener('mousemove', handleMouseMove);
-        };
+        return () => window.cancelAnimationFrame(reveal);
     }, []);
 
     return (
@@ -98,53 +85,10 @@ const Hero = () => {
                 {/* Dark Overlay for text readability */}
                 <div className="absolute inset-0 bg-black/60" />
 
-                {/* Gradient overlay at bottom */}
+                {/* Gradient overlay at bottom — blends the footage into the
+                    page. The old mountain-silhouette SVGs were removed once
+                    real climbing footage landed; they covered half the video. */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
-
-                {/* Interactive Mountain Silhouettes - Move with cursor */}
-                <svg
-                    viewBox="0 0 1440 400"
-                    className="absolute bottom-0 w-full h-auto transition-transform duration-200 ease-out"
-                    style={{
-                        transform: `translateX(${mousePosition.x * 30}px) translateY(${mousePosition.y * 10}px)`,
-                    }}
-                    preserveAspectRatio="xMidYMax slice"
-                >
-                    <polygon
-                        points="0,400 200,150 400,250 600,100 800,200 1000,80 1200,180 1440,120 1440,400"
-                        fill="#0A0A0A"
-                    />
-                </svg>
-
-                {/* Secondary mountain layer - moves opposite direction for depth */}
-                <svg
-                    viewBox="0 0 1440 300"
-                    className="absolute bottom-0 w-full h-auto opacity-40 transition-transform duration-300 ease-out"
-                    style={{
-                        transform: `translateX(${mousePosition.x * -20}px) translateY(${mousePosition.y * 5}px)`,
-                    }}
-                    preserveAspectRatio="xMidYMax slice"
-                >
-                    <polygon
-                        points="0,300 300,120 500,200 750,80 950,180 1150,100 1350,160 1440,140 1440,300"
-                        fill="#1a1a1a"
-                    />
-                </svg>
-
-                {/* Distant mountain layer - subtle movement */}
-                <svg
-                    viewBox="0 0 1440 200"
-                    className="absolute bottom-20 w-full h-auto opacity-20 transition-transform duration-500 ease-out"
-                    style={{
-                        transform: `translateX(${mousePosition.x * 15}px)`,
-                    }}
-                    preserveAspectRatio="xMidYMax slice"
-                >
-                    <polygon
-                        points="0,200 180,80 350,130 520,50 700,110 880,60 1050,100 1220,70 1440,90 1440,200"
-                        fill="#2a2a2a"
-                    />
-                </svg>
             </div>
 
             {/* Content Overlay */}

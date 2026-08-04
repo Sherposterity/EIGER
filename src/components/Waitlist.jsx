@@ -227,7 +227,7 @@ const Waitlist = () => {
                         talk gear, and find your next rope team.
                     </p>
                     <a
-                        href="https://discord.gg/vyZeQQXcC"
+                        href="https://discord.gg/x3Dfj32dAK"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="mt-6 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.06] px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.15em] text-white transition-all duration-300 hover:border-white/30 hover:bg-white/[0.1]"
