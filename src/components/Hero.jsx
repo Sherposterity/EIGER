@@ -13,6 +13,13 @@ const HERO_VIDEOS = [
     '/videos/hero-6.mp4',
 ];
 
+// TikTok's in-app browser renders <video> on a native surface that loses CSS
+// stacking when the element is unmounted/remounted (SPA nav to /mission and
+// back), leaving the raw clip playing on top of the page. No workaround holds
+// there, so TikTok gets the static poster instead of the video playlist.
+const isTikTokBrowser = () =>
+    /tiktok|musical_ly|bytedance/i.test(navigator.userAgent);
+
 const Hero = () => {
     const [isVisible, setIsVisible] = useState(false);
     const heroRef = useRef(null);
@@ -24,14 +31,25 @@ const Hero = () => {
     const videoBRef = useRef(null);
     const videoIndexRef = useRef(0);
     const [activeLayer, setActiveLayer] = useState(0);
+    const [posterOnly] = useState(isTikTokBrowser);
 
     useEffect(() => {
+        if (posterOnly) return;
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         const first = videoARef.current;
         if (!first) return;
+        // In-app browsers (Instagram, TikTok, etc.) decide inline-vs-native
+        // playback from the HTML attributes, but React only sets the `muted`
+        // JS property — mirror the attributes onto both layers before play().
+        [videoARef.current, videoBRef.current].forEach((el) => {
+            if (!el) return;
+            el.setAttribute('muted', '');
+            el.setAttribute('playsinline', '');
+            el.setAttribute('webkit-playsinline', '');
+        });
         first.src = HERO_VIDEOS[0];
         first.play().catch(() => {});
-    }, []);
+    }, [posterOnly]);
 
     const handleVideoEnded = (endedLayer) => {
         videoIndexRef.current = (videoIndexRef.current + 1) % HERO_VIDEOS.length;
@@ -62,25 +80,41 @@ const Hero = () => {
             ref={heroRef}
             className="relative h-screen w-full overflow-hidden"
         >
-            {/* Full-Screen Video Background — rotating climbing footage */}
+            {/* Full-Screen Video Background — rotating climbing footage.
+                TikTok's in-app browser gets the static poster instead (see
+                isTikTokBrowser above). */}
             <div className="absolute inset-0 z-0">
-                <video
-                    ref={videoARef}
-                    muted
-                    playsInline
-                    preload="auto"
-                    poster="/videos/hero-poster.jpg"
-                    onEnded={() => handleVideoEnded(0)}
-                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${activeLayer === 0 ? 'opacity-100' : 'opacity-0'}`}
-                />
-                <video
-                    ref={videoBRef}
-                    muted
-                    playsInline
-                    preload="auto"
-                    onEnded={() => handleVideoEnded(1)}
-                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${activeLayer === 1 ? 'opacity-100' : 'opacity-0'}`}
-                />
+                {posterOnly ? (
+                    <img
+                        src="/videos/hero-poster.jpg"
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover"
+                    />
+                ) : (
+                    <>
+                        <video
+                            ref={videoARef}
+                            muted
+                            playsInline
+                            preload="auto"
+                            disablePictureInPicture
+                            disableRemotePlayback
+                            poster="/videos/hero-poster.jpg"
+                            onEnded={() => handleVideoEnded(0)}
+                            className={`pointer-events-none absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${activeLayer === 0 ? 'opacity-100' : 'opacity-0'}`}
+                        />
+                        <video
+                            ref={videoBRef}
+                            muted
+                            playsInline
+                            preload="auto"
+                            disablePictureInPicture
+                            disableRemotePlayback
+                            onEnded={() => handleVideoEnded(1)}
+                            className={`pointer-events-none absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${activeLayer === 1 ? 'opacity-100' : 'opacity-0'}`}
+                        />
+                    </>
+                )}
 
                 {/* Dark Overlay for text readability */}
                 <div className="absolute inset-0 bg-black/60" />
