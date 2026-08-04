@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
 import Reveal from '../components/Reveal';
 import Waitlist from '../components/Waitlist';
+import useMouseParallax from '../lib/useMouseParallax';
 import EigerLogo from '../assets/EigerLogo.png';
 
 const scrollToWaitlist = () => {
@@ -77,20 +78,24 @@ const missionStars = [
 ];
 
 const MissionBackground = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const starsRef = useRef(null);
+  const summitRef = useRef(null);
+  const ridgeFarRef = useRef(null);
+  const ridgeNearRef = useRef(null);
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({
-        x: e.clientX / window.innerWidth - 0.5,
-        y: e.clientY / window.innerHeight - 0.5,
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  const { x, y } = mousePosition;
+  // Same travel factors the inline styles used before; the hook writes the
+  // transforms outside React so pointer moves no longer re-render this tree.
+  useMouseParallax(
+    useMemo(
+      () => [
+        { ref: starsRef, fx: 8, fy: 8 },
+        { ref: summitRef, fx: 12, fy: 6 },
+        { ref: ridgeFarRef, fx: -15, fy: 0 },
+        { ref: ridgeNearRef, fx: 26, fy: 8 },
+      ],
+      []
+    )
+  );
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
@@ -99,10 +104,7 @@ const MissionBackground = () => {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_16%,rgba(255,255,255,0.06),transparent_70%)]" />
 
       {/* Alpine-start star field (drifts gently with the mouse) */}
-      <div
-        className="absolute inset-0 transition-transform duration-500 ease-out"
-        style={{ transform: `translate(${x * 8}px, ${y * 8}px)` }}
-      >
+      <div ref={starsRef} className="absolute inset-0">
         {missionStars.map((star) => (
           <span
             key={`${star.top}-${star.left}`}
@@ -112,9 +114,18 @@ const MissionBackground = () => {
         ))}
       </div>
 
-      {/* Drifting glow orbs */}
-      <div className="about-glow-drift absolute -top-32 left-1/2 h-[30rem] w-[30rem] -translate-x-1/2 rounded-full bg-white/[0.05] blur-[140px]" />
-      <div className="about-glow-drift-reverse absolute bottom-1/4 right-10 h-96 w-96 rounded-full bg-white/[0.03] blur-[130px]" />
+      {/* Drifting glow orbs. Radial gradients, not blur filters: a 140px
+          Gaussian blur on a 30rem layer re-rasterizes on the GPU every frame
+          of the drift animation and was the main phone-side jank. A radial
+          gradient is the same soft glow at zero filter cost. */}
+      <div
+        className="about-glow-drift absolute -top-32 left-1/2 h-[34rem] w-[34rem] -translate-x-1/2"
+        style={{ background: 'radial-gradient(closest-side, rgba(255,255,255,0.05), transparent 72%)' }}
+      />
+      <div
+        className="about-glow-drift-reverse absolute bottom-1/4 right-10 h-[26rem] w-[26rem]"
+        style={{ background: 'radial-gradient(closest-side, rgba(255,255,255,0.03), transparent 72%)' }}
+      />
 
       {/* Faint topographic grid */}
       <div
@@ -128,10 +139,7 @@ const MissionBackground = () => {
 
       {/* Hero summit with a dashed ascent route and a glowing summit beacon.
           The wrapper carries the mouse parallax so the SVG keeps its float animation. */}
-      <div
-        className="absolute inset-x-0 bottom-0 h-[70vh] transition-transform duration-300 ease-out"
-        style={{ transform: `translateX(${x * 12}px) translateY(${y * 6}px)` }}
-      >
+      <div ref={summitRef} className="absolute inset-x-0 bottom-0 h-[70vh]">
         <svg
           viewBox="0 0 1440 600"
           className="about-ridge-float h-full w-full"
@@ -154,17 +162,17 @@ const MissionBackground = () => {
 
       {/* Layered ridge silhouettes (the main page's signature motif), parallaxed by depth */}
       <svg
+        ref={ridgeFarRef}
         viewBox="0 0 1440 300"
-        className="absolute inset-x-0 bottom-0 h-[34vh] w-full opacity-[0.05] transition-transform duration-500 ease-out"
-        style={{ transform: `translateX(${x * -15}px)` }}
+        className="absolute inset-x-0 bottom-0 h-[34vh] w-full opacity-[0.05]"
         preserveAspectRatio="xMidYMax slice"
       >
         <polygon points="0,300 300,120 500,200 750,80 950,180 1150,100 1350,160 1440,140 1440,300" fill="white" />
       </svg>
       <svg
+        ref={ridgeNearRef}
         viewBox="0 0 1440 500"
-        className="absolute inset-x-0 bottom-0 h-[50vh] w-full opacity-[0.06] transition-transform duration-300 ease-out"
-        style={{ transform: `translateX(${x * 26}px) translateY(${y * 8}px)` }}
+        className="absolute inset-x-0 bottom-0 h-[50vh] w-full opacity-[0.06]"
         preserveAspectRatio="xMidYMax slice"
       >
         <polygon points="0,500 150,200 300,320 500,100 700,250 900,80 1100,200 1300,150 1440,250 1440,500" fill="white" />

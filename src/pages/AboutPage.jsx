@@ -1,9 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
 import Reveal from '../components/Reveal';
 import Waitlist from '../components/Waitlist';
+import useMouseParallax from '../lib/useMouseParallax';
 import EigerLogo from '../assets/EigerLogo.png';
+import RishavPhoto from '../assets/founders/rishav.jpg';
+import MuadPhoto from '../assets/founders/muad.jpg';
+import CodyPhoto from '../assets/founders/cody.jpg';
 
 const scrollToWaitlist = () => {
   const section = document.getElementById('waitlist');
@@ -44,26 +48,25 @@ const research = [
   },
 ];
 
-// The three climbers behind EIGER. Swap `photo` for an imported image when you have
-// the headshots, and edit each name and blurb in place.
+// The three climbers behind EIGER.
 const founders = [
   {
-    name: 'Founder One',
+    name: 'Rishav Akilla',
     role: 'Co-Founder',
-    photo: null, // e.g. import a headshot up top and drop it in here
-    body: 'A short line about this founder goes here. Where they climb, what they do on the team, why this matters to them. Edit me later.',
+    photo: RishavPhoto,
+    body: 'Biochemistry student at the University of Houston with a deep passion for mountaineering and climbing. Trips through Canada and Colorado showed him just how scattered the climbing world’s information really is — EIGER started as his answer.',
   },
   {
-    name: 'Founder Two',
+    name: 'Muad Shaikh',
     role: 'Co-Founder',
-    photo: null,
-    body: 'A short line about this founder goes here. Where they climb, what they do on the team, why this matters to them. Edit me later.',
+    photo: MuadPhoto,
+    body: 'Also studying biochemistry at the University of Houston, with a heavy background in computer science and data analysis. He turns messy mountain data into things climbers can actually use, and spends his free hours climbing and bouldering.',
   },
   {
-    name: 'Founder Three',
+    name: 'Cody Luc',
     role: 'Co-Founder',
-    photo: null,
-    body: 'A short line about this founder goes here. Where they climb, what they do on the team, why this matters to them. Edit me later.',
+    photo: CodyPhoto,
+    body: 'Computer science student at the University of Houston and the main technical co-founder — he runs the app’s infrastructure end to end. When he’s not shipping, he’s on a wall: extremely into rock climbing.',
   },
 ];
 
@@ -73,20 +76,22 @@ const founders = [
 const compassTicks = Array.from({ length: 12 }, (_, i) => (i * 30 * Math.PI) / 180);
 
 const AboutBackground = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const contourLeftRef = useRef(null);
+  const contourRightRef = useRef(null);
+  const compassRef = useRef(null);
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({
-        x: e.clientX / window.innerWidth - 0.5,
-        y: e.clientY / window.innerHeight - 0.5,
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  const { x, y } = mousePosition;
+  // Same travel factors the inline styles used before; the hook writes the
+  // transforms outside React so pointer moves no longer re-render this tree.
+  useMouseParallax(
+    useMemo(
+      () => [
+        { ref: contourLeftRef, fx: 26, fy: 14 },
+        { ref: contourRightRef, fx: -16, fy: -10 },
+        { ref: compassRef, fx: 30, fy: 18 },
+      ],
+      []
+    )
+  );
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
@@ -94,9 +99,16 @@ const AboutBackground = () => {
       <div className="absolute inset-0 bg-[#0A0A0A]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_45%_at_72%_26%,rgba(255,255,255,0.05),transparent_70%)]" />
 
-      {/* Drifting glow orbs */}
-      <div className="about-glow-drift absolute -top-24 right-1/4 h-[26rem] w-[26rem] translate-x-1/2 rounded-full bg-white/[0.04] blur-[130px]" />
-      <div className="about-glow-drift-reverse absolute bottom-1/4 left-0 h-96 w-96 rounded-full bg-white/[0.03] blur-[130px]" />
+      {/* Drifting glow orbs. Radial gradients, not blur filters — see
+          MissionPage: giant animated blurs were the phone-side jank. */}
+      <div
+        className="about-glow-drift absolute -top-24 right-1/4 h-[30rem] w-[30rem] translate-x-1/2"
+        style={{ background: 'radial-gradient(closest-side, rgba(255,255,255,0.04), transparent 72%)' }}
+      />
+      <div
+        className="about-glow-drift-reverse absolute bottom-1/4 left-0 h-[26rem] w-[26rem]"
+        style={{ background: 'radial-gradient(closest-side, rgba(255,255,255,0.03), transparent 72%)' }}
+      />
 
       {/* Faint topographic grid */}
       <div
@@ -110,10 +122,7 @@ const AboutBackground = () => {
 
       {/* Topographic contour clusters (the route-planning / map motif).
           Each wrapper carries the mouse parallax so the SVG keeps its drift animation. */}
-      <div
-        className="absolute -left-40 top-1/3 h-[70vh] w-[70vh] transition-transform duration-300 ease-out"
-        style={{ transform: `translate(${x * 26}px, ${y * 14}px)` }}
-      >
+      <div ref={contourLeftRef} className="absolute -left-40 top-1/3 h-[70vh] w-[70vh]">
         <svg
           viewBox="0 0 600 600"
           className="about-contour-slow h-full w-full opacity-[0.07]"
@@ -135,10 +144,7 @@ const AboutBackground = () => {
           <circle cx="300" cy="300" r="5" fill="white" />
         </svg>
       </div>
-      <div
-        className="absolute -right-32 bottom-8 h-[55vh] w-[55vh] transition-transform duration-500 ease-out"
-        style={{ transform: `translate(${x * -16}px, ${y * -10}px)` }}
-      >
+      <div ref={contourRightRef} className="absolute -right-32 bottom-8 h-[55vh] w-[55vh]">
         <svg
           viewBox="0 0 500 500"
           className="about-contour-fast h-full w-full opacity-[0.05]"
@@ -163,9 +169,9 @@ const AboutBackground = () => {
 
       {/* Slowly turning compass rose (parallax on the SVG; spin stays on the inner group) */}
       <svg
+        ref={compassRef}
         viewBox="0 0 200 200"
-        className="absolute right-10 top-20 h-40 w-40 opacity-[0.06] transition-transform duration-300 ease-out"
-        style={{ transform: `translate(${x * 30}px, ${y * 18}px)` }}
+        className="absolute right-10 top-20 h-40 w-40 opacity-[0.06]"
         aria-hidden="true"
       >
         <g className="about-compass-spin">
