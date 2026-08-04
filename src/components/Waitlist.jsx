@@ -243,7 +243,7 @@ const Waitlist = () => {
                 <div className="mt-24 pt-16 border-t border-white/5">
                     <div className="flex flex-wrap items-center justify-center gap-16 md:gap-24 text-white/40">
                         <div className="text-center">
-                            <p className="text-4xl md:text-5xl font-bold text-white mb-2">10+</p>
+                            <p className="text-4xl md:text-5xl font-bold text-white mb-2">25+</p>
                             <p className="text-sm uppercase tracking-widest">Peaks Mapped</p>
                             <p className="text-xs text-white/30 mt-1">Continuing to map more</p>
                         </div>
