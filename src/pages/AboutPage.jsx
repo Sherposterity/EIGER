@@ -54,7 +54,7 @@ const founders = [
     name: 'Rishav Akilla',
     role: 'Co-Founder',
     photo: RishavPhoto,
-    body: 'Rishav is a biochemistry student at the University of Houston whose weekends belong to the mountains. Climbing trips through Canada and Colorado kept ending the same way — hours of scattered research for a single ascent — and EIGER began as his answer to that gap.',
+    body: 'Rishav is a biochemistry student at the University of Houston whose weekends belong to the mountains. Climbing trips through Canada and Colorado kept ending the same way, hours of scattered research for a single ascent, and EIGER began as his answer to that gap.',
   },
   {
     name: 'Muad Shaikh',
@@ -66,7 +66,7 @@ const founders = [
     name: 'Cody Luc',
     role: 'Co-Founder',
     photo: CodyPhoto,
-    body: 'Cody is a computer science student at the University of Houston and EIGER’s technical backbone, running the app’s infrastructure end to end. Between deploys you’ll find him where he’s happiest — on the wall, chasing the next grade.',
+    body: 'Cody is a computer science student at the University of Houston and EIGER’s technical backbone, running the app’s infrastructure end to end. Between deploys you’ll find him where he’s happiest, on the wall, chasing the next grade.',
   },
 ];
 
