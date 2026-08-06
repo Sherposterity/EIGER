@@ -48,13 +48,18 @@ const Hero = () => {
     const [isVisible, setIsVisible] = useState(false);
     const heroRef = useRef(null);
 
-    // Two stacked <video> layers crossfade between playlist clips: the ended
-    // layer holds its last frame while the other starts, so there is no black
-    // flash. Reduced-motion users keep the static poster.
+    // Two stacked <video> layers crossfade between playlist clips. The swap
+    // starts CROSSFADE_LEAD_S before the current clip ends, so both layers
+    // are still in motion during the fade (no freeze-frame); the ended
+    // handler is only a fallback for clips whose duration isn't readable.
+    // Reduced-motion users keep the static poster.
     const videoARef = useRef(null);
     const videoBRef = useRef(null);
     const videoIndexRef = useRef(0);
     const preloadTimerRef = useRef(null);
+    // Mirrors the activeLayer state so late events from the outgoing layer
+    // (its final timeupdates + ended) can be told apart from the active one.
+    const activeLayerRef = useRef(0);
     const [activeLayer, setActiveLayer] = useState(0);
     const [posterOnly] = useState(isTikTokBrowser);
 
@@ -80,24 +85,38 @@ const Hero = () => {
         return () => clearTimeout(preloadTimerRef.current);
     }, [posterOnly]);
 
-    const handleVideoEnded = (endedLayer) => {
+    // Start the crossfade this long before the current clip ends, so the fade
+    // blends two moving pictures instead of fading through a frozen frame.
+    const CROSSFADE_LEAD_S = 0.8;
+
+    const advanceFrom = (layer) => {
+        // Ignore late events (final timeupdates, ended) from a layer that
+        // already handed off — otherwise one clip could trigger two swaps.
+        if (layer !== activeLayerRef.current) return;
         videoIndexRef.current = (videoIndexRef.current + 1) % HERO_VIDEOS.length;
-        const next = endedLayer === 0 ? videoBRef.current : videoARef.current;
-        const ended = endedLayer === 0 ? videoARef.current : videoBRef.current;
+        const next = layer === 0 ? videoBRef.current : videoARef.current;
+        const outgoing = layer === 0 ? videoARef.current : videoBRef.current;
         if (!next) return;
         // The incoming layer was preloaded with this clip when the previous
         // swap happened (or on mount) — just start it and crossfade.
         next.play().catch(() => {});
-        setActiveLayer(endedLayer === 0 ? 1 : 0);
-        // Reuse the ended layer to buffer the clip after this one, but only
+        activeLayerRef.current = layer === 0 ? 1 : 0;
+        setActiveLayer(activeLayerRef.current);
+        // Reuse the outgoing layer to buffer the clip after this one, but only
         // once the 1s crossfade has hidden it: assigning src clears the
-        // displayed frame, and the fade needs the last frame held on screen.
+        // displayed frame mid-fade.
         const followingClip =
             HERO_VIDEOS[(videoIndexRef.current + 1) % HERO_VIDEOS.length];
         clearTimeout(preloadTimerRef.current);
         preloadTimerRef.current = setTimeout(() => {
-            if (ended) ended.src = followingClip;
+            if (outgoing) outgoing.src = followingClip;
         }, 1100);
+    };
+
+    const handleTimeUpdate = (layer) => {
+        const el = layer === 0 ? videoARef.current : videoBRef.current;
+        if (!el || !Number.isFinite(el.duration)) return;
+        if (el.duration - el.currentTime <= CROSSFADE_LEAD_S) advanceFrom(layer);
     };
 
     const scrollToWaitlist = () => {
@@ -140,7 +159,8 @@ const Hero = () => {
                             disablePictureInPicture
                             disableRemotePlayback
                             poster="/videos/hero-poster.jpg"
-                            onEnded={() => handleVideoEnded(0)}
+                            onTimeUpdate={() => handleTimeUpdate(0)}
+                            onEnded={() => advanceFrom(0)}
                             className={`pointer-events-none absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${activeLayer === 0 ? 'opacity-100' : 'opacity-0'}`}
                         />
                         <video
@@ -150,7 +170,8 @@ const Hero = () => {
                             preload="auto"
                             disablePictureInPicture
                             disableRemotePlayback
-                            onEnded={() => handleVideoEnded(1)}
+                            onTimeUpdate={() => handleTimeUpdate(1)}
+                            onEnded={() => advanceFrom(1)}
                             className={`pointer-events-none absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${activeLayer === 1 ? 'opacity-100' : 'opacity-0'}`}
                         />
                     </>
