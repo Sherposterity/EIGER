@@ -3,7 +3,8 @@ import EigerLogo from '../assets/EigerLogo.png';
 
 // Background footage playlist (the founders' own climbing trips), rotated with
 // a crossfade. Native-resolution (1080p; hero-11 1440p)/no-audio in public/videos — keep clips lean;
-// this is the heaviest asset on the page and loads one clip at a time.
+// this is the heaviest asset on the page and loads only the current clip plus
+// the next one (preloaded on the hidden layer so swaps are instant).
 const ALL_CLIPS = [
     '/videos/hero-1.mp4',
     '/videos/hero-4.mp4',
@@ -53,6 +54,7 @@ const Hero = () => {
     const videoARef = useRef(null);
     const videoBRef = useRef(null);
     const videoIndexRef = useRef(0);
+    const preloadTimerRef = useRef(null);
     const [activeLayer, setActiveLayer] = useState(0);
     const [posterOnly] = useState(isTikTokBrowser);
 
@@ -72,15 +74,30 @@ const Hero = () => {
         });
         first.src = HERO_VIDEOS[0];
         first.play().catch(() => {});
+        // Buffer the next clip on the hidden layer while the first one plays,
+        // so the first swap needs no network round-trip.
+        if (videoBRef.current) videoBRef.current.src = HERO_VIDEOS[1];
+        return () => clearTimeout(preloadTimerRef.current);
     }, [posterOnly]);
 
     const handleVideoEnded = (endedLayer) => {
         videoIndexRef.current = (videoIndexRef.current + 1) % HERO_VIDEOS.length;
         const next = endedLayer === 0 ? videoBRef.current : videoARef.current;
+        const ended = endedLayer === 0 ? videoARef.current : videoBRef.current;
         if (!next) return;
-        next.src = HERO_VIDEOS[videoIndexRef.current];
+        // The incoming layer was preloaded with this clip when the previous
+        // swap happened (or on mount) — just start it and crossfade.
         next.play().catch(() => {});
         setActiveLayer(endedLayer === 0 ? 1 : 0);
+        // Reuse the ended layer to buffer the clip after this one, but only
+        // once the 1s crossfade has hidden it: assigning src clears the
+        // displayed frame, and the fade needs the last frame held on screen.
+        const followingClip =
+            HERO_VIDEOS[(videoIndexRef.current + 1) % HERO_VIDEOS.length];
+        clearTimeout(preloadTimerRef.current);
+        preloadTimerRef.current = setTimeout(() => {
+            if (ended) ended.src = followingClip;
+        }, 1100);
     };
 
     const scrollToWaitlist = () => {
