@@ -4,7 +4,7 @@ import EigerLogo from '../assets/EigerLogo.png';
 // Background footage playlist (the founders' own climbing trips), rotated with
 // a crossfade. Native-resolution (1080p; hero-11 1440p)/no-audio in public/videos — keep clips lean;
 // this is the heaviest asset on the page and loads one clip at a time.
-const HERO_VIDEOS = [
+const ALL_CLIPS = [
     '/videos/hero-1.mp4',
     '/videos/hero-4.mp4',
     '/videos/hero-5.mp4',
@@ -16,6 +16,25 @@ const HERO_VIDEOS = [
     '/videos/hero-11.mp4',
     '/videos/hero-12.mp4',
 ];
+
+// Playlist order is shuffled once per page load, except hero-8 always plays
+// second and hero-6 always plays third (founder request).
+const FIXED_SECOND = '/videos/hero-8.mp4';
+const FIXED_THIRD = '/videos/hero-6.mp4';
+
+const buildPlaylist = () => {
+    const pool = ALL_CLIPS.filter(
+        (clip) => clip !== FIXED_SECOND && clip !== FIXED_THIRD,
+    );
+    for (let i = pool.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    pool.splice(1, 0, FIXED_SECOND, FIXED_THIRD);
+    return pool;
+};
+
+const HERO_VIDEOS = buildPlaylist();
 
 // TikTok's in-app browser renders <video> on a native surface that loses CSS
 // stacking when the element is unmounted/remounted (SPA nav to /mission and
