@@ -23,6 +23,9 @@ const Footer = () => {
               <Link to="/about" className="transition-colors duration-300 hover:text-white/60">
                 About Us
               </Link>
+              <a href="mailto:business@eiger014.com" className="transition-colors duration-300 hover:text-white/60">
+                Contact Us
+              </a>
             </div>
           </div>
 
