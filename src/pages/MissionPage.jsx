@@ -320,6 +320,62 @@ const MissionPage = () => {
           </Reveal>
         </section>
 
+        {/* Why EIGER vs trail apps — comparative positioning. Header names
+            AllTrails (founder-approved); body copy speaks to "trail apps"
+            generally to stay opinion, not product claims. */}
+        <section className="mx-auto max-w-5xl px-6 pb-24 lg:px-8">
+          <Reveal className="mb-10 text-center">
+            <span className="inline-block rounded-full border border-white/10 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/50">
+              The Difference
+            </span>
+            <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-bold leading-tight md:text-4xl">
+              Why EIGER,{' '}
+              <span className="bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent">
+                and not AllTrails?
+              </span>
+            </h2>
+          </Reveal>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <Reveal
+              delay={120}
+              className="rounded-2xl border border-white/10 bg-white/[0.03] p-8"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/40">
+                Trail apps
+              </p>
+              <p className="mt-4 leading-relaxed text-white/50">
+                Crowd-sourced routes and star ratings flatten a glacier crossing
+                and a gravel loop into the same scale. Great for a Sunday hike —
+                silent on crevasse terrain, boot–crampon pairing, or what thin
+                air does to a forecast.
+              </p>
+            </Reveal>
+            <Reveal
+              delay={240}
+              className="rounded-2xl border border-white/20 bg-white/[0.07] p-8"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/70">
+                EIGER
+              </p>
+              <p className="mt-4 leading-relaxed text-white/70">
+                Expedition-grade specificity for every experience level:
+                altitude-zoned terrain data, route-specific gear checks, and a
+                cross-compatibility engine that runs your kit like an expedition
+                team would.
+              </p>
+            </Reveal>
+          </div>
+
+          <Reveal delay={360} className="mt-10 text-center">
+            <p className="mx-auto max-w-2xl text-lg italic text-white/60">
+              &ldquo;Everything a trail app does — with an expedition
+              team&rsquo;s calculations behind every gear check and terrain
+              read.&rdquo;
+            </p>
+          </Reveal>
+        </section>
+
         {/* Closing CTA */}
         <section className="mx-auto max-w-3xl px-6 pb-32 text-center lg:px-8">
           <Reveal>
