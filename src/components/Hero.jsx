@@ -5,34 +5,42 @@ import EigerLogo from '../assets/EigerLogo.png';
 // a crossfade. Native-resolution (1080p; hero-11 1440p)/no-audio in public/videos — keep clips lean;
 // this is the heaviest asset on the page and loads only the current clip plus
 // the next one (preloaded on the hidden layer so swaps are instant).
-const ALL_CLIPS = [
-    '/videos/hero-1.mp4',
-    '/videos/hero-4.mp4',
-    '/videos/hero-5.mp4',
-    '/videos/hero-6.mp4',
-    '/videos/hero-7.mp4',
-    '/videos/hero-8.mp4',
-    '/videos/hero-9.mp4',
-    '/videos/hero-10.mp4',
-    '/videos/hero-11.mp4',
-    '/videos/hero-12.mp4',
+const CLIP_IDS = [
+    'hero-1',
+    'hero-4',
+    'hero-5',
+    'hero-6',
+    'hero-7',
+    'hero-8',
+    'hero-9',
+    'hero-10',
+    'hero-11',
+    'hero-12',
 ];
+
+// Portrait screens get 9:16 crops (hero-N-portrait.mp4, 720x1280, hand-picked
+// crop window per clip) so subjects stay in frame and downloads stay small.
+// Orientation is sampled once per page load; a mid-visit rotation keeps the
+// current playlist until the next load.
+const CLIP_SUFFIX = window.matchMedia('(orientation: portrait)').matches
+    ? '-portrait'
+    : '';
 
 // Playlist order is shuffled once per page load, except hero-8 always plays
 // second and hero-6 always plays third (founder request).
-const FIXED_SECOND = '/videos/hero-8.mp4';
-const FIXED_THIRD = '/videos/hero-6.mp4';
+const FIXED_SECOND = 'hero-8';
+const FIXED_THIRD = 'hero-6';
 
 const buildPlaylist = () => {
-    const pool = ALL_CLIPS.filter(
-        (clip) => clip !== FIXED_SECOND && clip !== FIXED_THIRD,
+    const pool = CLIP_IDS.filter(
+        (id) => id !== FIXED_SECOND && id !== FIXED_THIRD,
     );
     for (let i = pool.length - 1; i > 0; i -= 1) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
     }
     pool.splice(1, 0, FIXED_SECOND, FIXED_THIRD);
-    return pool;
+    return pool.map((id) => `/videos/${id}${CLIP_SUFFIX}.mp4`);
 };
 
 const HERO_VIDEOS = buildPlaylist();
