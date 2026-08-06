@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 // Import images
 import EigerLogo from '../assets/EigerLogo.png';
-import MainMenuImg from '../assets/E_MainMenu2.PNG';
+import MissionControlImg from '../assets/E_MissionControl.png';
 import IntelImg from '../assets/E_intel2.PNG';
 import ClothesImg from '../assets/E_Clothes2.jpg';
 
@@ -11,7 +11,7 @@ const features = [
         stage: '01',
         title: 'Base Camp',
         subtitle: 'Your Command Center',
-        image: MainMenuImg,
+        image: MissionControlImg,
         icon: (
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
