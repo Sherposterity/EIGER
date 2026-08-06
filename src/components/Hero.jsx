@@ -200,13 +200,6 @@ const Hero = () => {
                 <div className="flex-1 flex flex-col items-center justify-center min-h-0">
                     <div className={`transition-all duration-1000 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
 
-                        {/* Pre-title Badge */}
-                        <div className="mb-4 md:mb-8">
-                            <span className="inline-block px-4 py-2 rounded-full border border-white/20 text-xs tracking-[0.3em] uppercase text-white/70 backdrop-blur-sm bg-white/5">
-                                Alpine Precision
-                            </span>
-                        </div>
-
                         {/* Main Title - Logo - dynamically sized */}
                         <img
                             src={EigerLogo}
