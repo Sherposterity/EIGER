@@ -37,7 +37,7 @@ const Platforms = () => {
                     <span className="bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent">Your Choice</span>
                 </h2>
                 <p className="text-lg md:text-xl text-white/40 max-w-xl mx-auto mb-16">
-                    Starting with iOS, expanding to Android soon
+                    Soft launch is almost here — public beta links for iOS and Android will appear here soon
                 </p>
 
                 {/* Platform Badges */}
@@ -57,8 +57,8 @@ const Platforms = () => {
                             </div>
 
                             {/* Status Badge */}
-                            <span className="absolute -top-3 -right-3 px-3 py-1 bg-emerald-500 text-black text-xs font-bold rounded-full shadow-lg">
-                                SOON
+                            <span className="absolute -top-3 -right-3 px-3 py-1 bg-emerald-500 text-black text-xs font-bold rounded-full shadow-lg whitespace-nowrap">
+                                PUBLIC BETA SOON
                             </span>
                         </div>
                     </div>
@@ -77,8 +77,8 @@ const Platforms = () => {
                             </div>
 
                             {/* Status Badge */}
-                            <span className="absolute -top-3 -right-3 px-3 py-1 bg-emerald-500 text-black text-xs font-bold rounded-full shadow-lg">
-                                SOON
+                            <span className="absolute -top-3 -right-3 px-3 py-1 bg-emerald-500 text-black text-xs font-bold rounded-full shadow-lg whitespace-nowrap">
+                                PUBLIC BETA SOON
                             </span>
                         </div>
                     </div>
