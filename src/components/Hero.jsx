@@ -186,7 +186,7 @@ const Hero = () => {
                 )}
 
                 {/* Dark Overlay for text readability */}
-                <div className="absolute inset-0 bg-black/60" />
+                <div className="absolute inset-0 bg-black/45" />
 
                 {/* Gradient overlay at bottom — blends the footage into the
                     page. The old mountain-silhouette SVGs were removed once
