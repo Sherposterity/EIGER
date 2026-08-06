@@ -346,9 +346,9 @@ const MissionPage = () => {
               </p>
               <p className="mt-4 leading-relaxed text-white/50">
                 Crowd-sourced routes and star ratings flatten a glacier crossing
-                and a gravel loop into the same scale. Great for a Sunday hike —
-                silent on crevasse terrain, boot–crampon pairing, or what thin
-                air does to a forecast.
+                and a gravel loop into the same scale. Great for a Sunday hike,
+                silent on crevasse terrain, boot and crampon pairing, or what
+                thin air does to a forecast.
               </p>
             </Reveal>
             <Reveal
@@ -369,7 +369,7 @@ const MissionPage = () => {
 
           <Reveal delay={360} className="mt-10 text-center">
             <p className="mx-auto max-w-2xl text-lg italic text-white/60">
-              &ldquo;Everything a trail app does — with an expedition
+              &ldquo;Everything a trail app does, with an expedition
               team&rsquo;s calculations behind every gear check and terrain
               read.&rdquo;
             </p>
