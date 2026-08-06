@@ -1,6 +1,23 @@
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+const CONTACT_EMAIL = 'business@eiger014.com';
+
 const Footer = () => {
+  const [copied, setCopied] = useState(false);
+  const copyTimerRef = useRef(null);
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(CONTACT_EMAIL);
+      setCopied(true);
+      clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API unavailable — the address is visible, so manual copy still works.
+    }
+  };
+
   return (
     <footer className="relative border-t border-white/5 px-6 py-16">
       <div className="mx-auto max-w-7xl">
@@ -23,9 +40,28 @@ const Footer = () => {
               <Link to="/about" className="transition-colors duration-300 hover:text-white/60">
                 About Us
               </Link>
-              <a href="mailto:business@eiger014.com" className="transition-colors duration-300 hover:text-white/60">
-                Contact Us
-              </a>
+              {/* mailto works where a mail app exists (phones, configured
+                  desktops); the copy button covers desktop webmail users. */}
+              <span className="flex items-center gap-1.5 normal-case tracking-normal">
+                <a href={`mailto:${CONTACT_EMAIL}`} className="transition-colors duration-300 hover:text-white/60">
+                  {CONTACT_EMAIL}
+                </a>
+                <button
+                  type="button"
+                  onClick={copyEmail}
+                  aria-label="Copy email address"
+                  className="transition-colors duration-300 hover:text-white/60"
+                >
+                  {copied ? (
+                    <span className="text-emerald-400">Copied!</span>
+                  ) : (
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <rect x="9" y="9" width="11" height="11" rx="2" />
+                      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                    </svg>
+                  )}
+                </button>
+              </span>
             </div>
           </div>
 
