@@ -51,9 +51,9 @@ const highlights = [
     body: 'From the Alps to the Himalaya, every massif on one topographic map.',
   },
   {
-    tag: 'The 8000ers',
-    value: '14',
-    body: 'All fourteen eight-thousanders, mapped line by line, route by route.',
+    tag: 'Gear Arsenal',
+    value: '250+',
+    body: 'Every piece of kit catalogued — with a cross-compatibility checker that confirms your boots, crampons and axes work as one system.',
   },
   {
     tag: 'Conditions',
