@@ -6,10 +6,15 @@ import EigerLogo from '../assets/EigerLogo.png';
 // this is the heaviest asset on the page and loads one clip at a time.
 const HERO_VIDEOS = [
     '/videos/hero-1.mp4',
-    '/videos/hero-3.mp4',
     '/videos/hero-4.mp4',
     '/videos/hero-5.mp4',
     '/videos/hero-6.mp4',
+    '/videos/hero-7.mp4',
+    '/videos/hero-8.mp4',
+    '/videos/hero-9.mp4',
+    '/videos/hero-10.mp4',
+    '/videos/hero-11.mp4',
+    '/videos/hero-12.mp4',
 ];
 
 // TikTok's in-app browser renders <video> on a native surface that loses CSS
