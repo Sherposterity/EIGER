@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import EigerLogo from '../assets/EigerLogo.png';
 
 // Background footage playlist (the founders' own climbing trips), rotated with
-// a crossfade. Compressed 720p/no-audio in public/videos — keep clips lean;
+// a crossfade. Native-resolution (1080p; hero-11 1440p)/no-audio in public/videos — keep clips lean;
 // this is the heaviest asset on the page and loads one clip at a time.
 const HERO_VIDEOS = [
     '/videos/hero-1.mp4',
