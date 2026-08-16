@@ -22,7 +22,7 @@ const Platforms = () => {
     }, []);
 
     return (
-        <section ref={sectionRef} className="relative py-28 lg:py-36 px-6">
+        <section id="platforms" ref={sectionRef} className="relative py-28 lg:py-36 px-6">
             {/* Background */}
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent" />
 

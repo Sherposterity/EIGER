@@ -5,6 +5,7 @@ import SiteNav from './components/SiteNav';
 import Features from './components/Features';
 import MissionBanner from './components/MissionBanner';
 import Platforms from './components/Platforms';
+import BetaToast from './components/BetaToast';
 import Waitlist from './components/Waitlist';
 import Footer from './components/Footer';
 import MissionPage from './pages/MissionPage';
@@ -39,6 +40,7 @@ function Home() {
       <Waitlist />
       <Platforms />
       <Footer />
+      <BetaToast />
     </div>
   );
 }
