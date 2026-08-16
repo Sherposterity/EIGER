@@ -37,14 +37,20 @@ const Platforms = () => {
                     <span className="bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent">Your Choice</span>
                 </h2>
                 <p className="text-lg md:text-xl text-white/40 max-w-xl mx-auto mb-16">
-                    Soft launch is almost here — public beta links for iOS and Android will appear here soon
+                    The public beta is live. Join on iOS through TestFlight, or on Android through Google Play open testing.
                 </p>
 
                 {/* Platform Badges */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6 lg:gap-8">
 
-                    {/* iOS Badge - Available */}
-                    <div className="group relative w-full sm:w-auto">
+                    {/* iOS Badge - TestFlight public beta */}
+                    <a
+                        href="https://testflight.apple.com/join/j6h2Wxqq"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Join the Eiger public beta on iOS via TestFlight"
+                        className="group relative w-full sm:w-auto"
+                    >
                         <div className="relative flex items-center gap-5 px-8 py-6 rounded-2xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition-all duration-300 cursor-pointer">
                             {/* Apple Icon */}
                             <svg className="w-12 h-12 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -52,19 +58,25 @@ const Platforms = () => {
                             </svg>
 
                             <div className="text-left">
-                                <p className="text-sm text-white/50">Download on the</p>
-                                <p className="text-xl font-semibold text-white">App Store</p>
+                                <p className="text-sm text-white/50">Join the beta on</p>
+                                <p className="text-xl font-semibold text-white">TestFlight</p>
                             </div>
 
                             {/* Status Badge */}
                             <span className="absolute -top-3 -right-3 px-3 py-1 bg-emerald-500 text-black text-xs font-bold rounded-full shadow-lg whitespace-nowrap">
-                                PUBLIC BETA SOON
+                                PUBLIC BETA LIVE
                             </span>
                         </div>
-                    </div>
+                    </a>
 
-                    {/* Android Badge - Coming Soon */}
-                    <div className="group relative w-full sm:w-auto">
+                    {/* Android Badge - Google Play open testing */}
+                    <a
+                        href="https://play.google.com/apps/testing/com.eiger014.eiger"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Join the Eiger public beta on Android via Google Play open testing"
+                        className="group relative w-full sm:w-auto"
+                    >
                         <div className="relative flex items-center gap-5 px-8 py-6 rounded-2xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition-all duration-300 cursor-pointer">
                             {/* Android Icon */}
                             <svg className="w-12 h-12 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -72,16 +84,16 @@ const Platforms = () => {
                             </svg>
 
                             <div className="text-left">
-                                <p className="text-sm text-white/50">Get it on</p>
+                                <p className="text-sm text-white/50">Join the open beta on</p>
                                 <p className="text-xl font-semibold text-white">Google Play</p>
                             </div>
 
                             {/* Status Badge */}
                             <span className="absolute -top-3 -right-3 px-3 py-1 bg-emerald-500 text-black text-xs font-bold rounded-full shadow-lg whitespace-nowrap">
-                                PUBLIC BETA SOON
+                                PUBLIC BETA LIVE
                             </span>
                         </div>
-                    </div>
+                    </a>
 
                 </div>
 
