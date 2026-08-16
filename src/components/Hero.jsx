@@ -135,6 +135,12 @@ const Hero = () => {
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     };
 
+    const scrollToPlatforms = () => {
+        const section = document.getElementById('platforms');
+        if (!section) return;
+        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
     useEffect(() => {
         const reveal = window.requestAnimationFrame(() => {
             setIsVisible(true);
@@ -217,14 +223,21 @@ const Hero = () => {
                             The summit waits for no one - but you'll be ready
                         </p>
 
-                        {/* CTA Button */}
-                        <div className="mt-6 md:mt-12">
+                        {/* CTA: primary = get the app (public beta live), secondary = waitlist */}
+                        <div className="mt-6 md:mt-12 flex flex-col items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={scrollToPlatforms}
+                                className="inline-block px-10 py-4 bg-white text-black font-semibold text-lg rounded-full hover:bg-white/90 hover:scale-105 transition-all duration-300 shadow-2xl"
+                            >
+                                Get the app
+                            </button>
                             <button
                                 type="button"
                                 onClick={scrollToWaitlist}
-                                className="inline-block px-10 py-4 bg-white text-black font-semibold text-lg rounded-full hover:bg-white/90 hover:scale-105 transition-all duration-300 shadow-2xl"
+                                className="text-sm text-white/60 hover:text-white underline underline-offset-4 decoration-white/30 hover:decoration-white transition-colors"
                             >
-                                Join the Waitlist
+                                Or join the waitlist for updates
                             </button>
                         </div>
 
