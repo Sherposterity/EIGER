@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const scrollToWaitlist = () => {
-  const section = document.getElementById('waitlist');
+// Public beta is live: the nav CTA sends people to the store links, not the waitlist.
+const scrollToPlatforms = () => {
+  const section = document.getElementById('platforms');
   if (!section) return;
-  // Aim for the email input so the form lands in view, not just the section heading.
-  const target = section.querySelector('input[type="email"]') || section;
-  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  section.scrollIntoView({ behavior: 'smooth', block: 'center' });
 };
 
 // Fixed top navigation for the home page: keeps Our Mission / About Us
@@ -46,10 +45,10 @@ const SiteNav = () => {
           </Link>
           <button
             type="button"
-            onClick={scrollToWaitlist}
+            onClick={scrollToPlatforms}
             className="hidden rounded-full border border-white/20 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white transition-all duration-300 hover:border-white/40 hover:bg-white/10 sm:inline-block"
           >
-            Waitlist
+            Get the app
           </button>
         </div>
       </nav>

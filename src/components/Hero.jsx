@@ -220,7 +220,7 @@ const Hero = () => {
                         </p>
 
                         <p className="text-base md:text-xl text-white/60 font-light max-w-2xl mx-auto italic">
-                            The summit waits for no one - but you'll be ready
+                            The summit waits for no one, but you'll be ready
                         </p>
 
                         {/* CTA: primary = get the app (public beta live), secondary = waitlist */}
@@ -237,7 +237,7 @@ const Hero = () => {
                                 onClick={scrollToWaitlist}
                                 className="text-sm text-white/60 hover:text-white underline underline-offset-4 decoration-white/30 hover:decoration-white transition-colors"
                             >
-                                Or join the waitlist for updates
+                                Or leave your email for release updates
                             </button>
                         </div>
 

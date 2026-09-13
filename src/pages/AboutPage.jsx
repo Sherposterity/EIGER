@@ -246,9 +246,8 @@ const AboutPage = () => {
         <section className="mx-auto max-w-3xl px-6 pb-20 lg:px-8">
           <Reveal className="space-y-6 border-l-2 border-white/10 pl-6 text-lg leading-relaxed text-white/60 md:pl-8">
             <p>
-              A while back, we set our sights on Mt. Elbert, the highest peak in Colorado. We were
-              fit, we were motivated, and we were ready to go. Then we actually started planning, and
-              that is where the trouble began.
+              A while back, we set our sights on Mt. Elbert, the highest peak in Colorado. Then we
+              actually started planning, and that is where the trouble began.
             </p>
             <p>
               Getting up it safely meant piecing everything together ourselves: the right gear to
@@ -279,14 +278,6 @@ const AboutPage = () => {
         {/* The answer */}
         <section className="mx-auto max-w-3xl px-6 pb-24 lg:px-8">
           <Reveal className="space-y-6 border-l-2 border-white/10 pl-6 text-lg leading-relaxed text-white/60 md:pl-8">
-            <p>
-              We could not find a good answer anywhere. So we decided to build one ourselves.
-            </p>
-            <p>
-              No more living in a dozen open tabs. That is exactly what we had to do to feel ready for
-              our first ascent, jumping between forums, weather sites, and gear lists just to trust
-              that we had not missed something that could get us hurt. That part is over.
-            </p>
             <p className="font-medium text-white">
               That is EIGER: every route, gear list, weather window, and trail condition in one
               place, so planning takes minutes and your focus goes back where it belongs, on the
@@ -388,18 +379,17 @@ const AboutPage = () => {
               <span className="bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent">with us.</span>
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-lg text-white/50">
-              We are building EIGER for the days that matter most. Join the waitlist and help shape the
-              app from the first pitch up.
+              We are building EIGER for the days that matter most. The public beta is live, so download
+              it, climb with it, and tell us what to build next.
             </p>
           </Reveal>
           <Reveal delay={120} className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <button
-              type="button"
-              onClick={scrollToWaitlist}
+            <Link
+              to="/?section=platforms"
               className="w-full rounded-full bg-white px-8 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-black transition-all duration-300 hover:scale-[1.02] hover:bg-white/90 sm:w-auto"
             >
-              Join the Waitlist
-            </button>
+              Get the app
+            </Link>
             <Link
               to="/mission"
               className="w-full rounded-full border border-white/10 bg-white/[0.05] px-8 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-all duration-300 hover:border-white/20 hover:bg-white/[0.08] sm:w-auto"
@@ -407,9 +397,18 @@ const AboutPage = () => {
               Our Mission
             </Link>
           </Reveal>
+          <Reveal delay={200} className="mt-6">
+            <button
+              type="button"
+              onClick={scrollToWaitlist}
+              className="text-sm text-white/60 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
+            >
+              Or leave your email for release updates
+            </button>
+          </Reveal>
         </section>
 
-        {/* Waitlist (scrolled to by the Join the Waitlist button above) */}
+        {/* Email updates (scrolled to by the link above) */}
         <Waitlist />
       </main>
 

@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 // Import images
 import EigerLogo from '../assets/EigerLogo.png';
 import MissionControlImg from '../assets/E_MissionControl.png';
-import IntelImg from '../assets/E_intel2.PNG';
-import ClothesImg from '../assets/E_Clothes2.jpg';
+import IntelImg from '../assets/E_SummitIntel.png';
+import ClothesImg from '../assets/E_GearVault.png';
 
 const features = [
     {
@@ -198,7 +198,7 @@ const Features = () => {
                 {/* Section Header */}
                 <div className={`text-center mb-20 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                     <span className="inline-block px-4 py-2 rounded-full border border-white/10 text-xs tracking-[0.3em] uppercase text-white/50 mb-8">
-                        App Preview
+                        Inside the app
                     </span>
                     {/* Title */}
                     <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 text-white">

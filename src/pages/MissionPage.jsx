@@ -47,51 +47,41 @@ const pillars = [
 const highlights = [
   {
     tag: 'Coverage',
-    value: 'Global',
-    body: 'From the Alps to the Himalaya, every massif on one topographic map.',
+    value: '97 peaks',
+    body: 'From the Rockies and Cascades to the Alps, the Caucasus and Mexico’s volcanoes, each mountain mapped with its own gear profile, and more added every month.',
   },
   {
     tag: 'Gear Arsenal',
-    value: '250+',
-    body: 'Every piece of kit catalogued — with a cross-compatibility checker that confirms your boots, crampons and axes work as one system.',
+    value: '3,000+',
+    body: 'Every piece of kit catalogued and scored, over 11,000 mountain-specific picks, with a cross-compatibility checker that confirms your boots, crampons and axes work as one system.',
   },
   {
     tag: 'Conditions',
-    value: 'Real-time',
-    body: 'Weather, snowpack and avalanche risk, refreshed by the hour.',
+    value: 'Forecast',
+    body: 'Summit weather for your climb window, so you know what you are walking into before you leave the trailhead.',
   },
 ];
 
-// Mission background: the "ascent" scene. Same #0A0A0A theme as the rest of the
-// site, but with a hero summit, a glowing summit beacon, a dashed climbing route,
-// an alpine-start star field, and the signature layered ridge silhouettes.
-const missionStars = [
-  { top: '12%', left: '18%', d: '6s' },
-  { top: '20%', left: '70%', d: '5s' },
-  { top: '28%', left: '40%', d: '7s' },
-  { top: '16%', left: '85%', d: '5.5s' },
-  { top: '34%', left: '12%', d: '6.5s' },
-  { top: '10%', left: '52%', d: '4.5s' },
-  { top: '24%', left: '28%', d: '8s' },
-  { top: '38%', left: '63%', d: '5s' },
-  { top: '8%', left: '34%', d: '7.5s' },
-];
-
+// Mission background. Deliberately minimal: black base, one soft summit glow,
+// one slow-drifting orb, a thin ridgeline that draws itself in on load, and the
+// site's two signature silhouettes with mouse parallax. Nothing else competes.
 const MissionBackground = () => {
-  const starsRef = useRef(null);
-  const summitRef = useRef(null);
+  const glowRef = useRef(null);
+  const ridgeLineRef = useRef(null);
   const ridgeFarRef = useRef(null);
   const ridgeNearRef = useRef(null);
 
-  // Same travel factors the inline styles used before; the hook writes the
-  // transforms outside React so pointer moves no longer re-render this tree.
+  // The hook writes transforms straight to the DOM so pointer moves and scroll
+  // never re-render this tree. fx/fy = mouse travel. sway = horizontal sway
+  // amplitude driven by scroll (sine of scrollY, so it never runs off-screen);
+  // alternating signs make the layers cross past each other for depth.
   useMouseParallax(
     useMemo(
       () => [
-        { ref: starsRef, fx: 8, fy: 8 },
-        { ref: summitRef, fx: 12, fy: 6 },
-        { ref: ridgeFarRef, fx: -15, fy: 0 },
-        { ref: ridgeNearRef, fx: 26, fy: 8 },
+        { ref: glowRef, sway: 36, swayPeriod: 2200 },
+        { ref: ridgeLineRef, fx: 8, fy: 4, sway: -44, swayPeriod: 1800 },
+        { ref: ridgeFarRef, fx: -14, fy: 0, sway: 20, swayPeriod: 1800 },
+        { ref: ridgeNearRef, fx: 24, fy: 8, sway: -30, swayPeriod: 1800 },
       ],
       []
     )
@@ -99,84 +89,65 @@ const MissionBackground = () => {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
-      {/* Pure black base + summit glow high overhead */}
+      {/* Pure black base + one soft summit glow high overhead */}
       <div className="absolute inset-0 bg-[#0A0A0A]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_16%,rgba(255,255,255,0.06),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_55%_40%_at_50%_12%,rgba(255,255,255,0.06),transparent_70%)]" />
 
-      {/* Alpine-start star field (drifts gently with the mouse) */}
-      <div ref={starsRef} className="absolute inset-0">
-        {missionStars.map((star) => (
-          <span
-            key={`${star.top}-${star.left}`}
-            className="animate-pulse-slow absolute h-[2px] w-[2px] rounded-full bg-white/40"
-            style={{ top: star.top, left: star.left, animationDuration: star.d }}
-          />
-        ))}
+      {/* Single drifting orb. Radial gradient, not a blur filter, so the drift
+          animation costs nothing on phones. The wrapper takes the scroll
+          parallax so the inner drift keyframes keep their own transform. */}
+      {/* Centered with a negative margin, not translate: the hook owns this
+          element's transform, and an inline transform would override the class. */}
+      <div ref={glowRef} className="absolute -top-40 left-1/2 -ml-[19rem] h-[38rem] w-[38rem]">
+        <div
+          className="about-glow-drift h-full w-full"
+          style={{ background: 'radial-gradient(closest-side, rgba(255,255,255,0.045), transparent 72%)' }}
+        />
       </div>
 
-      {/* Drifting glow orbs. Radial gradients, not blur filters: a 140px
-          Gaussian blur on a 30rem layer re-rasterizes on the GPU every frame
-          of the drift animation and was the main phone-side jank. A radial
-          gradient is the same soft glow at zero filter cost. */}
-      <div
-        className="about-glow-drift absolute -top-32 left-1/2 h-[34rem] w-[34rem] -translate-x-1/2"
-        style={{ background: 'radial-gradient(closest-side, rgba(255,255,255,0.05), transparent 72%)' }}
-      />
-      <div
-        className="about-glow-drift-reverse absolute bottom-1/4 right-10 h-[26rem] w-[26rem]"
-        style={{ background: 'radial-gradient(closest-side, rgba(255,255,255,0.03), transparent 72%)' }}
-      />
-
-      {/* Faint topographic grid */}
-      <div
-        className="about-grid-drift absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)',
-          backgroundSize: '72px 72px',
-        }}
-      />
-
-      {/* Hero summit with a dashed ascent route and a glowing summit beacon.
-          The wrapper carries the mouse parallax so the SVG keeps its float animation. */}
-      <div ref={summitRef} className="absolute inset-x-0 bottom-0 h-[70vh]">
+      {/* Thin ridgeline that draws itself in once on load (pathLength trick:
+          the dash is the whole path, and the offset animates from 1 to 0). */}
+      {/* Every swaying layer overshoots the viewport by 5rem on each side so
+          the sway + mouse travel never exposes a bare edge. */}
+      <div ref={ridgeLineRef} className="absolute -inset-x-20 top-[38vh] h-[22vh]">
         <svg
-          viewBox="0 0 1440 600"
-          className="about-ridge-float h-full w-full"
-          preserveAspectRatio="xMidYMax slice"
+          viewBox="0 0 1440 200"
+          preserveAspectRatio="none"
+          className="h-full w-full opacity-[0.14]"
           aria-hidden="true"
         >
-          <polygon points="720,84 1090,600 350,600" fill="white" opacity="0.05" />
           <polyline
-            points="520,600 600,452 668,326 720,86"
+            className="mission-ridge-draw"
+            points="0,150 140,104 300,128 470,60 640,112 820,36 980,96 1160,54 1320,100 1440,72"
             fill="none"
             stroke="white"
-            strokeWidth="2"
-            strokeDasharray="6 10"
-            opacity="0.18"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            pathLength="1"
           />
-          <circle cx="720" cy="86" r="5" fill="white" opacity="0.55" />
-          <circle cx="720" cy="86" r="15" fill="none" stroke="white" strokeWidth="1.5" opacity="0.18" />
         </svg>
       </div>
 
-      {/* Layered ridge silhouettes (the main page's signature motif), parallaxed by depth */}
+      {/* The two signature silhouettes. Wrapper carries the parallax; the near
+          ridge's inner SVG keeps its slow float so the two motions compose. */}
       <svg
         ref={ridgeFarRef}
         viewBox="0 0 1440 300"
-        className="absolute inset-x-0 bottom-0 h-[34vh] w-full opacity-[0.05]"
+        className="absolute -inset-x-20 bottom-0 h-[34vh] w-auto opacity-[0.045]"
         preserveAspectRatio="xMidYMax slice"
       >
         <polygon points="0,300 300,120 500,200 750,80 950,180 1150,100 1350,160 1440,140 1440,300" fill="white" />
       </svg>
-      <svg
-        ref={ridgeNearRef}
-        viewBox="0 0 1440 500"
-        className="absolute inset-x-0 bottom-0 h-[50vh] w-full opacity-[0.06]"
-        preserveAspectRatio="xMidYMax slice"
-      >
-        <polygon points="0,500 150,200 300,320 500,100 700,250 900,80 1100,200 1300,150 1440,250 1440,500" fill="white" />
-      </svg>
+      <div ref={ridgeNearRef} className="absolute -inset-x-20 bottom-0 h-[50vh]">
+        <svg
+          viewBox="0 0 1440 500"
+          className="about-ridge-float h-full w-full opacity-[0.065]"
+          preserveAspectRatio="xMidYMax slice"
+        >
+          <polygon points="0,500 150,200 300,320 500,100 700,250 900,80 1100,200 1300,150 1440,250 1440,500" fill="white" />
+        </svg>
+      </div>
 
       {/* Edge vignette + bottom blend into the page */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_85%_85%_at_50%_45%,transparent_55%,rgba(0,0,0,0.55)_100%)]" />
@@ -386,17 +357,17 @@ const MissionPage = () => {
               </span>
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-lg text-white/50">
-              EIGER is in development now. Be on the rope team from day one, no spam, just summit updates.
+              EIGER is live in public beta on iOS and Android. Get on the mountain with us, and leave
+              your email below for release updates.
             </p>
           </Reveal>
           <Reveal delay={120} className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <button
-              type="button"
-              onClick={scrollToWaitlist}
+            <Link
+              to="/?section=platforms"
               className="w-full rounded-full bg-white px-8 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-black transition-all duration-300 hover:scale-[1.02] hover:bg-white/90 sm:w-auto"
             >
-              Join the Waitlist
-            </button>
+              Get the app
+            </Link>
             <Link
               to="/about"
               className="w-full rounded-full border border-white/10 bg-white/[0.05] px-8 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-all duration-300 hover:border-white/20 hover:bg-white/[0.08] sm:w-auto"
@@ -404,9 +375,18 @@ const MissionPage = () => {
               About EIGER
             </Link>
           </Reveal>
+          <Reveal delay={200} className="mt-6">
+            <button
+              type="button"
+              onClick={scrollToWaitlist}
+              className="text-sm text-white/60 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white hover:decoration-white"
+            >
+              Or leave your email for release updates
+            </button>
+          </Reveal>
         </section>
 
-        {/* Waitlist (scrolled to by the Join the Waitlist button above) */}
+        {/* Email updates (scrolled to by the link above) */}
         <Waitlist />
       </main>
 

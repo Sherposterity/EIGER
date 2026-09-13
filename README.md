@@ -1,16 +1,28 @@
-# React + Vite
+# EIGER website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Marketing site for the EIGER app, live at https://eiger014.com. React 19 + Vite 7 + Tailwind 4,
+hosted on GitHub Pages.
 
-Currently, two official plugins are available:
+## Develop
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```
+npm install
+cp .env.example .env   # fill in VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY for the email form
+npm run dev
+```
 
-## React Compiler
+## Deploy
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Push to `main` on `Sherposterity/EIGER`. The `Deploy static content to Pages` workflow
+(`.github/workflows/static.yml`) builds with the Supabase values from the repo's Actions
+variables and publishes `dist/`. Nothing else deploys; do not publish a local build.
 
-## Expanding the ESLint configuration
+## Routes
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The app uses hash routes (`/#/mission`, `/#/about`). `public/404.html` forwards bare `/mission`
+and `/about` to the hash route so shared links without the `#` still land.
+
+## Static pages
+
+`public/support.html`, `privacy.html`, `terms.html`, `delete-account.html` are plain HTML and
+are linked from the footer. Keep copy free of em and en dashes (founder rule).

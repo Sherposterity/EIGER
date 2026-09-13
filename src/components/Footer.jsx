@@ -70,6 +70,7 @@ const Footer = () => {
               href="https://www.tiktok.com/@eiger_tech"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="EIGER on TikTok"
               className="rounded-full bg-white/5 p-2 text-white/40 transition-all duration-300 hover:bg-white/10 hover:text-white"
             >
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -81,6 +82,7 @@ const Footer = () => {
               href="https://www.instagram.com/eiger014"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="EIGER on Instagram"
               className="rounded-full bg-white/5 p-2 text-white/40 transition-all duration-300 hover:bg-white/10 hover:text-white"
             >
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -97,6 +99,8 @@ const Footer = () => {
           <a href="/terms.html" className="text-white/30 transition-colors duration-300 hover:text-white/60">Terms of Use</a>
           <span className="text-white/20">&middot;</span>
           <a href="/delete-account.html" className="text-white/30 transition-colors duration-300 hover:text-white/60">Delete Account</a>
+          <span className="text-white/20">&middot;</span>
+          <a href="/support.html" className="text-white/30 transition-colors duration-300 hover:text-white/60">Support</a>
         </div>
       </div>
     </footer>

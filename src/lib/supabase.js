@@ -200,18 +200,9 @@ export async function addToWaitlist(email, honeypot = '') {
             return { success: false, error: validation.error };
         }
 
-        // Check if email already exists
-        const { data: existing } = await supabase
-            .from('waitlist')
-            .select('email')
-            .eq('email', email.toLowerCase())
-            .single();
-
-        if (existing) {
-            return { success: false, error: 'This email is already on the waitlist!' };
-        }
-
-        // Insert new email
+        // Insert new email. The anon role has INSERT only (no SELECT), so a
+        // pre-check would always come back empty; rely on the UNIQUE constraint
+        // and translate the duplicate error instead.
         const { error } = await supabase
             .from('waitlist')
             .insert([
@@ -222,6 +213,9 @@ export async function addToWaitlist(email, honeypot = '') {
             ]);
 
         if (error) {
+            if (error.code === '23505') {
+                return { success: false, error: 'This email is already on the list!' };
+            }
             console.error('Supabase error:', error);
             return { success: false, error: 'Something went wrong. Please try again.' };
         }

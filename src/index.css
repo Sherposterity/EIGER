@@ -221,6 +221,24 @@
   animation: aboutRidgeFloat 15s ease-in-out infinite;
 }
 
+/* Mission page: ridgeline draws itself in once on load. Pairs with pathLength="1"
+   on the polyline so dasharray/offset are in path-fraction units. */
+@keyframes missionRidgeDraw {
+  from {
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.mission-ridge-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: missionRidgeDraw 2.6s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

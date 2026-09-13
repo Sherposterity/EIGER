@@ -1,4 +1,4 @@
-z# Supabase Setup Guide for EIGER Waitlist
+# Supabase Setup Guide for EIGER Waitlist
 
 ## Quick Setup (5 minutes)
 

@@ -117,19 +117,19 @@ const Waitlist = () => {
                 {/* Pre-headline Badge - More personal touch */}
                 <div className="mb-10">
                     <span className="inline-block px-5 py-2.5 rounded-full border border-white/10 text-xs tracking-[0.2em] uppercase text-white/50 backdrop-blur-sm">
-                        Your Adventure Awaits
+                        Stay in the loop
                     </span>
                 </div>
 
                 {/* Main Headline */}
                 <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-8 leading-[1.1] text-white">
-                    The unstoppable is<br />
-                    <span className="bg-gradient-to-r from-white via-white to-white/40 bg-clip-text text-transparent">approaching</span>
+                    The climb is<br />
+                    <span className="bg-gradient-to-r from-white via-white to-white/40 bg-clip-text text-transparent">underway</span>
                 </h2>
 
                 {/* Subheadline - More human, conversational */}
                 <p className="text-xl md:text-2xl text-white/40 mb-6 max-w-2xl mx-auto leading-relaxed">
-                    Waitlist now! Be among the first to experience intelligent outdoor preparation.
+                    The public beta is live on iOS and Android. Leave your email for release notes, new mountains, and the full launch.
                 </p>
 
                 {/* Personal touch - human element */}
@@ -170,6 +170,8 @@ const Waitlist = () => {
                                         setError(''); // Clear error when typing
                                     }}
                                     placeholder="Enter your email"
+                                    aria-label="Email address"
+                                    autoComplete="email"
                                     required
                                     className={`w-full px-6 py-5 bg-white/[0.05] border rounded-2xl text-white text-lg placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-300 ${error ? 'border-red-500/50' : 'border-white/10'}`}
                                 />
@@ -181,7 +183,7 @@ const Waitlist = () => {
                                 className="relative px-10 py-5 bg-white text-black font-bold text-lg rounded-2xl hover:bg-white/90 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-white/10"
                             >
                                 <span className={`transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-                                    Join Waitlist
+                                    Get updates
                                 </span>
 
                                 {isLoading && (
@@ -199,7 +201,7 @@ const Waitlist = () => {
                                 </svg>
                                 <span className="text-2xl font-semibold">You&apos;re on the list!</span>
                             </div>
-                            <p className="mt-3 text-white/50 text-lg">We&apos;ll be in touch soon. The mountains are calling.</p>
+                            <p className="mt-3 text-white/50 text-lg">We&apos;ll send release notes and new mountains as they land. The beta is waiting for you below.</p>
                         </div>
                     )}
 
@@ -211,7 +213,7 @@ const Waitlist = () => {
 
                 {/* Privacy Note */}
                 <p className="mt-8 text-sm text-white/30">
-                    We respect your privacy. No spam, ever. Just good vibes and launch updates.
+                    We respect your privacy. No spam, ever. Just release notes and new mountains.
                 </p>
 
                 {/* Community partner — The Summit Society (independent server we
@@ -222,9 +224,9 @@ const Waitlist = () => {
                     </p>
                     <h3 className="mt-4 text-2xl font-bold text-white">The Summit Society</h3>
                     <p className="mt-3 text-sm leading-relaxed text-white/50">
-                        While you wait, the conversation is already happening. We&apos;ve partnered with
-                        The Summit Society, an independent climbing community on Discord — swap beta,
-                        talk gear, and find your next rope team.
+                        The conversation is already happening. We&apos;ve partnered with The Summit
+                        Society, an independent climbing community on Discord, to swap beta, talk gear,
+                        and find your next rope team.
                     </p>
                     <a
                         href="https://discord.gg/x3Dfj32dAK"
@@ -243,14 +245,21 @@ const Waitlist = () => {
                 <div className="mt-24 pt-16 border-t border-white/5">
                     <div className="flex flex-wrap items-center justify-center gap-16 md:gap-24 text-white/40">
                         <div className="text-center">
-                            <p className="text-4xl md:text-5xl font-bold text-white mb-2">25+</p>
+                            <p className="text-4xl md:text-5xl font-bold text-white mb-2">97</p>
                             <p className="text-sm uppercase tracking-widest">Peaks Mapped</p>
-                            <p className="text-xs text-white/30 mt-1">Continuing to map more</p>
+                            <p className="text-xs text-white/30 mt-1">More added every month</p>
                         </div>
                         <div className="hidden sm:block w-px h-16 bg-white/10" />
                         <div className="text-center">
-                            <p className="text-4xl md:text-5xl font-bold text-white mb-2">2026</p>
-                            <p className="text-sm uppercase tracking-widest">Launch Year</p>
+                            <p className="text-4xl md:text-5xl font-bold text-white mb-2">3,000+</p>
+                            <p className="text-sm uppercase tracking-widest">Gear Items</p>
+                            <p className="text-xs text-white/30 mt-1">11,000+ mountain-specific picks</p>
+                        </div>
+                        <div className="hidden sm:block w-px h-16 bg-white/10" />
+                        <div className="text-center">
+                            <p className="text-4xl md:text-5xl font-bold text-white mb-2">Live</p>
+                            <p className="text-sm uppercase tracking-widest">Public Beta</p>
+                            <p className="text-xs text-white/30 mt-1">iOS and Android</p>
                         </div>
                     </div>
                 </div>
