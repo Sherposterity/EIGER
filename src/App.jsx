@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import Hero from './components/Hero';
 import SiteNav from './components/SiteNav';
 import Features from './components/Features';
+import Athlete from './components/Athlete';
 import MissionBanner from './components/MissionBanner';
 import Platforms from './components/Platforms';
 import BetaToast from './components/BetaToast';
@@ -53,6 +54,7 @@ function Home() {
       <SiteNav />
       <Hero />
       <Features />
+      <Athlete />
       <MissionBanner />
       <Waitlist />
       <Platforms />
