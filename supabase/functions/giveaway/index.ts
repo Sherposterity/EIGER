@@ -17,8 +17,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-const OPENS_AT = Date.parse("2026-09-27T16:00:00Z");
-const CLOSES_AT = Date.parse("2026-11-06T16:00:00Z");
+const OPENS_AT = Date.parse("2026-10-01T16:00:00Z");
+const CLOSES_AT = Date.parse("2026-11-10T16:00:00Z");
 const HONOR_TASKS = new Set(["tiktok", "instagram", "kickstarter"]);
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const CORS = {

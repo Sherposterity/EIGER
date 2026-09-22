@@ -13,10 +13,10 @@
 import { supabase } from './supabase';
 
 export const GIVEAWAY = {
-  // Opens on launch day, runs 40 days. Times are UTC so the countdown is the
-  // same everywhere.
-  opensAt: '2026-09-27T16:00:00Z',
-  closesAt: '2026-11-06T16:00:00Z',
+  // Founder ruling 2026-09-22: opens October 1, runs 40 days, closes before
+  // November 15. Times are UTC so the countdown is the same everywhere.
+  opensAt: '2026-10-01T16:00:00Z',
+  closesAt: '2026-11-10T16:00:00Z',
   prize: {
     title: 'A piece of mountaineering gear of your choice',
     valueUsd: 500,
