@@ -12,6 +12,8 @@ create table if not exists public.giveaway_entries (
   code          text not null unique,                 -- referral code in the entrant's link
   referred_by   uuid references public.giveaway_entries(id) on delete set null,
   session_token text not null unique,                 -- returned to the browser after entry
+  magic_token   text not null unique,                 -- in the emailed dashboard link; restores the session on any device
+  magic_sent_at timestamptz,                          -- last time the link email went out (resend throttle)
   progress      jsonb not null default '{"entry": 1}'::jsonb,
   app_verified_at timestamptz,                        -- set once auth.users has the same email
   ip_hash       text,

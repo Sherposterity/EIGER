@@ -105,7 +105,9 @@ const localBackend = {
       consent: !!consent,
       referredBy: ref || null,
       code: makeCode(),
+      magic: makeCode() + makeCode(),
       progress: { entry: 1 },
+      emailed: true,
       createdAt: new Date().toISOString(),
     });
   },
@@ -119,6 +121,15 @@ const localBackend = {
   },
   async reset() {
     localStorage.removeItem(LOCAL_KEY);
+  },
+  // Review mode: the "emailed" link is just the stored entry's own code.
+  async resume(entryToken) {
+    const state = readLocal();
+    if (!state || state.magic !== entryToken) throw new Error('That link is not valid. Enter with your email to get a new one.');
+    return state;
+  },
+  async resend() {
+    return { ok: true };
   },
 };
 
@@ -143,7 +154,16 @@ const supabaseBackend = {
   async enter({ email, country, consent, ref }) {
     const data = await call('enter', { email, country, consent, ref });
     localStorage.setItem(SESSION_KEY, data.token);
+    return { ...data.entrant, emailed: data.emailed };
+  },
+  // Opened from the emailed dashboard link on any device.
+  async resume(entryToken) {
+    const data = await call('resume', { entry: entryToken });
+    localStorage.setItem(SESSION_KEY, data.token);
     return data.entrant;
+  },
+  async resend(email) {
+    return call('resend', { email });
   },
   async complete(taskId) {
     const token = localStorage.getItem(SESSION_KEY);
