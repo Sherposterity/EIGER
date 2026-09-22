@@ -225,9 +225,11 @@ export default function GiveawayPage() {
                 <li><span className="mr-3 text-white/30">3</span>Share your link. Friends who join earn you tickets too.</li>
               </ol>
             </div>
-            <Link to="/giveaway/rules" className="mt-8 text-sm text-white/50 underline-offset-4 hover:text-white hover:underline">
-              Read the official rules
-            </Link>
+            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/50">
+              <Link to="/giveaway/rules" className="underline-offset-4 hover:text-white hover:underline">Official rules</Link>
+              <a href="/terms.html" className="underline-offset-4 hover:text-white hover:underline">Terms of Use</a>
+              <a href="/privacy.html" className="underline-offset-4 hover:text-white hover:underline">Privacy Policy</a>
+            </div>
           </div>
         </div>
       </section>
@@ -262,8 +264,9 @@ export default function GiveawayPage() {
                   <input type="checkbox" checked={form.consent} onChange={(e) => setForm({ ...form, consent: e.target.checked })} className="mt-1 h-4 w-4 accent-white" />
                   <span>
                     I am 18 or older, I live somewhere this giveaway is open, and I agree to the{' '}
-                    <Link to="/giveaway/rules" className="underline underline-offset-4 hover:text-white">official rules</Link> and the{' '}
-                    <a href="/privacy.html" className="underline underline-offset-4 hover:text-white">privacy policy</a>. Eiger may email me about the giveaway and the app. I can unsubscribe any time.
+                    <Link to="/giveaway/rules" className="underline underline-offset-4 hover:text-white">official rules</Link>, the{' '}
+                    <a href="/terms.html" className="underline underline-offset-4 hover:text-white">Terms of Use</a>, and the{' '}
+                    <a href="/privacy.html" className="underline underline-offset-4 hover:text-white">Privacy Policy</a>. Eiger may email me about the giveaway and the app. I can unsubscribe any time.
                   </span>
                 </label>
                 {error ? <div className="text-sm text-red-300">{error}</div> : null}
@@ -316,7 +319,7 @@ export default function GiveawayPage() {
 
       <section className="px-6 pb-24">
         <div className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-white/30">
-          No purchase necessary. Open to entrants 18 or older, or the age of majority where they live, in any country where such promotions are lawful, excluding {GIVEAWAY.excludedRegions}. Void where prohibited. Ends {new Date(GIVEAWAY.closesAt).toUTCString().slice(0, 16)}. One prize, approximate retail value USD {GIVEAWAY.prize.valueUsd}. Odds depend on the number of tickets received. Sponsor: {GIVEAWAY.sponsor.name}, {GIVEAWAY.sponsor.place}. This promotion is in no way sponsored, endorsed, administered by, or associated with TikTok, Instagram, Meta, Apple, Google, or Kickstarter. See the <Link to="/giveaway/rules" className="underline underline-offset-4 hover:text-white/60">official rules</Link>.
+          No purchase necessary. Open to entrants 18 or older, or the age of majority where they live, in any country where such promotions are lawful, excluding {GIVEAWAY.excludedRegions}. Void where prohibited. Ends {new Date(GIVEAWAY.closesAt).toUTCString().slice(0, 16)}. One prize, approximate retail value USD {GIVEAWAY.prize.valueUsd}. Odds depend on the number of tickets received. Sponsor: {GIVEAWAY.sponsor.name}, {GIVEAWAY.sponsor.place}. This promotion is in no way sponsored, endorsed, administered by, or associated with TikTok, Instagram, Meta, Apple, Google, or Kickstarter. See the <Link to="/giveaway/rules" className="underline underline-offset-4 hover:text-white/60">official rules</Link>, the <a href="/terms.html" className="underline underline-offset-4 hover:text-white/60">Terms of Use</a>, and the <a href="/privacy.html" className="underline underline-offset-4 hover:text-white/60">Privacy Policy</a>.
         </div>
       </section>
 

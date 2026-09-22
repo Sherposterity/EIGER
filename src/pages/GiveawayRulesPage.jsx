@@ -36,8 +36,10 @@ export default function GiveawayRulesPage() {
         <p className="mt-4 text-white/60">
           NO PURCHASE, PAYMENT, OR PLEDGE OF ANY KIND IS NECESSARY TO ENTER OR WIN. A purchase, payment, or pledge will not increase your chances of winning. Void where prohibited.
         </p>
-        <p className="mt-6 text-sm text-white/40">
+        <p className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/40">
           <Link to="/giveaway" className="underline underline-offset-4 hover:text-white">Back to the giveaway</Link>
+          <a href="/terms.html" className="underline underline-offset-4 hover:text-white">Terms of Use</a>
+          <a href="/privacy.html" className="underline underline-offset-4 hover:text-white">Privacy Policy</a>
         </p>
 
         <div className="mt-10">
@@ -91,7 +93,7 @@ export default function GiveawayRulesPage() {
           </Section>
 
           <Section n={9} title="General conditions">
-            <p>By entering you agree to these rules and to the Sponsor's decisions, which are final. The Sponsor may disqualify anyone who tampers with the entry process, acts in bad faith, or breaches these rules, and may cancel, suspend, or modify the Giveaway if fraud, technical failure, or any cause beyond its control affects its integrity, in which case the prize will be awarded from the valid entries received before the action. The Sponsor is not responsible for lost, late, incomplete, or misdirected entries, or for technical failures of any kind.</p>
+            <p>By entering you agree to these rules, to the Sponsor's <a href="/terms.html" className="underline underline-offset-4 hover:text-white">Terms of Use</a> and <a href="/privacy.html" className="underline underline-offset-4 hover:text-white">Privacy Policy</a>, and to the Sponsor's decisions, which are final. The Sponsor may disqualify anyone who tampers with the entry process, acts in bad faith, or breaches these rules, and may cancel, suspend, or modify the Giveaway if fraud, technical failure, or any cause beyond its control affects its integrity, in which case the prize will be awarded from the valid entries received before the action. The Sponsor is not responsible for lost, late, incomplete, or misdirected entries, or for technical failures of any kind.</p>
             <p>These rules are governed by the laws of the State of Texas, United States, without regard to conflict of law principles, except where the mandatory consumer law of the entrant's place of residence provides otherwise.</p>
           </Section>
 
