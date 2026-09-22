@@ -14,6 +14,8 @@ import Footer from './components/Footer';
 // ships less JavaScript; they load on first navigation.
 const MissionPage = lazy(() => import('./pages/MissionPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
+const GiveawayPage = lazy(() => import('./pages/GiveawayPage'));
+const GiveawayRulesPage = lazy(() => import('./pages/GiveawayRulesPage'));
 
 function Home() {
   const location = useLocation();
@@ -71,6 +73,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/mission" element={<MissionPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/giveaway" element={<GiveawayPage />} />
+        <Route path="/giveaway/rules" element={<GiveawayRulesPage />} />
         <Route path="*" element={<Home />} />
       </Routes>
     </Suspense>

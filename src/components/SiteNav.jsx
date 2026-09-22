@@ -43,6 +43,12 @@ const SiteNav = () => {
           >
             About Us
           </Link>
+          <Link
+            to="/giveaway"
+            className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60 transition-colors duration-300 hover:text-white"
+          >
+            Giveaway
+          </Link>
           <button
             type="button"
             onClick={scrollToPlatforms}
