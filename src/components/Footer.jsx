@@ -41,7 +41,7 @@ const Footer = () => {
                 About Us
               </Link>
               <Link to="/giveaway" className="transition-colors duration-300 hover:text-white/60">
-                Giveaway Us
+                Giveaway
               </Link>
               {/* mailto works where a mail app exists (phones, configured
                   desktops); the copy button covers desktop webmail users. */}
