@@ -87,7 +87,8 @@ async function sendDashboardEmail(email: string, magic: string) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: FROM, to: [email], subject: "Your Eiger giveaway dashboard", html, text: `You are in the Eiger launch giveaway. Open your dashboard on any device: ${link}` }),
+    // Replies go to the sponsor contact named in the rules, not to the sending address.
+    body: JSON.stringify({ from: FROM, to: [email], reply_to: "business@eiger014.com", subject: "Your Eiger giveaway dashboard", html, text: `You are in the Eiger launch giveaway. Open your dashboard on any device: ${link}` }),
   });
   return res.ok;
 }
