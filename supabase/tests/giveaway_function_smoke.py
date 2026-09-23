@@ -4,9 +4,11 @@ Requires the function to be deployed and, before Oct 1, the secret
 GIVEAWAY_OPENS_AT set to a past date for the run (unset it afterwards; the
 `--window-closed` mode checks that the window is enforced and creates nothing).
 Sends real emails through Resend to the addresses given, so use throwaway
-addresses. Cleans up ONLY the rows it created (tracked by id) and only the
-rate-limit rows written during the run. Exits nonzero on any failed or missing
-check or any unexpected exception (Codex WEBSITE_GIVEAWAY_TEST_FOLLOWUP).
+addresses. Cleans up ONLY the entries it created (tracked by id). Rate-limit
+rows are never deleted by this script: a sequence or time boundary is not
+ownership, and the rate window ignores old rows on its own (Codex
+WEBSITE_GIVEAWAY_TEST_SCOPE_RECHECK). Exits nonzero on any failed or missing
+check or any unexpected exception.
 
 Usage: python supabase/tests/giveaway_function_smoke.py <email-without-app-account> <email-with-confirmed-app-account> [--window-closed]
 """
@@ -78,13 +80,11 @@ def track(resp):
         created_entry_ids.append(eid)
 
 
-# Preflight: never touch a real entrant. Fixture addresses must be unused, and we remember
-# the request-log high-water mark so only rows written during this run are removed.
-pre = sql(f"select (select count(*) from public.giveaway_entries where email in ('{NOACCT}','{ACCT}','bot@example.com')) as used, (select coalesce(max(id),0) from public.giveaway_requests) as req_max")[0]
+# Preflight: never touch a real entrant. Fixture addresses must be unused.
+pre = sql(f"select count(*) as used from public.giveaway_entries where email in ('{NOACCT}','{ACCT}','bot@example.com')")[0]
 if pre["used"]:
     print(f"ABORT: {pre['used']} fixture address(es) already have an entry; choose unused throwaway addresses.")
     sys.exit(2)
-REQ_MAX = pre["req_max"]
 
 try:
     if WINDOW_CLOSED:
@@ -140,14 +140,13 @@ except Exception as e:  # noqa: BLE001
     unexpected = f"{type(e).__name__}: {str(e)[:300]}"
     print("UNEXPECTED ERROR:", unexpected)
 finally:
-    # Only what this run created: tracked entry ids (events cascade) and request rows written after the high-water mark.
+    # Only what this run created: tracked entry ids (events and credits cascade). Rate-limit rows are left alone.
     if created_entry_ids:
         idlist = ",".join(f"'{i}'" for i in created_entry_ids)
         n = sql(f"with d as (delete from public.giveaway_entries where id in ({idlist}) returning id) select count(*) c from d")[0]["c"]
     else:
         n = 0
-    m = 0 if WINDOW_CLOSED else sql(f"with d as (delete from public.giveaway_requests where id > {REQ_MAX} returning id) select count(*) c from d")[0]["c"]
-    print(f"cleanup: deleted {n} entries created by this run, {m} rate rows written during this run")
+    print(f"cleanup: deleted {n} entries created by this run; rate-limit rows untouched")
 
 missing = [x for x in EXPECTED if x not in results]
 failed = [x for x, ok in results.items() if not ok]
