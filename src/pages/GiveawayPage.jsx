@@ -176,16 +176,16 @@ export default function GiveawayPage() {
         // A known email never gets its dashboard back from the form; the inbox link is the way in.
         const who = form.email.trim();
         setNotice(
-          next.email === 'sent'
+          next.emailOutcome === 'sent'
             ? `That email already has an entry. We sent its dashboard link to ${who}.`
-            : next.email === 'throttled'
+            : next.emailOutcome === 'throttled'
               ? `That email already has an entry. A dashboard link went out in the last ten minutes; check your inbox and spam, or try again in ${Math.max(1, Math.ceil((next.retryAfterSeconds ?? 600) / 60))} minutes.`
               : `That email already has an entry, but we could not send its dashboard link just now. Please try again in a moment.`
         );
         return;
       }
       setEntrant(next);
-      setNotice(next.email === 'failed' ? 'You are in. We could not send your dashboard email just now. Keep this browser to track your tickets, or use "Resend my dashboard link" below.' : `You are in. We emailed a dashboard link to ${form.email.trim()} so you can come back from any device.`);
+      setNotice(next.emailOutcome === 'failed' ? 'You are in. We could not send your dashboard email just now. Keep this browser to track your tickets, or use "Resend my dashboard link" below.' : `You are in. We emailed a dashboard link to ${form.email.trim()} so you can come back from any device.`);
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
