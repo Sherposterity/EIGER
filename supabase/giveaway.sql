@@ -295,3 +295,23 @@ create view public.giveaway_marketing_audience as
    where disqualified_at is null and marketing_opt_out_at is null;
 revoke all on public.giveaway_marketing_audience from anon, authenticated;
 
+
+-- ---------------------------------------------------------------------------
+-- 109 (2026-09-22): giveaway_opt_out idempotent under concurrency. See hike scripts/migrations/109.
+-- ---------------------------------------------------------------------------
+create or replace function public.giveaway_opt_out(p_token text)
+returns text language plpgsql security definer set search_path = public as $$
+declare changed uuid; known uuid;
+begin
+  update public.giveaway_entries
+     set marketing_opt_out_at = now()
+   where unsubscribe_token = p_token and marketing_opt_out_at is null
+  returning id into changed;
+  if changed is not null then
+    insert into public.giveaway_events (entry_id, kind) values (changed, 'opted_out');
+    return 'ok';
+  end if;
+  select id into known from public.giveaway_entries where unsubscribe_token = p_token;
+  return case when known is null then 'unknown' else 'ok' end;
+end $$;
+revoke all on function public.giveaway_opt_out(text) from anon, authenticated, public;

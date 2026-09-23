@@ -170,25 +170,33 @@ Deno.serve(async (req) => {
     return page(
       "Unsubscribe from Eiger emails",
       `<h1>Stop marketing emails?</h1><p>This stops giveaway and Eiger marketing emails sent through this list. Your giveaway entry stays in the draw, and dashboard links you request are still sent.</p>
-<form method="post" action="${escapeHtml(unsubscribeLink(unsub))}"><button type="submit">Unsubscribe</button></form>
+<form method="post" action="${escapeHtml(unsubscribeLink(unsub))}"><input type="hidden" name="confirm" value="1"><button type="submit">Unsubscribe</button></form>
 <small>Changed your mind? Just close this page. Questions: business@eiger014.com</small>`
     );
   }
   if (unsub && req.method === "POST") {
-    const bodyText = (await req.text().catch(() => "")).slice(0, 200);
-    const oneClick = bodyText.includes("List-Unsubscribe=One-Click");
+    // Parse the body properly (urlencoded or multipart, RFC 8058 s.3.1-3.2); never sniff raw text.
+    // Only our own confirmation form (hidden confirm=1) gets the browser flow with redirect and
+    // pages; every other POST is a machine (one-click) request and gets direct responses.
+    let fields: FormData | null = null;
+    try {
+      fields = await req.formData();
+    } catch {
+      fields = null;
+    }
+    const browserForm = fields?.get("confirm") === "1";
     const { data, error } = await supabase.rpc("giveaway_opt_out", { p_token: unsub });
     if (error) {
-      return oneClick
-        ? new Response("temporarily unavailable, retry", { status: 503, headers: { ...CORS, "Retry-After": "120" } })
-        : page("Please try again", `<h1>We could not save that just now.</h1><p>Please try again in a minute, or write to business@eiger014.com and we will do it for you.</p>`, 503);
+      return browserForm
+        ? page("Please try again", `<h1>We could not save that just now.</h1><p>Please try again in a minute, or write to business@eiger014.com and we will do it for you.</p>`, 503)
+        : new Response("temporarily unavailable, retry", { status: 503, headers: { ...CORS, "Retry-After": "120" } });
     }
     if (data !== "ok") {
-      return oneClick
-        ? new Response("unknown", { status: 404, headers: CORS })
-        : page("Link not recognised", `<h1>That unsubscribe link is not recognised.</h1><p>Write to business@eiger014.com and we will take care of it.</p>`, 404);
+      return browserForm
+        ? page("Link not recognised", `<h1>That unsubscribe link is not recognised.</h1><p>Write to business@eiger014.com and we will take care of it.</p>`, 404)
+        : new Response("unknown", { status: 404, headers: CORS });
     }
-    return oneClick ? new Response("ok", { status: 200, headers: CORS }) : Response.redirect(`${SITE_URL}/#/giveaway?unsubscribed=1`, 303);
+    return browserForm ? Response.redirect(`${SITE_URL}/#/giveaway?unsubscribed=1`, 303) : new Response("ok", { status: 200, headers: CORS });
   }
 
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);

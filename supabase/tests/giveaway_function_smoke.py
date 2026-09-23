@@ -53,6 +53,7 @@ EXPECTED = ["window closed: enter refused"] if WINDOW_CLOSED else [
     "unsubscribe: GET shows a confirmation page and changes nothing",
     "unsubscribe: one-click POST on a fresh fixture opts out, entry and tickets intact, gone from the audience",
     "unsubscribe: form POST redirects to the site; unknown token 404; repeat POST idempotent",
+    "unsubscribe: multipart one-click POST on a fresh fixture answers 200 directly and opts out",
 ]
 results = {}
 created_entry_ids = []
@@ -171,10 +172,19 @@ try:
         st, _, body = raw2("POST", utok, b"List-Unsubscribe=One-Click", "application/x-www-form-urlencoded")
         opt = sql(f"select marketing_opt_out_at is not null as out, disqualified_at is null as valid, public.giveaway_tickets(progress) t, (select count(*) from public.giveaway_marketing_audience a where a.id='{created_entry_ids[0]}') as in_audience from public.giveaway_entries where id='{created_entry_ids[0]}'")[0]
         check("unsubscribe: one-click POST on a fresh fixture opts out, entry and tickets intact, gone from the audience", st == 200 and body == "ok" and opt["out"] and opt["valid"] and opt["t"] == 6 and opt["in_audience"] == 0, f"{st} {body} {opt}")
-        st2, loc2, _ = raw2("POST", utok, b"", "application/x-www-form-urlencoded")
+        st2, loc2, _ = raw2("POST", utok, b"confirm=1", "application/x-www-form-urlencoded")
         st3, _, _ = raw2("POST", "NOT-A-TOKEN", b"List-Unsubscribe=One-Click", "application/x-www-form-urlencoded")
         events = sql(f"select count(*) c from public.giveaway_events where entry_id='{created_entry_ids[0]}' and kind='opted_out'")[0]["c"]
         check("unsubscribe: form POST redirects to the site; unknown token 404; repeat POST idempotent", st2 == 303 and loc2.endswith("/#/giveaway?unsubscribed=1") and st3 == 404 and events == 1, f"form={st2} {loc2} unknown={st3} opted_out_events={events}")
+
+        # multipart one-click (RFC 8058 s.3.2) on the second, still-subscribed fixture: direct 200, no redirect
+        utok2 = sql(f"select unsubscribe_token from public.giveaway_entries where id='{created_entry_ids[1]}'")[0]["unsubscribe_token"]
+        boundary = "----EigerSmoke7d2c"
+        crlf = chr(13) + chr(10)
+        mp = ("--" + boundary + crlf + 'Content-Disposition: form-data; name="List-Unsubscribe"' + crlf + crlf + "One-Click" + crlf + "--" + boundary + "--" + crlf).encode()
+        st4, loc4, body4 = raw2("POST", utok2, mp, f"multipart/form-data; boundary={boundary}")
+        opt2 = sql(f"select marketing_opt_out_at is not null as out from public.giveaway_entries where id='{created_entry_ids[1]}'")[0]
+        check("unsubscribe: multipart one-click POST on a fresh fixture answers 200 directly and opts out", st4 == 200 and body4 == "ok" and not loc4 and opt2["out"], f"{st4} loc={loc4!r} body={body4!r} opted={opt2['out']}")
 except Exception as e:  # noqa: BLE001
     unexpected = f"{type(e).__name__}: {str(e)[:300]}"
     print("UNEXPECTED ERROR:", unexpected)
