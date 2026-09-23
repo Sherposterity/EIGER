@@ -262,3 +262,36 @@ create or replace view public.giveaway_marketing_audience as
    where disqualified_at is null and marketing_opt_out_at is null;
 revoke all on public.giveaway_marketing_audience from anon, authenticated;
 
+-- ---------------------------------------------------------------------------
+-- 108 (2026-09-22): separate unsubscribe token; opt-out returns 'ok' | 'unknown'. See hike scripts/migrations/108.
+-- ---------------------------------------------------------------------------
+alter table public.giveaway_entries
+  add column if not exists unsubscribe_token text unique default encode(gen_random_bytes(16), 'hex');
+update public.giveaway_entries set unsubscribe_token = encode(gen_random_bytes(16), 'hex') where unsubscribe_token is null;
+alter table public.giveaway_entries alter column unsubscribe_token set not null;
+
+-- Returns 'ok' (opted out now or already), 'unknown' (no such token).
+-- 107 declared it boolean; the return type changes, so drop first.
+drop function if exists public.giveaway_opt_out(text);
+create function public.giveaway_opt_out(p_token text)
+returns text language plpgsql security definer set search_path = public as $$
+declare e_id uuid; already timestamptz;
+begin
+  select id, marketing_opt_out_at into e_id, already from public.giveaway_entries where unsubscribe_token = p_token;
+  if e_id is null then return 'unknown'; end if;
+  if already is null then
+    update public.giveaway_entries set marketing_opt_out_at = now() where id = e_id;
+    insert into public.giveaway_events (entry_id, kind) values (e_id, 'opted_out');
+  end if;
+  return 'ok';
+end $$;
+revoke all on function public.giveaway_opt_out(text) from anon, authenticated, public;
+
+-- 107 exposed magic_token; a view column cannot be renamed in place, so recreate it.
+drop view if exists public.giveaway_marketing_audience;
+create view public.giveaway_marketing_audience as
+  select id, email, country, code, unsubscribe_token
+    from public.giveaway_entries
+   where disqualified_at is null and marketing_opt_out_at is null;
+revoke all on public.giveaway_marketing_audience from anon, authenticated;
+

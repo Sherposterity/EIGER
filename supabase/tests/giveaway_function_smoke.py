@@ -1,5 +1,9 @@
 """Smoke test for the deployed `giveaway` edge function, with assertions.
 
+Note: the function rate-limits entries per IP (20 per hour) and this script
+never clears rate rows, so repeated runs from one machine within an hour can
+hit 429 on the enter steps; wait or run from another network.
+
 Requires the function to be deployed and, before Oct 1, the secret
 GIVEAWAY_OPENS_AT set to a past date for the run (unset it afterwards; the
 `--window-closed` mode checks that the window is enforced and creates nothing).
@@ -46,8 +50,9 @@ EXPECTED = ["window closed: enter refused"] if WINDOW_CLOSED else [
     "referrer credited: 4 + 2 = 6 tickets",
     "honeypot: fake success, nothing stored",
     "resend: uniform reply for entered and unknown emails",
-    "unsubscribe: GET redirects to the site and records the opt-out; entry stays valid",
-    "unsubscribe: one-click POST answers 200; unknown token redirects with 0",
+    "unsubscribe: GET shows a confirmation page and changes nothing",
+    "unsubscribe: one-click POST on a fresh fixture opts out, entry and tickets intact, gone from the audience",
+    "unsubscribe: form POST redirects to the site; unknown token 404; repeat POST idempotent",
 ]
 results = {}
 created_entry_ids = []
@@ -152,17 +157,24 @@ try:
                     return r.status, r.headers.get("Location", ""), r.read().decode()[:40]
             except urllib.error.HTTPError as e:
                 return e.code, e.headers.get("Location", ""), ""
-        st, loc, _ = raw("GET")
-        opt = sql(f"select marketing_opt_out_at is not null as out, disqualified_at is null as valid, public.giveaway_tickets(progress) t from public.giveaway_entries where id='{created_entry_ids[0]}'")[0]
-        check("unsubscribe: GET redirects to the site and records the opt-out; entry stays valid", st == 302 and loc.endswith("/#/giveaway?unsubscribed=1") and opt["out"] and opt["valid"] and opt["t"] == 6, f"{st} {loc} opt={opt}")
-        st, _, body = raw("POST")
-        req = urllib.request.Request(f"{URL}?unsubscribe=NOT-A-TOKEN", method="GET")
-        try:
-            with opener.open(req, timeout=60) as r:
-                st2, loc2 = r.status, r.headers.get("Location", "")
-        except urllib.error.HTTPError as e:
-            st2, loc2 = e.code, e.headers.get("Location", "")
-        check("unsubscribe: one-click POST answers 200; unknown token redirects with 0", st == 200 and body == "ok" and st2 == 302 and loc2.endswith("unsubscribed=0"), f"post={st} {body} unknown={st2} {loc2}")
+        utok = sql(f"select unsubscribe_token from public.giveaway_entries where id='{created_entry_ids[0]}'")[0]["unsubscribe_token"]
+        def raw2(method, token, body=None, ctype=None):
+            req = urllib.request.Request(f"{URL}?unsubscribe={token}", data=body, method=method, headers={"Content-Type": ctype} if ctype else {})
+            try:
+                with opener.open(req, timeout=60) as r:
+                    return r.status, r.headers.get("Location", ""), r.read().decode()[:4000]
+            except urllib.error.HTTPError as e:
+                return e.code, e.headers.get("Location", ""), e.read().decode()[:4000]
+        st, _, html = raw2("GET", utok)
+        state = sql(f"select marketing_opt_out_at is null as still_in from public.giveaway_entries where id='{created_entry_ids[0]}'")[0]
+        check("unsubscribe: GET shows a confirmation page and changes nothing", st == 200 and "<form" in html and "Unsubscribe" in html and state["still_in"], f"{st} still_in={state['still_in']}")
+        st, _, body = raw2("POST", utok, b"List-Unsubscribe=One-Click", "application/x-www-form-urlencoded")
+        opt = sql(f"select marketing_opt_out_at is not null as out, disqualified_at is null as valid, public.giveaway_tickets(progress) t, (select count(*) from public.giveaway_marketing_audience a where a.id='{created_entry_ids[0]}') as in_audience from public.giveaway_entries where id='{created_entry_ids[0]}'")[0]
+        check("unsubscribe: one-click POST on a fresh fixture opts out, entry and tickets intact, gone from the audience", st == 200 and body == "ok" and opt["out"] and opt["valid"] and opt["t"] == 6 and opt["in_audience"] == 0, f"{st} {body} {opt}")
+        st2, loc2, _ = raw2("POST", utok, b"", "application/x-www-form-urlencoded")
+        st3, _, _ = raw2("POST", "NOT-A-TOKEN", b"List-Unsubscribe=One-Click", "application/x-www-form-urlencoded")
+        events = sql(f"select count(*) c from public.giveaway_events where entry_id='{created_entry_ids[0]}' and kind='opted_out'")[0]["c"]
+        check("unsubscribe: form POST redirects to the site; unknown token 404; repeat POST idempotent", st2 == 303 and loc2.endswith("/#/giveaway?unsubscribed=1") and st3 == 404 and events == 1, f"form={st2} {loc2} unknown={st3} opted_out_events={events}")
 except Exception as e:  # noqa: BLE001
     unexpected = f"{type(e).__name__}: {str(e)[:300]}"
     print("UNEXPECTED ERROR:", unexpected)

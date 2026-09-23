@@ -148,8 +148,7 @@ export default function GiveawayPage() {
   const [resendMode, setResendMode] = useState(false);
 
   useEffect(() => {
-    if (unsubscribed === '1') setNotice('You are unsubscribed from further giveaway and Eiger emails. Your entry stays in the draw.');
-    else if (unsubscribed === '0') setNotice('That unsubscribe link was not recognised. Write to business@eiger014.com and we will take care of it.');
+    if (unsubscribed === '1') setNotice('You are unsubscribed from giveaway and Eiger marketing emails. Your entry stays in the draw, and dashboard links you request are still sent.');
   }, [unsubscribed]);
 
   useEffect(() => {

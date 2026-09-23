@@ -68,7 +68,7 @@ for anything credited from a disqualified entry and reverse it by hand.
 
 ## Marketing emails (winner announcement, reminders)
 
-The dashboard email is transactional. Anything else sent to entrants is marketing under the entry consent and must (1) be sent only to `select * from public.giveaway_marketing_audience` (consenting, not disqualified, not opted out), and (2) carry the same unsubscribe link and List-Unsubscribe headers the function uses (`<function url>?unsubscribe=<magic_token>`). Opt-outs land in `marketing_opt_out_at` and never affect the entry itself.
+The dashboard email is transactional. Anything else sent to entrants is marketing under the entry consent and must (1) be sent only to `select * from public.giveaway_marketing_audience` (consenting, not disqualified, not opted out), and (2) carry the same unsubscribe link and List-Unsubscribe headers the function uses (`<function url>?unsubscribe=<unsubscribe_token>`, never the magic token). Opt-outs land in `marketing_opt_out_at` and never affect the entry itself. This is the giveaway list only; it is not a global Eiger suppression list, and app auth emails are unaffected.
 
 ## Winner verification and prize
 

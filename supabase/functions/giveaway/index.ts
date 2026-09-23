@@ -13,8 +13,10 @@
 //   resume   { entry }                 -> { token, entrant }   (entry = magic token from the email link)
 //   resend   { email }                 -> { ok: true }         (uniform reply, throttled per email and per IP)
 //   complete { token, task }           -> entrant
-//   GET/POST ?unsubscribe=<magic>       -> records a marketing opt-out (email footer link + RFC 8058 one-click);
-//                                          GET redirects to the site with ?unsubscribed=1, POST answers 200
+//   GET  ?unsubscribe=<unsubscribe token> -> confirmation page, NO state change (link scanners, RFC 8058 s.1)
+//   POST ?unsubscribe=<unsubscribe token> -> records the marketing opt-out: a one-click POST from a mail client
+//                                            answers 200; the confirmation form's POST redirects to the site.
+//                                            Unknown token 404, database failure 503 (retryable).
 //     tiktok | instagram | kickstarter : honor tasks, atomic + idempotent in SQL (giveaway_complete_task)
 //     app                              : confirmed auth.users email + referral credit in one transaction (giveaway_verify_app)
 //
@@ -92,10 +94,20 @@ async function log(entryId: string | null, kind: string, detail: unknown = null)
 
 const dashboardLink = (magic: string) => `${SITE_URL}/#/giveaway?entry=${magic}`;
 const FUNCTION_URL = `${Deno.env.get("SUPABASE_URL")}/functions/v1/giveaway`;
-const unsubscribeLink = (magic: string) => `${FUNCTION_URL}?unsubscribe=${magic}`;
+const unsubscribeLink = (token: string) => `${FUNCTION_URL}?unsubscribe=${token}`;
+
+const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+
+const page = (title: string, body: string, status = 200) =>
+  new Response(
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${escapeHtml(title)}</title>
+<style>body{margin:0;background:#0A0A0A;color:#FAFAFA;font-family:system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:520px;margin:0 auto;padding:64px 24px}h1{font-size:26px;margin:0 0 12px}p{color:rgba(255,255,255,.65);line-height:1.6}button,a.btn{display:inline-block;background:#fff;color:#000;border:0;border-radius:999px;padding:14px 26px;font-weight:600;font-size:13px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;cursor:pointer}small{display:block;margin-top:28px;color:rgba(255,255,255,.4);font-size:12px}</style></head>
+<body><main>${body}</main></body></html>`,
+    { status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } }
+  );
 
 // Returns true only when Resend accepted the message. Never throws.
-async function sendDashboardEmail(email: string, magic: string): Promise<boolean> {
+async function sendDashboardEmail(email: string, magic: string, unsubscribeToken: string): Promise<boolean> {
   if (!RESEND_API_KEY) return false;
   const link = dashboardLink(magic);
   const html = `
@@ -106,7 +118,7 @@ async function sendDashboardEmail(email: string, magic: string): Promise<boolean
       <p style="color:rgba(255,255,255,0.65);line-height:1.6;margin:0 0 24px;">This link opens your giveaway dashboard on any device: your tickets, the tasks, and your referral link. Keep this email, it is your way back in.</p>
       <a href="${link}" style="display:inline-block;background:#FFFFFF;color:#000000;text-decoration:none;font-weight:600;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;padding:14px 26px;border-radius:999px;">Open my dashboard</a>
       <p style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.6;margin:28px 0 0;">If you did not enter the Eiger giveaway, ignore this email and nothing happens. No purchase necessary. Sponsor: Eiger LLC, Texas, USA. Official rules: ${SITE_URL}/#/giveaway/rules</p>
-      <p style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.6;margin:12px 0 0;">You received this because you entered the giveaway. To stop any further giveaway or Eiger emails, <a href="${unsubscribeLink(magic)}" style="color:rgba(255,255,255,0.6);">unsubscribe</a>. Your entry stays in the draw.</p>
+      <p style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.6;margin:12px 0 0;">You received this because you entered the giveaway. To stop giveaway and Eiger marketing emails sent through this list, <a href="${unsubscribeLink(unsubscribeToken)}" style="color:rgba(255,255,255,0.6);">unsubscribe</a>. Your entry stays in the draw, and dashboard links you request are still sent.</p>
     </div>
   </div>`;
   try {
@@ -118,9 +130,9 @@ async function sendDashboardEmail(email: string, magic: string): Promise<boolean
         from: FROM, to: [email], reply_to: "business@eiger014.com", subject: "Your Eiger giveaway dashboard", html,
         text: `You are in the Eiger launch giveaway. Open your dashboard on any device: ${link}
 
-To stop further giveaway or Eiger emails: ${unsubscribeLink(magic)}`,
+To stop giveaway and Eiger marketing emails sent through this list (your entry stays in the draw): ${unsubscribeLink(unsubscribeToken)}`,
         headers: {
-          "List-Unsubscribe": `<${unsubscribeLink(magic)}>, <mailto:business@eiger014.com?subject=unsubscribe>`,
+          "List-Unsubscribe": `<${unsubscribeLink(unsubscribeToken)}>, <mailto:business@eiger014.com?subject=unsubscribe>`,
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         },
       }),
@@ -136,11 +148,11 @@ type EmailOutcome = { email: "sent" | "throttled" | "failed"; retryAfterSeconds?
 // Sends the dashboard link to an entry under an atomic lease: the database
 // claims the cooldown BEFORE the send, so two parallel requests cannot both
 // send; a refused message releases the lease so the user can retry.
-async function emailEntry(row: { id: string; email: string; magic_token: string }, resend: boolean): Promise<EmailOutcome> {
+async function emailEntry(row: { id: string; email: string; magic_token: string; unsubscribe_token: string }, resend: boolean): Promise<EmailOutcome> {
   const { data, error } = await supabase.rpc("giveaway_email_lease", { p_entry_id: row.id, p_cooldown_seconds: RESEND_THROTTLE_MS / 1000 });
   if (error) return { email: "failed" };
   if (!data?.claimed) return { email: "throttled", retryAfterSeconds: Number(data?.retry_after_seconds ?? 0) };
-  const sent = await sendDashboardEmail(row.email, row.magic_token);
+  const sent = await sendDashboardEmail(row.email, row.magic_token, row.unsubscribe_token);
   if (!sent) await supabase.rpc("giveaway_email_release", { p_entry_id: row.id });
   await log(row.id, "dashboard_email", { sent, resend });
   return { email: sent ? "sent" : "failed" };
@@ -149,12 +161,34 @@ async function emailEntry(row: { id: string; email: string; magic_token: string 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
-  // Unsubscribe: a GET from the email footer or a one-click POST from a mail client.
-  const unsub = new URL(req.url).searchParams.get("unsubscribe");
-  if (unsub && (req.method === "GET" || req.method === "POST")) {
-    const { data } = await supabase.rpc("giveaway_opt_out", { p_magic: unsub.slice(0, 64) });
-    if (req.method === "POST") return new Response(data ? "ok" : "unknown", { status: 200, headers: CORS });
-    return Response.redirect(`${SITE_URL}/#/giveaway?unsubscribed=${data ? "1" : "0"}`, 302);
+  // Unsubscribe. GET never changes state (link scanners fetch footer URLs, RFC 8058 s.1): it shows a
+  // confirmation page whose button POSTs. POST is the mutation: a mail client's one-click POST
+  // (body "List-Unsubscribe=One-Click") gets a bare 200; the confirmation form's POST is redirected
+  // to the site. Unknown token 404, database failure 503 so the client retries.
+  const unsub = (new URL(req.url).searchParams.get("unsubscribe") ?? "").slice(0, 64);
+  if (unsub && req.method === "GET") {
+    return page(
+      "Unsubscribe from Eiger emails",
+      `<h1>Stop marketing emails?</h1><p>This stops giveaway and Eiger marketing emails sent through this list. Your giveaway entry stays in the draw, and dashboard links you request are still sent.</p>
+<form method="post" action="${escapeHtml(unsubscribeLink(unsub))}"><button type="submit">Unsubscribe</button></form>
+<small>Changed your mind? Just close this page. Questions: business@eiger014.com</small>`
+    );
+  }
+  if (unsub && req.method === "POST") {
+    const bodyText = (await req.text().catch(() => "")).slice(0, 200);
+    const oneClick = bodyText.includes("List-Unsubscribe=One-Click");
+    const { data, error } = await supabase.rpc("giveaway_opt_out", { p_token: unsub });
+    if (error) {
+      return oneClick
+        ? new Response("temporarily unavailable, retry", { status: 503, headers: { ...CORS, "Retry-After": "120" } })
+        : page("Please try again", `<h1>We could not save that just now.</h1><p>Please try again in a minute, or write to business@eiger014.com and we will do it for you.</p>`, 503);
+    }
+    if (data !== "ok") {
+      return oneClick
+        ? new Response("unknown", { status: 404, headers: CORS })
+        : page("Link not recognised", `<h1>That unsubscribe link is not recognised.</h1><p>Write to business@eiger014.com and we will take care of it.</p>`, 404);
+    }
+    return oneClick ? new Response("ok", { status: 200, headers: CORS }) : Response.redirect(`${SITE_URL}/#/giveaway?unsubscribed=1`, 303);
   }
 
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
@@ -193,9 +227,10 @@ Deno.serve(async (req) => {
     const country = String(body.country ?? "").trim().slice(0, 64);
     if (!EMAIL_REGEX.test(email) || email.length > 254 || !country) return json({ error: "Enter a valid email address and country." }, 400);
     if (body.consent !== true) return json({ error: "Please confirm you are 18 or older and agree to the rules." }, 400);
-    if (!(await rateOk(ipHash, "enter", 5, 3600))) return json({ error: "Too many entries from this connection. Please try again later." }, 429);
+    // 20 per hour per address: a club or household behind one IP must not be locked out (5 was too tight).
+    if (!(await rateOk(ipHash, "enter", 20, 3600))) return json({ error: "Too many entries from this connection. Please try again later." }, 429);
 
-    const existing = await supabase.from("giveaway_entries").select("id, email, magic_token, disqualified_at").eq("email", email).maybeSingle();
+    const existing = await supabase.from("giveaway_entries").select("id, email, magic_token, unsubscribe_token, disqualified_at").eq("email", email).maybeSingle();
     if (existing.data) {
       // Knowing an email must never hand over its dashboard: no token here, only the inbox link.
       if (existing.data.disqualified_at) return json({ existing: true, email: "failed" });
@@ -220,7 +255,7 @@ Deno.serve(async (req) => {
     const { data, error } = await supabase.from("giveaway_entries").insert(row).select("*").single();
     if (error || !data) {
       // A race on the unique email lands here too: treat it as the known-email path.
-      const again = await supabase.from("giveaway_entries").select("id, email, magic_token").eq("email", email).maybeSingle();
+      const again = await supabase.from("giveaway_entries").select("id, email, magic_token, unsubscribe_token").eq("email", email).maybeSingle();
       if (again.data) return json({ existing: true, ...(await emailEntry(again.data, true)) });
       return json({ error: "Could not save your entry. Please try again." }, 500);
     }
@@ -233,7 +268,7 @@ Deno.serve(async (req) => {
     const email = String(body.email ?? "").trim().toLowerCase();
     if (!EMAIL_REGEX.test(email)) return json({ error: "Enter a valid email address." }, 400);
     if (!(await rateOk(ipHash, "resend", 10, 3600))) return json({ error: "Too many attempts. Please try again later." }, 429);
-    const { data } = await supabase.from("giveaway_entries").select("id, email, magic_token, disqualified_at").eq("email", email).maybeSingle();
+    const { data } = await supabase.from("giveaway_entries").select("id, email, magic_token, unsubscribe_token, disqualified_at").eq("email", email).maybeSingle();
     // Always the same answer, so this form cannot be used to test which emails entered.
     if (data && !data.disqualified_at) await emailEntry(data, true);
     return json({ ok: true });
