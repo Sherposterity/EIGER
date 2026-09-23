@@ -85,17 +85,51 @@ $$;
 
 -- ---------------------------------------------------------------------------
 -- Rate limit: records the request and says whether it is within the budget.
+-- Serialised per (ip, kind) with a transaction-scoped advisory lock so two
+-- simultaneous requests cannot both slip under the budget (Codex rev 2).
 -- ---------------------------------------------------------------------------
 create or replace function public.giveaway_rate_check(p_ip_hash text, p_kind text, p_max int, p_window_seconds int)
 returns boolean language plpgsql security definer set search_path = public as $$
 declare n int;
 begin
   if p_ip_hash is null or p_ip_hash = '' then return true; end if;
+  perform pg_advisory_xact_lock(hashtext(p_ip_hash || ':' || p_kind));
   select count(*) into n from public.giveaway_requests
    where ip_hash = p_ip_hash and kind = p_kind and created_at > now() - make_interval(secs => p_window_seconds);
   insert into public.giveaway_requests (ip_hash, kind) values (p_ip_hash, p_kind);
   return n < p_max;
 end $$;
+
+-- ---------------------------------------------------------------------------
+-- Email lease: claims the right to send the dashboard email for an entry, or
+-- reports the cooldown left. One atomic conditional update, so two parallel
+-- requests can never both send (Codex rev 2). The caller releases the lease
+-- with giveaway_email_release if the provider refused the message.
+-- ---------------------------------------------------------------------------
+create or replace function public.giveaway_email_lease(p_entry_id uuid, p_cooldown_seconds int)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare
+  prev timestamptz;
+  claimed boolean;
+begin
+  update public.giveaway_entries
+     set magic_sent_at = now()
+   where id = p_entry_id
+     and disqualified_at is null
+     and (magic_sent_at is null or magic_sent_at < now() - make_interval(secs => p_cooldown_seconds))
+  returning true into claimed;
+  if coalesce(claimed, false) then
+    return jsonb_build_object('claimed', true);
+  end if;
+  select magic_sent_at into prev from public.giveaway_entries where id = p_entry_id;
+  return jsonb_build_object('claimed', false,
+    'retry_after_seconds', greatest(0, p_cooldown_seconds - extract(epoch from (now() - coalesce(prev, now())))::int));
+end $$;
+
+create or replace function public.giveaway_email_release(p_entry_id uuid)
+returns void language sql security definer set search_path = public as $$
+  update public.giveaway_entries set magic_sent_at = null where id = p_entry_id;
+$$;
 
 -- ---------------------------------------------------------------------------
 -- Honor task (tiktok / instagram / kickstarter): one atomic, idempotent update.
@@ -167,6 +201,8 @@ begin
 end $$;
 
 revoke all on function public.giveaway_rate_check(text, text, int, int) from anon, authenticated, public;
+revoke all on function public.giveaway_email_lease(uuid, int) from anon, authenticated, public;
+revoke all on function public.giveaway_email_release(uuid) from anon, authenticated, public;
 revoke all on function public.giveaway_complete_task(text, text) from anon, authenticated, public;
 revoke all on function public.giveaway_verify_app(text) from anon, authenticated, public;
 

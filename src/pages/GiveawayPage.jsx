@@ -174,11 +174,18 @@ export default function GiveawayPage() {
       const next = await backend.enter({ email: form.email.trim(), country: form.country, consent: true, ref, website: form.honeypot });
       if (next?.existing) {
         // A known email never gets its dashboard back from the form; the inbox link is the way in.
-        setNotice(next.emailed ? `That email already has an entry. We sent its dashboard link to ${form.email.trim()}.` : `That email already has an entry. A dashboard link was sent recently; check your inbox, or try again in ten minutes.`);
+        const who = form.email.trim();
+        setNotice(
+          next.email === 'sent'
+            ? `That email already has an entry. We sent its dashboard link to ${who}.`
+            : next.email === 'throttled'
+              ? `That email already has an entry. A dashboard link went out in the last ten minutes; check your inbox and spam, or try again in ${Math.max(1, Math.ceil((next.retryAfterSeconds ?? 600) / 60))} minutes.`
+              : `That email already has an entry, but we could not send its dashboard link just now. Please try again in a moment.`
+        );
         return;
       }
       setEntrant(next);
-      setNotice(next.emailed === false ? 'You are in. We could not send your dashboard email, so keep this browser to track your tickets, or use "Already entered?" below later to get the link again.' : `You are in. We emailed a dashboard link to ${form.email.trim()} so you can come back from any device.`);
+      setNotice(next.email === 'failed' ? 'You are in. We could not send your dashboard email just now. Keep this browser to track your tickets, or use "Resend my dashboard link" below.' : `You are in. We emailed a dashboard link to ${form.email.trim()} so you can come back from any device.`);
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
@@ -187,13 +194,14 @@ export default function GiveawayPage() {
   };
 
   const resendLink = async (e) => {
-    e.preventDefault();
+    e?.preventDefault?.();
     setError('');
-    if (!isValidEmail(form.email)) return setError('Enter the email you entered with.');
+    const target = entrant?.email || form.email.trim();
+    if (!isValidEmail(target)) return setError('Enter the email you entered with.');
     setBusy(true);
     try {
-      await backend.resend(form.email.trim());
-      setNotice(`If ${form.email.trim()} entered the giveaway, a fresh dashboard link is on its way.`);
+      await backend.resend(target);
+      setNotice(entrant ? `If a dashboard link can be sent right now, it is on its way to ${target}. Links go out at most once every ten minutes.` : `If ${target} entered the giveaway, a fresh dashboard link is on its way.`);
       setResendMode(false);
     } catch (err) {
       setError(err.message || 'Could not send the link. Please try again.');
@@ -377,6 +385,9 @@ export default function GiveawayPage() {
                   Get the app: <a className="underline underline-offset-4 hover:text-white" href={GIVEAWAY.links.appStore} target="_blank" rel="noreferrer">iPhone</a> or{' '}
                   <a className="underline underline-offset-4 hover:text-white" href={GIVEAWAY.links.playStore} target="_blank" rel="noreferrer">Android</a>. Sign up with {entrant.email}.
                 </div>
+                <button type="button" onClick={resendLink} disabled={busy} className="mt-3 text-xs text-white/40 underline underline-offset-4 hover:text-white disabled:opacity-50">
+                  Resend my dashboard link
+                </button>
                 {error ? <div className="mt-3 text-sm text-red-300">{error}</div> : null}
               </div>
               {backend.mode === 'local' ? (

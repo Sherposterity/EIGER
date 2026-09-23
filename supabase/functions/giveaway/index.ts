@@ -6,8 +6,9 @@
 //
 // Actions (POST JSON { action, ... }):
 //   enter    { email, country, consent, ref?, website? }
-//              new email  -> { token, entrant, emailed }
-//              known email-> { existing: true, emailed }   (NO token: the inbox link is the only way back in)
+//              new email  -> { token, entrant, email: 'sent' | 'failed' }
+//              known email-> { existing: true, email: 'sent' | 'throttled' | 'failed', retryAfterSeconds? }
+//                            (NO token: the inbox link is the only way back in)
 //   status   { token }                 -> entrant | null
 //   resume   { entry }                 -> { token, entrant }   (entry = magic token from the email link)
 //   resend   { email }                 -> { ok: true }         (uniform reply, throttled per email and per IP)
@@ -115,14 +116,19 @@ async function sendDashboardEmail(email: string, magic: string): Promise<boolean
   }
 }
 
-// Sends the dashboard link to a known entry if the throttle allows; records the attempt.
-async function emailKnownEntry(row: { id: string; email: string; magic_token: string; magic_sent_at: string | null }, now: number, resend: boolean) {
-  const last = row.magic_sent_at ? Date.parse(row.magic_sent_at) : 0;
-  if (now - last < RESEND_THROTTLE_MS) return { attempted: false, sent: false };
+type EmailOutcome = { email: "sent" | "throttled" | "failed"; retryAfterSeconds?: number };
+
+// Sends the dashboard link to an entry under an atomic lease: the database
+// claims the cooldown BEFORE the send, so two parallel requests cannot both
+// send; a refused message releases the lease so the user can retry.
+async function emailEntry(row: { id: string; email: string; magic_token: string }, resend: boolean): Promise<EmailOutcome> {
+  const { data, error } = await supabase.rpc("giveaway_email_lease", { p_entry_id: row.id, p_cooldown_seconds: RESEND_THROTTLE_MS / 1000 });
+  if (error) return { email: "failed" };
+  if (!data?.claimed) return { email: "throttled", retryAfterSeconds: Number(data?.retry_after_seconds ?? 0) };
   const sent = await sendDashboardEmail(row.email, row.magic_token);
-  if (sent) await supabase.from("giveaway_entries").update({ magic_sent_at: new Date(now).toISOString() }).eq("id", row.id);
+  if (!sent) await supabase.rpc("giveaway_email_release", { p_entry_id: row.id });
   await log(row.id, "dashboard_email", { sent, resend });
-  return { attempted: true, sent };
+  return { email: sent ? "sent" : "failed" };
 }
 
 Deno.serve(async (req) => {
@@ -137,6 +143,7 @@ Deno.serve(async (req) => {
   const action = String(body.action ?? "");
   const now = Date.now();
   const ipHash = await sha256(clientIp(req));
+
 
   if (action === "status") {
     const row = await byToken(String(body.token ?? ""));
@@ -164,12 +171,11 @@ Deno.serve(async (req) => {
     if (body.consent !== true) return json({ error: "Please confirm you are 18 or older and agree to the rules." }, 400);
     if (!(await rateOk(ipHash, "enter", 5, 3600))) return json({ error: "Too many entries from this connection. Please try again later." }, 429);
 
-    const existing = await supabase.from("giveaway_entries").select("id, email, magic_token, magic_sent_at, disqualified_at").eq("email", email).maybeSingle();
+    const existing = await supabase.from("giveaway_entries").select("id, email, magic_token, disqualified_at").eq("email", email).maybeSingle();
     if (existing.data) {
       // Knowing an email must never hand over its dashboard: no token here, only the inbox link.
-      if (existing.data.disqualified_at) return json({ existing: true, emailed: false });
-      const { sent } = await emailKnownEntry(existing.data, now, true);
-      return json({ existing: true, emailed: sent });
+      if (existing.data.disqualified_at) return json({ existing: true, email: "failed" });
+      return json({ existing: true, ...(await emailEntry(existing.data, true)) });
     }
 
     let referredBy: string | null = null;
@@ -190,27 +196,22 @@ Deno.serve(async (req) => {
     const { data, error } = await supabase.from("giveaway_entries").insert(row).select("*").single();
     if (error || !data) {
       // A race on the unique email lands here too: treat it as the known-email path.
-      const again = await supabase.from("giveaway_entries").select("id, email, magic_token, magic_sent_at").eq("email", email).maybeSingle();
-      if (again.data) {
-        const { sent } = await emailKnownEntry(again.data, now, true);
-        return json({ existing: true, emailed: sent });
-      }
+      const again = await supabase.from("giveaway_entries").select("id, email, magic_token").eq("email", email).maybeSingle();
+      if (again.data) return json({ existing: true, ...(await emailEntry(again.data, true)) });
       return json({ error: "Could not save your entry. Please try again." }, 500);
     }
     await log(data.id, "entered", { referred_by: referredBy });
-    const emailed = await sendDashboardEmail(email, data.magic_token);
-    if (emailed) await supabase.from("giveaway_entries").update({ magic_sent_at: new Date(now).toISOString() }).eq("id", data.id);
-    await log(data.id, "dashboard_email", { sent: emailed, resend: false });
-    return json({ token: data.session_token, entrant: publicView(data), emailed });
+    const outcome = await emailEntry(data, false);
+    return json({ token: data.session_token, entrant: publicView(data), ...outcome });
   }
 
   if (action === "resend") {
     const email = String(body.email ?? "").trim().toLowerCase();
     if (!EMAIL_REGEX.test(email)) return json({ error: "Enter a valid email address." }, 400);
     if (!(await rateOk(ipHash, "resend", 10, 3600))) return json({ error: "Too many attempts. Please try again later." }, 429);
-    const { data } = await supabase.from("giveaway_entries").select("id, email, magic_token, magic_sent_at, disqualified_at").eq("email", email).maybeSingle();
+    const { data } = await supabase.from("giveaway_entries").select("id, email, magic_token, disqualified_at").eq("email", email).maybeSingle();
     // Always the same answer, so this form cannot be used to test which emails entered.
-    if (data && !data.disqualified_at) await emailKnownEntry(data, now, true);
+    if (data && !data.disqualified_at) await emailEntry(data, true);
     return json({ ok: true });
   }
 

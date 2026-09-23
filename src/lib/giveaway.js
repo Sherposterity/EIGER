@@ -101,7 +101,7 @@ const localBackend = {
   async enter({ email, country, consent, ref }) {
     const existing = readLocal();
     // Review mode mirrors production: a known email gets no dashboard back, only the "link sent" reply.
-    if (existing && existing.email === email.toLowerCase()) return { existing: true, emailed: true };
+    if (existing && existing.email === email.toLowerCase()) return { existing: true, email: 'sent' };
     return writeLocal({
       id: makeCode(),
       email: email.toLowerCase(),
@@ -111,7 +111,7 @@ const localBackend = {
       code: makeCode(),
       magic: makeCode() + makeCode(),
       progress: { entry: 1 },
-      emailed: true,
+      email: 'sent',
       createdAt: new Date().toISOString(),
     });
   },
@@ -157,9 +157,9 @@ const supabaseBackend = {
   },
   async enter({ email, country, consent, ref, website }) {
     const data = await call('enter', { email, country, consent, ref, website });
-    if (data.existing) return { existing: true, emailed: !!data.emailed };
+    if (data.existing) return { existing: true, email: data.email, retryAfterSeconds: data.retryAfterSeconds };
     localStorage.setItem(SESSION_KEY, data.token);
-    return { ...data.entrant, emailed: data.emailed };
+    return { ...data.entrant, email: data.email };
   },
   // Opened from the emailed dashboard link on any device.
   async resume(entryToken) {
