@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import SiteNav from '../components/SiteNav';
 import Footer from '../components/Footer';
@@ -85,8 +85,9 @@ const TicketMeter = ({ tickets }) => {
   );
 };
 
-const TaskRow = ({ task, units, onDo, busy, open }) => {
+const TaskRow = ({ task, units, onDo, busy, open, activated, opened, onOpen }) => {
   const done = task.perUnit ? units >= task.maxUnits : units > 0;
+  const honor = task.id === 'tiktok' || task.id === 'instagram' || task.id === 'kickstarter';
   const earned = task.perUnit ? task.tickets * Math.min(units, task.maxUnits) : units ? task.tickets : 0;
   const available = task.perUnit ? task.tickets * task.maxUnits : task.tickets;
   const comingSoon = task.id === 'kickstarter' && !GIVEAWAY.links.kickstarter;
@@ -112,14 +113,23 @@ const TaskRow = ({ task, units, onDo, busy, open }) => {
         </span>
         {task.auto ? null : comingSoon ? (
           <span className="rounded-full border border-white/10 px-4 py-2 text-xs uppercase tracking-[0.18em] text-white/30">Coming soon</span>
-        ) : done ? null : (
+        ) : done ? null : honor && !opened ? (
+          <button
+            type="button"
+            onClick={() => onOpen(task)}
+            disabled={busy || !open || !activated}
+            className="rounded-full border border-white/20 px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:border-white/50 disabled:opacity-50"
+          >
+            {task.id === 'kickstarter' ? 'Open Kickstarter' : `Open ${task.id === 'tiktok' ? 'TikTok' : 'Instagram'}`}
+          </button>
+        ) : (
           <button
             type="button"
             onClick={() => onDo(task)}
-            disabled={busy || (!open && task.id !== 'referral')}
+            disabled={busy || (!open && task.id !== 'referral') || (!activated && task.id !== 'referral')}
             className="rounded-full bg-white px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-black transition hover:bg-white/90 disabled:opacity-50"
           >
-            {task.id === 'app' ? 'I signed up' : task.id === 'referral' ? 'Copy my link' : 'Follow'}
+            {task.id === 'app' ? 'I signed up' : task.id === 'referral' ? 'Copy my link' : task.id === 'kickstarter' ? 'I had a look' : 'I followed'}
           </button>
         )}
       </div>
@@ -152,6 +162,19 @@ export default function GiveawayPage() {
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState('');
   const [resendMode, setResendMode] = useState(false);
+  // Honor tasks are two steps: open the profile, then claim. Nothing is verified by the open itself.
+  const [openedTasks, setOpenedTasks] = useState({});
+  // Status refreshes can resolve out of order; only the newest request may update the dashboard.
+  const statusGen = useRef(0);
+  const refreshStatus = () => {
+    const gen = ++statusGen.current;
+    backend.status().then((s) => { if (s && gen === statusGen.current) setEntrant(s); }).catch(() => undefined);
+  };
+  // A write (entry, task, resume) makes every in-flight status refresh stale.
+  const commitEntrant = (e) => {
+    statusGen.current += 1;
+    setEntrant(e);
+  };
 
   useEffect(() => {
     if (unsubscribed === '1') setNotice('You are unsubscribed from giveaway and Eiger marketing emails. Your entry stays in the draw, and dashboard links you request are still sent.');
@@ -160,7 +183,7 @@ export default function GiveawayPage() {
   // A referrer who keeps the page open sees a friend's credit when they come back to the tab.
   useEffect(() => {
     const refresh = () => {
-      if (document.visibilityState === 'visible') backend.status().then((s) => { if (s) setEntrant(s); }).catch(() => undefined);
+      if (document.visibilityState === 'visible') refreshStatus();
     };
     document.addEventListener('visibilitychange', refresh);
     window.addEventListener('focus', refresh);
@@ -177,8 +200,8 @@ export default function GiveawayPage() {
     const restore = entryToken ? backend.resume(entryToken) : backend.status();
     restore
       .then((s) => {
-        setEntrant(s);
-        if (entryToken && s) setNotice('Welcome back. This device now shows your dashboard.');
+        commitEntrant(s);
+        if (entryToken && s) setNotice(s.activated ? 'Welcome back. This device now shows your dashboard.' : 'This device now shows your dashboard.');
       })
       .catch((err) => setError(err.message || 'That link is not valid.'))
       .finally(() => setLoading(false));
@@ -208,13 +231,13 @@ export default function GiveawayPage() {
         );
         return;
       }
-      setEntrant(next);
+      commitEntrant(next);
       clearReferral();
       if (ref && !next.referred) {
-        setNotice(`You are in. The referral link you used did not match an active entry, so no friend is credited, but your own tickets are unaffected.${next.emailOutcome === 'failed' ? '' : ` We emailed a dashboard link to ${form.email.trim()}.`}`);
+        setNotice(`Entry reserved. The referral link you used did not match an active entry, so no friend is credited, but your own tickets are unaffected.${next.emailOutcome === 'failed' ? '' : ` Open the link we emailed to ${form.email.trim()} to activate.`}`);
         return;
       }
-      setNotice(next.emailOutcome === 'failed' ? 'You are in. We could not send your dashboard email just now. Keep this browser to track your tickets, or use "Resend my dashboard link" below.' : `You are in. We emailed a dashboard link to ${form.email.trim()} so you can come back from any device.`);
+      setNotice(next.emailOutcome === 'failed' ? 'Entry reserved, but we could not send your activation email just now. Use "Resend the activation link" below in a minute.' : `Entry reserved. Open the link we emailed to ${form.email.trim()} to activate it; that also lets you come back from any device.`);
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
@@ -239,22 +262,24 @@ export default function GiveawayPage() {
     }
   };
 
+  const openTask = (task) => {
+    window.open(GIVEAWAY.links[task.id], '_blank', 'noopener');
+    setOpenedTasks((o) => ({ ...o, [task.id]: true }));
+  };
+
   const doTask = async (task) => {
     if (phase !== 'open' && task.id !== 'referral') return setError(phase === 'upcoming' ? 'Tasks open on October 1.' : 'Entries are closed.');
     setBusy(true);
     try {
-      if (task.id === 'tiktok' || task.id === 'instagram' || task.id === 'kickstarter') {
-        window.open(GIVEAWAY.links[task.id], '_blank', 'noopener');
-      }
       if (task.id === 'referral') {
         await navigator.clipboard.writeText(referralLink(entrant.code));
         setCopied(true);
         setTimeout(() => setCopied(false), 2500);
         // Review mode only: pretend a friend just signed up so the meter moves.
-        if (backend.mode === 'local') setEntrant(await backend.complete('referral'));
+        if (backend.mode === 'local') commitEntrant(await backend.complete('referral'));
         return;
       }
-      setEntrant(await backend.complete(task.id));
+      commitEntrant(await backend.complete(task.id));
     } catch (err) {
       setError(err.message || 'Could not record that. Please try again.');
     } finally {
@@ -392,16 +417,29 @@ export default function GiveawayPage() {
           ) : (
             <div className="space-y-6">
               {notice ? <div className="glass-card px-6 py-4 text-sm text-white/70">{notice}</div> : null}
+              {entrant.activated ? null : (
+                <div className="glass-card border-white/20 px-6 py-5" data-testid="pending-banner">
+                  <div className="text-[11px] uppercase tracking-[0.22em] text-white/40">One step left</div>
+                  <div className="mt-2 font-semibold">Open the link we emailed to {entrant.email} to activate your entry.</div>
+                  <div className="mt-1 text-sm text-white/50">Until then your entry is reserved but not in the draw, and tasks stay locked. Once opened, that link is your way back in on any device. Nothing in the inbox? Check spam, or resend below.</div>
+                  <button type="button" onClick={resendLink} disabled={busy} className="mt-3 rounded-full bg-white px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-black transition hover:bg-white/90 disabled:opacity-50">
+                    Resend the activation link
+                  </button>
+                  {backend.mode === 'local' ? (
+                    <a href={`/#/giveaway?entry=${entrant.magic}`} className="ml-4 text-xs text-white/30 underline underline-offset-4 hover:text-white/60">Review mode: open the emailed link</a>
+                  ) : null}
+                </div>
+              )}
               <TicketMeter tickets={tickets} />
               <ul className="space-y-3">
                 {TASKS.map((task) => (
-                  <TaskRow key={task.id} task={task} units={entrant.progress?.[task.id] ?? 0} onDo={doTask} busy={busy} open={phase === 'open'} />
+                  <TaskRow key={task.id} task={task} units={entrant.progress?.[task.id] ?? 0} onDo={doTask} onOpen={openTask} opened={!!openedTasks[task.id]} busy={busy} open={phase === 'open'} activated={!!entrant.activated} />
                 ))}
               </ul>
               <div className="glass-card p-6 sm:p-8">
                 <div className="flex items-center justify-between">
                   <div className="text-[11px] uppercase tracking-[0.22em] text-white/40">Your referral link</div>
-                  <button type="button" onClick={() => backend.status().then((s) => { if (s) setEntrant(s); }).catch(() => undefined)} className="text-xs text-white/40 underline underline-offset-4 hover:text-white">
+                  <button type="button" onClick={refreshStatus} className="text-xs text-white/40 underline underline-offset-4 hover:text-white">
                     Refresh
                   </button>
                 </div>

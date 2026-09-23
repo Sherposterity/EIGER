@@ -41,12 +41,12 @@ export const GIVEAWAY = {
 // The ticket table. `verifiable` tasks are confirmed on our side; the rest
 // are taken on the entrant's word, as every follow-to-enter giveaway does.
 export const TASKS = [
-  { id: 'entry', label: 'Enter with your email', tickets: 1, verifiable: true, auto: true, detail: 'Your free entry. This is all it takes to be in the draw.' },
+  { id: 'entry', label: 'Enter with your email', tickets: 1, verifiable: true, auto: true, detail: 'Your free entry. Open the link we email you to activate it; that is all it takes to be in the draw.' },
   { id: 'app', label: 'Create your Eiger account', tickets: 4, verifiable: true, detail: 'Download Eiger and sign up with the same email you entered with. We confirm the account on our side.' },
   { id: 'referral', label: 'Bring a friend', tickets: 2, perUnit: true, maxUnits: 3, verifiable: true, detail: 'Share your link. Each friend who enters through it, creates an Eiger account with their email, and taps "I signed up" earns you 2 tickets, up to 3 friends.' },
-  { id: 'tiktok', label: 'Follow Eiger on TikTok', tickets: 3, verifiable: false, detail: '@eiger_tech' },
-  { id: 'instagram', label: 'Follow Eiger on Instagram', tickets: 3, verifiable: false, detail: '@eiger014' },
-  { id: 'kickstarter', label: 'Visit the Kickstarter', tickets: 3, verifiable: false, detail: 'Have a look. Backing is never required.' },
+  { id: 'tiktok', label: 'Follow Eiger on TikTok', tickets: 3, verifiable: false, detail: '@eiger_tech. On your honour: open the profile, follow, then tell us.' },
+  { id: 'instagram', label: 'Follow Eiger on Instagram', tickets: 3, verifiable: false, detail: '@eiger014. On your honour: open the profile, follow, then tell us.' },
+  { id: 'kickstarter', label: 'Visit the Kickstarter', tickets: 3, verifiable: false, detail: 'Have a look, then tell us. Backing is never required.' },
 ];
 
 export const ticketsFor = (progress) =>
@@ -137,6 +137,8 @@ const localBackend = {
       consent: !!consent,
       referredBy: ref || null,
       referred: !!ref,
+      // Review mode mirrors production: pending until the emailed link is opened.
+      activated: false,
       code: makeCode(),
       magic: makeCode() + makeCode(),
       progress: { entry: 1 },
@@ -147,6 +149,7 @@ const localBackend = {
   async complete(taskId) {
     const state = readLocal();
     if (!state) throw new Error('Enter first');
+    if (!state.activated) throw new Error('Open the link in your email first to activate your entry, then come back for tasks.');
     const next = { ...state, progress: { ...state.progress } };
     if (taskId === 'referral') next.progress.referral = Math.min(3, (next.progress.referral ?? 0) + 1);
     else next.progress[taskId] = 1;
@@ -159,7 +162,7 @@ const localBackend = {
   async resume(entryToken) {
     const state = readLocal();
     if (!state || state.magic !== entryToken) throw new Error('That link is not valid. Enter with your email to get a new one.');
-    return state;
+    return writeLocal({ ...state, activated: true });
   },
   async resend() {
     return { ok: true };

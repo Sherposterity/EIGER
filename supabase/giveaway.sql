@@ -315,3 +315,158 @@ begin
   return case when known is null then 'unknown' else 'ok' end;
 end $$;
 revoke all on function public.giveaway_opt_out(text) from anon, authenticated, public;
+
+
+-- ---------------------------------------------------------------------------
+-- 110 (2026-09-22): entries pending until the emailed link is opened (activation, deadline, session rotation, referral reconcile). See hike scripts/migrations/110.
+-- ---------------------------------------------------------------------------
+
+alter table public.giveaway_entries add column if not exists activated_at timestamptz;
+create index if not exists giveaway_entries_activated_idx on public.giveaway_entries (activated_at) where activated_at is not null;
+
+-- Public view now says whether the entry is activated.
+create or replace function public.giveaway_public(e public.giveaway_entries)
+returns jsonb language sql immutable as $$
+  select jsonb_build_object(
+    'id', e.id, 'email', e.email, 'country', e.country, 'code', e.code,
+    'progress', e.progress, 'tickets', public.giveaway_tickets(e.progress),
+    'referred', e.referred_by is not null,
+    'activated', e.activated_at is not null,
+    'createdAt', e.created_at)
+$$;
+
+-- First use of the magic token before the deadline activates (once); later uses just
+-- report and hand back the current session. Locks the entry row so activation and a
+-- friend's verification serialize on the referrer.
+drop function if exists public.giveaway_activate(text);
+create or replace function public.giveaway_activate(p_magic text, p_deadline timestamptz)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare
+  e public.giveaway_entries;
+  f record;
+  n int;
+begin
+  select * into e from public.giveaway_entries where magic_token = p_magic and disqualified_at is null for update;
+  if not found then return jsonb_build_object('ok', false, 'reason', 'unknown'); end if;
+  if e.activated_at is null then
+    if now() >= p_deadline then
+      return jsonb_build_object('ok', true, 'activated', false, 'reason', 'closed');
+    end if;
+    update public.giveaway_entries
+       set activated_at = now(), session_token = encode(extensions.gen_random_bytes(24), 'hex')  -- pgcrypto lives in `extensions`; search_path is pinned to public
+     where id = e.id returning * into e;
+    insert into public.giveaway_events (entry_id, kind) values (e.id, 'activated');
+    -- Reconcile friends who verified their app account while this referrer was pending.
+    for f in select g.id from public.giveaway_entries g
+              where g.referred_by = e.id and g.disqualified_at is null and g.app_verified_at is not null
+                and not exists (select 1 from public.giveaway_referral_credits c where c.referred_entry_id = g.id)
+              order by g.app_verified_at
+    loop
+      n := coalesce((e.progress->>'referral')::int, 0);
+      insert into public.giveaway_referral_credits (referred_entry_id, referrer_id, counted)
+      values (f.id, e.id, n < 3) on conflict (referred_entry_id) do nothing;
+      if found and n < 3 then
+        update public.giveaway_entries set progress = progress || jsonb_build_object('referral', n + 1)
+         where id = e.id returning * into e;
+        insert into public.giveaway_events (entry_id, kind, detail) values (e.id, 'referral_credit', jsonb_build_object('from', f.id, 'reconciled', true));
+      end if;
+    end loop;
+  end if;
+  return jsonb_build_object('ok', true, 'activated', true, 'token', e.session_token, 'entrant', public.giveaway_public(e));
+end $$;
+revoke all on function public.giveaway_activate(text, timestamptz) from anon, authenticated, public;
+
+-- Honor tasks require activation.
+create or replace function public.giveaway_complete_task(p_token text, p_task text)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare e public.giveaway_entries;
+begin
+  if p_task not in ('tiktok', 'instagram', 'kickstarter') then
+    return jsonb_build_object('ok', false, 'reason', 'unknown_task');
+  end if;
+  select * into e from public.giveaway_entries where session_token = p_token for update;
+  if not found then return jsonb_build_object('ok', false, 'reason', 'no_session'); end if;
+  if e.disqualified_at is not null then return jsonb_build_object('ok', false, 'reason', 'disqualified'); end if;
+  if e.activated_at is null then return jsonb_build_object('ok', false, 'reason', 'pending'); end if;
+  if coalesce((e.progress->>p_task)::int, 0) = 0 then
+    update public.giveaway_entries set progress = progress || jsonb_build_object(p_task, 1)
+     where id = e.id returning * into e;
+    insert into public.giveaway_events (entry_id, kind, detail) values (e.id, 'task', jsonb_build_object('task', p_task));
+  end if;
+  return jsonb_build_object('ok', true, 'entrant', public.giveaway_public(e));
+end $$;
+
+-- App verification requires the entrant's own activation; the referrer is credited
+-- now if activated, otherwise when the referrer activates (see giveaway_activate).
+create or replace function public.giveaway_verify_app(p_token text)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare
+  e public.giveaway_entries;
+  r public.giveaway_entries;
+  has_account boolean;
+  inserted boolean := false;
+begin
+  select * into e from public.giveaway_entries where session_token = p_token for update;
+  if not found then return jsonb_build_object('ok', false, 'reason', 'no_session'); end if;
+  if e.disqualified_at is not null then return jsonb_build_object('ok', false, 'reason', 'disqualified'); end if;
+  if e.activated_at is null then return jsonb_build_object('ok', false, 'reason', 'pending'); end if;
+
+  if coalesce((e.progress->>'app')::int, 0) = 0 then
+    select exists (
+      select 1 from auth.users u where lower(u.email) = e.email and u.email_confirmed_at is not null
+    ) into has_account;
+    if not has_account then return jsonb_build_object('ok', false, 'reason', 'no_account'); end if;
+    update public.giveaway_entries
+       set progress = progress || '{"app": 1}'::jsonb, app_verified_at = now()
+     where id = e.id returning * into e;
+    insert into public.giveaway_events (entry_id, kind) values (e.id, 'verified_app');
+  end if;
+
+  if e.referred_by is not null then
+    select * into r from public.giveaway_entries where id = e.referred_by for update;
+    if found and r.disqualified_at is null and r.activated_at is not null then
+      insert into public.giveaway_referral_credits (referred_entry_id, referrer_id, counted)
+      values (e.id, r.id, coalesce((r.progress->>'referral')::int, 0) < 3)
+      on conflict (referred_entry_id) do nothing;
+      get diagnostics inserted = row_count;
+      if inserted and coalesce((r.progress->>'referral')::int, 0) < 3 then
+        update public.giveaway_entries
+           set progress = progress || jsonb_build_object('referral', coalesce((r.progress->>'referral')::int, 0) + 1)
+         where id = r.id;
+        insert into public.giveaway_events (entry_id, kind, detail) values (r.id, 'referral_credit', jsonb_build_object('from', e.id));
+      end if;
+    end if;
+  end if;
+
+  return jsonb_build_object('ok', true, 'entrant', public.giveaway_public(e));
+end $$;
+
+-- Only activated entries count.
+create or replace view public.giveaway_ticket_totals as
+  select count(*) as entrants, coalesce(sum(public.giveaway_tickets(progress)), 0) as tickets
+    from public.giveaway_entries where disqualified_at is null and activated_at is not null;
+
+create or replace function public.giveaway_draw(p_seed text, p_skip uuid[] default '{}')
+returns table (entry_id uuid, email text, country text, tickets int, total_tickets bigint)
+language sql security definer set search_path = public as $$
+  with pool as (
+    select e.id, e.email, e.country, public.giveaway_tickets(e.progress) as tickets
+      from public.giveaway_entries e
+     where e.disqualified_at is null and e.activated_at is not null and not (e.id = any (p_skip))
+  ),
+  expanded as (
+    select p.id, p.email, p.country, p.tickets, g.n
+      from pool p, generate_series(1, p.tickets) as g(n)
+  )
+  select x.id, x.email, x.country, x.tickets, (select count(*) from expanded) as total_tickets
+    from expanded x
+   order by md5(p_seed || x.id::text || x.n::text)
+   limit 1
+$$;
+
+drop view if exists public.giveaway_marketing_audience;
+create view public.giveaway_marketing_audience as
+  select id, email, country, code, unsubscribe_token
+    from public.giveaway_entries
+   where disqualified_at is null and marketing_opt_out_at is null and activated_at is not null;
+revoke all on public.giveaway_marketing_audience from anon, authenticated;

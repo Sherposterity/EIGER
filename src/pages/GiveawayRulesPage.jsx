@@ -62,7 +62,7 @@ export default function GiveawayRulesPage() {
           </Section>
 
           <Section n={4} title="How to enter">
-            <p>Go to eiger014.com/giveaway during the Giveaway Period, enter your email address and country, confirm your eligibility and acceptance of these rules, and submit the form. This free entry earns one (1) ticket and is all that is required to be included in the draw. Limit one entry per person and per email address. Entries by agents, bots, or automated means are void.</p>
+            <p>Go to eiger014.com/giveaway during the Giveaway Period, enter your email address and country, confirm your eligibility and acceptance of these rules, and submit the form. The Sponsor then emails an activation link to that address; opening it within the Giveaway Period activates the entry. This free entry earns one (1) ticket and is all that is required to be included in the draw. Entries that are never activated are not included in the draw and earn no bonus tickets. Limit one entry per person and per email address. Entries by agents, bots, or automated means are void.</p>
             <p>Free alternative method of entry: send an email with the subject "Giveaway entry" and your full name and country to {s.email} during the Giveaway Period. Mail-in style entries receive one (1) ticket and are treated identically to entries made on the website.</p>
           </Section>
 
@@ -73,7 +73,7 @@ export default function GiveawayRulesPage() {
                 <li key={t.id}>
                   {t.label}: {t.tickets} ticket{t.tickets === 1 ? '' : 's'}
                   {t.perUnit ? ` per friend, up to ${t.maxUnits} friends` : ''}
-                  {t.verifiable ? '' : ' (confirmed by the entrant on the page)'}
+                  {t.verifiable ? '' : ' (on the entrant\'s honour, confirmed by the entrant on the page; the Sponsor cannot verify follows or visits and may ask the winner to show them)'}
                 </li>
               ))}
             </ul>

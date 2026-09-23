@@ -36,17 +36,21 @@ NOACCT, ACCT = args[0].lower(), args[1].lower()
 WINDOW_CLOSED = "--window-closed" in sys.argv
 
 EXPECTED = ["window closed: enter refused"] if WINDOW_CLOSED else [
-    "enter: new entry with token, 1 ticket, email sent",
+    "enter: new entry with token, 1 ticket, email sent, pending",
     "enter again: existing, throttled, no token or entrant",
-    "status: returns own entry with code",
+    "status: returns own entry with code, still pending",
+    "pending: tiktok task refused with an activation message, nothing recorded",
+    "resume via the emailed token: activates once, new session issued",
+    "old pending session is dead after activation: status empty, task refused",
     "app task without a confirmed account: refused, tickets unchanged",
     "kickstarter task refused while unconfigured",
     "tiktok task: recorded once, tickets 4",
     "tiktok task again: idempotent, still 4",
-    "resume via the emailed token: session restored",
+    "resume again: idempotent, still one activated event, tickets kept",
     "resume with a bad link: 404, no token",
-    "referred friend enters (confirmed account)",
-    "friend's app task: verified, tickets 5",
+    "referred friend enters (confirmed account), pending",
+    "regression: friend's app task while pending is refused, no app or referral credit",
+    "friend activates via the emailed token, then app task: verified, tickets 5",
     "referrer credited: 4 + 2 = 6 tickets",
     "honeypot: fake success, nothing stored",
     "resend: uniform reply for entered and unknown emails",
@@ -102,14 +106,27 @@ try:
     else:
         st, d = call({"action": "enter", "email": NOACCT, "country": "Test", "consent": True})
         track(d)
-        check("enter: new entry with token, 1 ticket, email sent", st == 200 and bool(d.get("token")) and (d.get("entrant") or {}).get("tickets") == 1 and d.get("email") == "sent", f"{st} email={d.get('email')}")
+        check("enter: new entry with token, 1 ticket, email sent, pending", st == 200 and bool(d.get("token")) and (d.get("entrant") or {}).get("tickets") == 1 and d.get("email") == "sent" and (d.get("entrant") or {}).get("activated") is False, f"{st} email={d.get('email')} activated={(d.get('entrant') or {}).get('activated')}")
         token = d.get("token")
 
         st, d2 = call({"action": "enter", "email": NOACCT, "country": "Test", "consent": True})
         check("enter again: existing, throttled, no token or entrant", st == 200 and d2.get("existing") is True and d2.get("email") == "throttled" and "token" not in d2 and "entrant" not in d2, f"{st} {d2.get('email')} retry={d2.get('retryAfterSeconds')}")
 
         st, d3 = call({"action": "status", "token": token})
-        check("status: returns own entry with code", st == 200 and (d3 or {}).get("tickets") == 1 and bool((d3 or {}).get("code")))
+        check("status: returns own entry with code, still pending", st == 200 and (d3 or {}).get("tickets") == 1 and bool((d3 or {}).get("code")) and (d3 or {}).get("activated") is False)
+
+        st, dp = call({"action": "complete", "token": token, "task": "tiktok"})
+        prog = sql(f"select progress from public.giveaway_entries where id='{created_entry_ids[0]}'")[0]["progress"]
+        check("pending: tiktok task refused with an activation message, nothing recorded", st == 403 and "activate" in (dp.get("error") or "") and not prog.get("tiktok"), f"{st} {dp.get('error')}")
+
+        magic = sql(f"select magic_token from public.giveaway_entries where id='{created_entry_ids[0]}'")[0]["magic_token"]
+        st, d8 = call({"action": "resume", "entry": magic})
+        act_events = sql(f"select count(*) c from public.giveaway_events where entry_id='{created_entry_ids[0]}' and kind='activated'")[0]["c"]
+        check("resume via the emailed token: activates once, new session issued", st == 200 and bool(d8.get("token")) and d8.get("token") != token and (d8.get("entrant") or {}).get("activated") is True and act_events == 1, f"{st} events={act_events} rotated={d8.get('token') != token}")
+        old_token, token = token, d8.get("token")
+        st, dz = call({"action": "status", "token": old_token})
+        st2, dy = call({"action": "complete", "token": old_token, "task": "tiktok"})
+        check("old pending session is dead after activation: status empty, task refused", st == 200 and not dz and st2 == 401, f"status={st} {dz!r} task={st2}")
 
         st, d4 = call({"action": "complete", "token": token, "task": "app"})
         check("app task without a confirmed account: refused, tickets unchanged", st == 400 and "No confirmed Eiger account" in (d4.get("error") or ""))
@@ -122,17 +139,27 @@ try:
         st, d7 = call({"action": "complete", "token": token, "task": "tiktok"})
         check("tiktok task again: idempotent, still 4", st == 200 and d7.get("tickets") == 4)
 
-        magic = sql(f"select magic_token from public.giveaway_entries where id='{created_entry_ids[0]}'")[0]["magic_token"]
         st, d8 = call({"action": "resume", "entry": magic})
-        check("resume via the emailed token: session restored", st == 200 and bool(d8.get("token")) and (d8.get("entrant") or {}).get("tickets") == 4)
+        act_events = sql(f"select count(*) c from public.giveaway_events where entry_id='{created_entry_ids[0]}' and kind='activated'")[0]["c"]
+        check("resume again: idempotent, still one activated event, tickets kept", st == 200 and d8.get("token") == token and (d8.get("entrant") or {}).get("tickets") == 4 and act_events == 1, f"{st} events={act_events} same_token={d8.get('token') == token}")
         st, d9 = call({"action": "resume", "entry": "NOT-A-REAL-TOKEN"})
         check("resume with a bad link: 404, no token", st == 404 and "token" not in d9)
 
         st, da = call({"action": "enter", "email": ACCT, "country": "Test", "consent": True, "ref": (d3 or {}).get("code")})
         track(da)
-        check("referred friend enters (confirmed account)", st == 200 and bool(da.get("token")))
-        st, db = call({"action": "complete", "token": da.get("token"), "task": "app"})
-        check("friend's app task: verified, tickets 5", st == 200 and db.get("tickets") == 5)
+        check("referred friend enters (confirmed account), pending", st == 200 and bool(da.get("token")) and (da.get("entrant") or {}).get("activated") is False)
+        # Codex ALL_TICKET_PATHS_REVIEW P1 regression: an address that has a confirmed app account was entered
+        # by whoever typed it; without opening the emailed link it must earn nothing and credit no referrer.
+        st, dq = call({"action": "complete", "token": da.get("token"), "task": "app"})
+        friend_id = created_entry_ids[-1]
+        reg = sql(f"""select (select progress from public.giveaway_entries where id='{friend_id}') as p,
+                          (select count(*) from public.giveaway_referral_credits where referred_entry_id='{friend_id}') as credits,
+                          (select public.giveaway_tickets(progress) from public.giveaway_entries where id='{created_entry_ids[0]}') as referrer_t""")[0]
+        check("regression: friend's app task while pending is refused, no app or referral credit", st == 403 and not reg["p"].get("app") and reg["credits"] == 0 and reg["referrer_t"] == 4, f"{st} credits={reg['credits']} referrer={reg['referrer_t']}")
+        fmagic = sql(f"select magic_token from public.giveaway_entries where id='{friend_id}'")[0]["magic_token"]
+        st, dr = call({"action": "resume", "entry": fmagic})
+        st, db = call({"action": "complete", "token": dr.get("token"), "task": "app"})
+        check("friend activates via the emailed token, then app task: verified, tickets 5", st == 200 and db.get("tickets") == 5 and (dr.get("entrant") or {}).get("activated") is True)
         st, dc = call({"action": "status", "token": token})
         check("referrer credited: 4 + 2 = 6 tickets", st == 200 and (dc or {}).get("tickets") == 6, f"tickets={(dc or {}).get('tickets')}")
 

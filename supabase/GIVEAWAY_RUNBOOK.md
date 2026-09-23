@@ -28,15 +28,25 @@ from the browser.
 For each "Giveaway entry" email received at business@ during the window:
 
 ```sql
-insert into public.giveaway_entries (email, country, code, session_token, magic_token, progress)
+insert into public.giveaway_entries (email, country, code, session_token, magic_token, progress, activated_at)
 values (lower('<email>'), '<country>', upper(substr(md5(random()::text), 1, 6)),
-        encode(gen_random_bytes(24), 'hex'), encode(gen_random_bytes(24), 'hex'), '{"entry": 1}');
+        encode(gen_random_bytes(24), 'hex'), encode(gen_random_bytes(24), 'hex'), '{"entry": 1}', now());
+-- activated_at = now(): the operator received the email, which is the ownership proof the
+-- website gets from the activation link.
 insert into public.giveaway_events (entry_id, kind, detail)
 values ((select id from public.giveaway_entries where email = lower('<email>')), 'entered', '{"via": "email"}');
 ```
 
 Reply to the sender that they are in with one ticket. They may open the page
 and use "Already entered? Email me my dashboard link" to get the same dashboard.
+
+## Pending entries
+
+An entry is pending until its emailed activation link is opened (`activated_at`). Pending entries are not in the draw, the totals or the marketing audience, and cannot complete tasks or earn a referrer credit. Activation only happens before the close; a pending link opened afterwards is told the entry is not in the draw. The first activation also rotates the session token, so a browser that merely typed the address is signed out. If someone writes in that their activation email never arrives, verify the address by replying to it and then activate by hand (before the close only; this also credits any friends who verified while the entry was pending):
+
+```sql
+select public.giveaway_activate((select magic_token from public.giveaway_entries where email = lower('<email>')), '2026-11-10T16:00:00Z');
+```
 
 ## Disqualifying an entry
 

@@ -10,7 +10,9 @@
 //              known email-> { existing: true, email: 'sent' | 'throttled' | 'failed', retryAfterSeconds? }
 //                            (NO token: the inbox link is the only way back in)
 //   status   { token }                 -> entrant | null
-//   resume   { entry }                 -> { token, entrant }   (entry = magic token from the email link)
+//   resume   { entry }                 -> { token, entrant }   (entry = magic token from the email link;
+//                                          the first use ACTIVATES the entry: until then it is pending,
+//                                          earns nothing beyond the reserved entry ticket and is not in the draw)
 //   resend   { email }                 -> { ok: true }         (uniform reply, throttled per email and per IP)
 //   complete { token, task }           -> entrant
 //   GET  ?unsubscribe=<unsubscribe token> -> confirmation page, NO state change (link scanners, RFC 8058 s.1)
@@ -66,6 +68,7 @@ const publicView = (row: Record<string, unknown>) => ({
   progress: row.progress,
   tickets: tickets((row.progress ?? {}) as Record<string, number>),
   referred: !!row.referred_by,
+  activated: !!row.activated_at,
   createdAt: row.created_at,
 });
 
@@ -115,9 +118,9 @@ async function sendDashboardEmail(email: string, magic: string, unsubscribeToken
   <div style="background:#0A0A0A;color:#FAFAFA;font-family:system-ui,-apple-system,Segoe UI,sans-serif;padding:40px 24px;">
     <div style="max-width:520px;margin:0 auto;">
       <div style="font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.5);">Eiger launch giveaway</div>
-      <h1 style="font-size:26px;margin:18px 0 10px;">You are in the draw.</h1>
-      <p style="color:rgba(255,255,255,0.65);line-height:1.6;margin:0 0 24px;">This link opens your giveaway dashboard on any device: your tickets, the tasks, and your referral link. Keep this email, it is your way back in.</p>
-      <a href="${link}" style="display:inline-block;background:#FFFFFF;color:#000000;text-decoration:none;font-weight:600;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;padding:14px 26px;border-radius:999px;">Open my dashboard</a>
+      <h1 style="font-size:26px;margin:18px 0 10px;">Activate your entry.</h1>
+      <p style="color:rgba(255,255,255,0.65);line-height:1.6;margin:0 0 24px;">Open this link to activate your giveaway entry and reach your dashboard on any device: your tickets, the tasks, and your referral link. Until it is opened, your entry is reserved but not in the draw. Keep this email, it is your way back in.</p>
+      <a href="${link}" style="display:inline-block;background:#FFFFFF;color:#000000;text-decoration:none;font-weight:600;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;padding:14px 26px;border-radius:999px;">Activate and open my dashboard</a>
       <p style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.6;margin:28px 0 0;">If you did not enter the Eiger giveaway, ignore this email and nothing happens. No purchase necessary. Sponsor: Eiger LLC, Texas, USA. Official rules: ${SITE_URL}/#/giveaway/rules</p>
       <p style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.6;margin:12px 0 0;">You received this because you entered the giveaway. To stop giveaway and Eiger marketing emails sent through this list, <a href="${unsubscribeLink(unsubscribeToken)}" style="color:rgba(255,255,255,0.6);">unsubscribe</a>. Your entry stays in the draw, and dashboard links you request are still sent.</p>
     </div>
@@ -128,8 +131,8 @@ async function sendDashboardEmail(email: string, magic: string, unsubscribeToken
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       // Replies go to the sponsor contact named in the rules, not to the sending address.
       body: JSON.stringify({
-        from: FROM, to: [email], reply_to: "business@eiger014.com", subject: "Your Eiger giveaway dashboard", html,
-        text: `You are in the Eiger launch giveaway. Open your dashboard on any device: ${link}
+        from: FROM, to: [email], reply_to: "business@eiger014.com", subject: "Activate your Eiger giveaway entry", html,
+        text: `You entered the Eiger launch giveaway. Open this link to activate your entry and reach your dashboard on any device: ${link}
 
 To stop giveaway and Eiger marketing emails sent through this list (your entry stays in the draw): ${unsubscribeLink(unsubscribeToken)}`,
         headers: {
@@ -221,10 +224,15 @@ Deno.serve(async (req) => {
     const magic = String(body.entry ?? "");
     if (!magic) return json({ error: "Missing link" }, 400);
     if (!(await rateOk(ipHash, "resume", 30, 3600))) return json({ error: "Too many attempts. Please try again later." }, 429);
-    const { data } = await supabase.from("giveaway_entries").select("*").eq("magic_token", magic).is("disqualified_at", null).maybeSingle();
-    if (!data) return json({ error: "That link is not valid. Enter with your email to get a new one." }, 404);
-    await log(data.id, "resumed");
-    return json({ token: data.session_token, entrant: publicView(data) });
+    // Opening the emailed link is the proof of inbox ownership: before the close it activates a
+    // pending entry (once) and rotates its session, so only the inbox owner holds a live token.
+    // Already-activated entries resume at any time, including after the close.
+    const act = await supabase.rpc("giveaway_activate", { p_magic: magic, p_deadline: new Date(CLOSES_AT).toISOString() });
+    if (act.error) return json({ error: "Could not open your dashboard right now. Please try again." }, 503);
+    if (!act.data?.ok) return json({ error: "That link is not valid. Enter with your email to get a new one." }, 404);
+    if (!act.data.activated) return json({ error: "The giveaway closed before this entry was activated, so it is not in the draw." }, 410);
+    await log(act.data.entrant.id, "resumed");
+    return json({ token: act.data.token, entrant: act.data.entrant });
   }
 
   if (action === "enter") {
@@ -294,7 +302,11 @@ Deno.serve(async (req) => {
       if (task === "kickstarter" && !KICKSTARTER_URL) return json({ error: "The Kickstarter task is not open yet." }, 400);
       const { data, error } = await supabase.rpc("giveaway_complete_task", { p_token: token, p_task: task });
       if (error) return json({ error: "Could not record that. Please try again." }, 503);
-      if (!data?.ok) return json({ error: data?.reason === "no_session" ? "Enter the giveaway first." : "That task is not available." }, data?.reason === "no_session" ? 401 : 400);
+      if (!data?.ok) {
+        if (data?.reason === "no_session") return json({ error: "Enter the giveaway first." }, 401);
+        if (data?.reason === "pending") return json({ error: "Open the link in your email first to activate your entry, then come back for tasks." }, 403);
+        return json({ error: "That task is not available." }, 400);
+      }
       return json(data.entrant);
     }
 
@@ -303,6 +315,7 @@ Deno.serve(async (req) => {
       if (error) return json({ error: "Could not check your account right now. Please try again." }, 503);
       if (!data?.ok) {
         if (data?.reason === "no_session") return json({ error: "Enter the giveaway first." }, 401);
+        if (data?.reason === "pending") return json({ error: "Open the link in your email first to activate your entry, then come back for tasks." }, 403);
         if (data?.reason === "no_account") return json({ error: "No confirmed Eiger account found for your email yet. Sign up in the app with the same email, confirm it, then try again." }, 400);
         return json({ error: "That task is not available." }, 400);
       }
