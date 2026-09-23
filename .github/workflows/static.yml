@@ -45,6 +45,8 @@ jobs:
           # keep that honest and debuggable.
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          # Giveaway backend selector. Unset = the page fails closed (no entries taken).
+          VITE_GIVEAWAY_BACKEND: ${{ vars.VITE_GIVEAWAY_BACKEND }}
       - name: Setup Pages
         uses: actions/configure-pages@v6
       - name: Upload artifact

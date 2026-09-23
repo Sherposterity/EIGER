@@ -1,12 +1,15 @@
 // Eiger launch giveaway: configuration, ticket rules and the entry backend.
 //
-// Backend is selected by VITE_GIVEAWAY_BACKEND:
-//   "local"    (default when unset) keeps everything in localStorage so the
-//              page can be reviewed end to end with no server; nothing leaves
-//              the browser.
+// Backend is selected by VITE_GIVEAWAY_BACKEND (Codex 2026-09-22: never ship
+// the demo by accident):
 //   "supabase" calls the `giveaway` edge function (supabase/functions/giveaway)
 //              with the anon key; the function holds the service role and does
 //              the verifiable checks (app account exists, referral credited).
+//   "local"    keeps everything in localStorage so the page can be reviewed
+//              end to end with no server; nothing leaves the browser. Also the
+//              default in a local `npm run dev` when the variable is unset.
+//   unset in a production build -> DISABLED: the page fails closed, shows that
+//              entries are not open on this site yet, and takes nothing.
 //
 // Copy in this file is user-facing: no dashes.
 
@@ -97,7 +100,8 @@ const localBackend = {
   },
   async enter({ email, country, consent, ref }) {
     const existing = readLocal();
-    if (existing && existing.email === email.toLowerCase()) return existing;
+    // Review mode mirrors production: a known email gets no dashboard back, only the "link sent" reply.
+    if (existing && existing.email === email.toLowerCase()) return { existing: true, emailed: true };
     return writeLocal({
       id: makeCode(),
       email: email.toLowerCase(),
@@ -151,8 +155,9 @@ const supabaseBackend = {
     if (!token) return null;
     return call('status', { token });
   },
-  async enter({ email, country, consent, ref }) {
-    const data = await call('enter', { email, country, consent, ref });
+  async enter({ email, country, consent, ref, website }) {
+    const data = await call('enter', { email, country, consent, ref, website });
+    if (data.existing) return { existing: true, emailed: !!data.emailed };
     localStorage.setItem(SESSION_KEY, data.token);
     return { ...data.entrant, emailed: data.emailed };
   },
@@ -174,4 +179,27 @@ const supabaseBackend = {
   },
 };
 
-export const backend = import.meta.env.VITE_GIVEAWAY_BACKEND === 'supabase' ? supabaseBackend : localBackend;
+// Fail closed: a production build with no backend configured takes no entries.
+const disabledBackend = {
+  mode: 'disabled',
+  async status() {
+    return null;
+  },
+  async enter() {
+    throw new Error('Entries are not open on this site yet. Please check back soon.');
+  },
+  async complete() {
+    throw new Error('Entries are not open on this site yet.');
+  },
+  async resume() {
+    throw new Error('Entries are not open on this site yet.');
+  },
+  async resend() {
+    return { ok: true };
+  },
+  async reset() {},
+};
+
+const selected = import.meta.env.VITE_GIVEAWAY_BACKEND;
+export const backend =
+  selected === 'supabase' ? supabaseBackend : selected === 'local' || (!selected && import.meta.env.DEV) ? localBackend : disabledBackend;

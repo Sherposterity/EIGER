@@ -1,33 +1,37 @@
-// Eiger launch giveaway edge function. DRAFT 2026-09-22, not deployed.
-// Deploy from the hike repo's supabase/functions alongside the webhook once
-// the page is approved: `supabase functions deploy giveaway --no-verify-jwt`.
+// Eiger launch giveaway edge function. DRAFT rev 2 (2026-09-22, after Codex
+// WEBSITE_GIVEAWAY_REVIEW), not deployed. Deploy from the hike repo's
+// supabase/functions once approved: `supabase functions deploy giveaway --no-verify-jwt`.
+// Secrets/env: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (automatic),
+// RESEND_API_KEY, GIVEAWAY_FROM, GIVEAWAY_SITE_URL, GIVEAWAY_KICKSTARTER_URL (optional).
 //
 // Actions (POST JSON { action, ... }):
-//   enter    { email, country, consent, ref? }  -> { token, entrant }   (also emails the dashboard link)
-//   status   { token }                          -> entrant | null
-//   resume   { entry }                          -> { token, entrant }   (entry = magic token from the email link)
-//   resend   { email }                          -> { ok: true }         (re-sends the dashboard link, throttled)
-//   complete { token, task }                    -> entrant
-//     task = app        : verified against auth.users (same email); credits the referrer
-//     task = tiktok | instagram | kickstarter : honor-based, recorded once
-//     task = referral   : not accepted here; referral credit happens when the
-//                         referred entrant's app account is verified
+//   enter    { email, country, consent, ref?, website? }
+//              new email  -> { token, entrant, emailed }
+//              known email-> { existing: true, emailed }   (NO token: the inbox link is the only way back in)
+//   status   { token }                 -> entrant | null
+//   resume   { entry }                 -> { token, entrant }   (entry = magic token from the email link)
+//   resend   { email }                 -> { ok: true }         (uniform reply, throttled per email and per IP)
+//   complete { token, task }           -> entrant
+//     tiktok | instagram | kickstarter : honor tasks, atomic + idempotent in SQL (giveaway_complete_task)
+//     app                              : confirmed auth.users email + referral credit in one transaction (giveaway_verify_app)
 //
-// The browser only ever holds a random session token, never an id or email
-// of anyone else. Everything runs with the service role.
+// Every ticket change happens inside a Postgres function on a locked row, so
+// concurrent requests cannot overwrite each other and a failed write is
+// reported as a failure, never as tickets. The browser only ever holds a
+// random session token. Everything runs with the service role.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 const OPENS_AT = Date.parse("2026-10-01T16:00:00Z");
 const CLOSES_AT = Date.parse("2026-11-10T16:00:00Z");
-const HONOR_TASKS = new Set(["tiktok", "instagram", "kickstarter"]);
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const SITE_URL = Deno.env.get("GIVEAWAY_SITE_URL") ?? "https://eiger014.com";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
-// Same verified sending domain as the app's auth emails.
 const FROM = Deno.env.get("GIVEAWAY_FROM") ?? "Eiger <giveaway@support.eiger014.com>";
+const KICKSTARTER_URL = Deno.env.get("GIVEAWAY_KICKSTARTER_URL") ?? "";
 const RESEND_THROTTLE_MS = 10 * 60 * 1000;
+const HONOR_TASKS = new Set(["tiktok", "instagram", "kickstarter"]);
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const CORS = {
   "Access-Control-Allow-Origin": "https://eiger014.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -43,12 +47,18 @@ const randomCode = (len: number) => {
   return Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("");
 };
 
+const isOpen = (now: number) => now >= OPENS_AT && now < CLOSES_AT;
+
+const tickets = (p: Record<string, number>) =>
+  Math.min(20, (p.entry ? 1 : 0) + (p.app ? 4 : 0) + Math.min(p.referral ?? 0, 3) * 2 + (p.tiktok ? 3 : 0) + (p.instagram ? 3 : 0) + (p.kickstarter ? 3 : 0));
+
 const publicView = (row: Record<string, unknown>) => ({
   id: row.id,
   email: row.email,
   country: row.country,
   code: row.code,
   progress: row.progress,
+  tickets: tickets((row.progress ?? {}) as Record<string, number>),
   createdAt: row.created_at,
 });
 
@@ -57,21 +67,29 @@ async function sha256(text: string) {
   return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+const clientIp = (req: Request) => req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "";
+
+async function rateOk(ipHash: string, kind: string, max: number, windowSeconds: number) {
+  if (!ipHash) return true;
+  const { data, error } = await supabase.rpc("giveaway_rate_check", { p_ip_hash: ipHash, p_kind: kind, p_max: max, p_window_seconds: windowSeconds });
+  if (error) return false; // fail closed on abuse checks
+  return data === true;
+}
+
 async function byToken(token: string) {
   if (!token) return null;
-  const { data } = await supabase.from("giveaway_entries").select("*").eq("session_token", token).maybeSingle();
+  const { data } = await supabase.from("giveaway_entries").select("*").eq("session_token", token).is("disqualified_at", null).maybeSingle();
   return data;
 }
 
-async function log(entryId: string, kind: string, detail: unknown = null) {
+async function log(entryId: string | null, kind: string, detail: unknown = null) {
   await supabase.from("giveaway_events").insert({ entry_id: entryId, kind, detail });
 }
 
 const dashboardLink = (magic: string) => `${SITE_URL}/#/giveaway?entry=${magic}`;
 
-// The dashboard email: house style, plain, no dashes. Doubles as proof the
-// address is real, since the link only works from the inbox.
-async function sendDashboardEmail(email: string, magic: string) {
+// Returns true only when Resend accepted the message. Never throws.
+async function sendDashboardEmail(email: string, magic: string): Promise<boolean> {
   if (!RESEND_API_KEY) return false;
   const link = dashboardLink(magic);
   const html = `
@@ -84,20 +102,27 @@ async function sendDashboardEmail(email: string, magic: string) {
       <p style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.6;margin:28px 0 0;">If you did not enter the Eiger giveaway, ignore this email and nothing happens. No purchase necessary. Sponsor: Eiger014 LLC, Texas, USA. Official rules: ${SITE_URL}/#/giveaway/rules</p>
     </div>
   </div>`;
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-    // Replies go to the sponsor contact named in the rules, not to the sending address.
-    body: JSON.stringify({ from: FROM, to: [email], reply_to: "business@eiger014.com", subject: "Your Eiger giveaway dashboard", html, text: `You are in the Eiger launch giveaway. Open your dashboard on any device: ${link}` }),
-  });
-  return res.ok;
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+      // Replies go to the sponsor contact named in the rules, not to the sending address.
+      body: JSON.stringify({ from: FROM, to: [email], reply_to: "business@eiger014.com", subject: "Your Eiger giveaway dashboard", html, text: `You are in the Eiger launch giveaway. Open your dashboard on any device: ${link}` }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
-async function appAccountExists(email: string) {
-  // auth.users is not exposed through PostgREST; use the admin API (paged, exact match).
-  const { data, error } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  if (error) return false;
-  return data.users.some((u) => (u.email ?? "").toLowerCase() === email);
+// Sends the dashboard link to a known entry if the throttle allows; records the attempt.
+async function emailKnownEntry(row: { id: string; email: string; magic_token: string; magic_sent_at: string | null }, now: number, resend: boolean) {
+  const last = row.magic_sent_at ? Date.parse(row.magic_sent_at) : 0;
+  if (now - last < RESEND_THROTTLE_MS) return { attempted: false, sent: false };
+  const sent = await sendDashboardEmail(row.email, row.magic_token);
+  if (sent) await supabase.from("giveaway_entries").update({ magic_sent_at: new Date(now).toISOString() }).eq("id", row.id);
+  await log(row.id, "dashboard_email", { sent, resend });
+  return { attempted: true, sent };
 }
 
 Deno.serve(async (req) => {
@@ -111,112 +136,108 @@ Deno.serve(async (req) => {
   }
   const action = String(body.action ?? "");
   const now = Date.now();
+  const ipHash = await sha256(clientIp(req));
 
   if (action === "status") {
     const row = await byToken(String(body.token ?? ""));
     return json(row ? publicView(row) : null);
   }
 
+  if (action === "resume") {
+    const magic = String(body.entry ?? "");
+    if (!magic) return json({ error: "Missing link" }, 400);
+    if (!(await rateOk(ipHash, "resume", 30, 3600))) return json({ error: "Too many attempts. Please try again later." }, 429);
+    const { data } = await supabase.from("giveaway_entries").select("*").eq("magic_token", magic).is("disqualified_at", null).maybeSingle();
+    if (!data) return json({ error: "That link is not valid. Enter with your email to get a new one." }, 404);
+    await log(data.id, "resumed");
+    return json({ token: data.session_token, entrant: publicView(data) });
+  }
+
   if (action === "enter") {
-    if (now < OPENS_AT) return json({ error: "The giveaway has not opened yet." }, 400);
+    if (now < OPENS_AT) return json({ error: "The giveaway opens on October 1. Come back then." }, 400);
     if (now >= CLOSES_AT) return json({ error: "Entries are closed." }, 400);
+    // Honeypot: a filled hidden field means a bot. Answer like a success and store nothing.
+    if (String(body.website ?? "").trim()) return json({ token: randomCode(32), entrant: null, emailed: true });
     const email = String(body.email ?? "").trim().toLowerCase();
     const country = String(body.country ?? "").trim().slice(0, 64);
-    if (!EMAIL_REGEX.test(email) || !country) return json({ error: "Enter a valid email address and country." }, 400);
+    if (!EMAIL_REGEX.test(email) || email.length > 254 || !country) return json({ error: "Enter a valid email address and country." }, 400);
     if (body.consent !== true) return json({ error: "Please confirm you are 18 or older and agree to the rules." }, 400);
+    if (!(await rateOk(ipHash, "enter", 5, 3600))) return json({ error: "Too many entries from this connection. Please try again later." }, 429);
 
-    const existing = await supabase.from("giveaway_entries").select("*").eq("email", email).maybeSingle();
+    const existing = await supabase.from("giveaway_entries").select("id, email, magic_token, magic_sent_at, disqualified_at").eq("email", email).maybeSingle();
     if (existing.data) {
-      // Same person coming back: hand the session back without a duplicate entry.
-      return json({ token: existing.data.session_token, entrant: publicView(existing.data) });
+      // Knowing an email must never hand over its dashboard: no token here, only the inbox link.
+      if (existing.data.disqualified_at) return json({ existing: true, emailed: false });
+      const { sent } = await emailKnownEntry(existing.data, now, true);
+      return json({ existing: true, emailed: sent });
     }
+
     let referredBy: string | null = null;
     if (body.ref) {
-      const r = await supabase.from("giveaway_entries").select("id").eq("code", String(body.ref).toUpperCase()).maybeSingle();
+      const r = await supabase.from("giveaway_entries").select("id").eq("code", String(body.ref).toUpperCase().slice(0, 12)).is("disqualified_at", null).maybeSingle();
       referredBy = r.data?.id ?? null;
     }
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "";
     const row = {
       email,
       country,
       code: randomCode(6),
       session_token: randomCode(32),
       magic_token: randomCode(32),
-      magic_sent_at: new Date().toISOString(),
       referred_by: referredBy,
-      ip_hash: ip ? await sha256(ip) : null,
+      ip_hash: ipHash || null,
       user_agent: (req.headers.get("user-agent") ?? "").slice(0, 200),
     };
     const { data, error } = await supabase.from("giveaway_entries").insert(row).select("*").single();
-    if (error || !data) return json({ error: "Could not save your entry. Please try again." }, 500);
+    if (error || !data) {
+      // A race on the unique email lands here too: treat it as the known-email path.
+      const again = await supabase.from("giveaway_entries").select("id, email, magic_token, magic_sent_at").eq("email", email).maybeSingle();
+      if (again.data) {
+        const { sent } = await emailKnownEntry(again.data, now, true);
+        return json({ existing: true, emailed: sent });
+      }
+      return json({ error: "Could not save your entry. Please try again." }, 500);
+    }
     await log(data.id, "entered", { referred_by: referredBy });
     const emailed = await sendDashboardEmail(email, data.magic_token);
-    await log(data.id, "dashboard_email", { sent: emailed });
+    if (emailed) await supabase.from("giveaway_entries").update({ magic_sent_at: new Date(now).toISOString() }).eq("id", data.id);
+    await log(data.id, "dashboard_email", { sent: emailed, resend: false });
     return json({ token: data.session_token, entrant: publicView(data), emailed });
-  }
-
-  if (action === "resume") {
-    const magic = String(body.entry ?? "");
-    if (!magic) return json({ error: "Missing link" }, 400);
-    const { data } = await supabase.from("giveaway_entries").select("*").eq("magic_token", magic).maybeSingle();
-    if (!data) return json({ error: "That link is not valid. Enter with your email to get a new one." }, 404);
-    await log(data.id, "resumed");
-    return json({ token: data.session_token, entrant: publicView(data) });
   }
 
   if (action === "resend") {
     const email = String(body.email ?? "").trim().toLowerCase();
     if (!EMAIL_REGEX.test(email)) return json({ error: "Enter a valid email address." }, 400);
-    const { data } = await supabase.from("giveaway_entries").select("id, magic_token, magic_sent_at").eq("email", email).maybeSingle();
-    // Always answer the same way so the form cannot be used to test which emails entered.
-    if (data) {
-      const last = data.magic_sent_at ? Date.parse(data.magic_sent_at) : 0;
-      if (now - last >= RESEND_THROTTLE_MS) {
-        const sent = await sendDashboardEmail(email, data.magic_token);
-        await supabase.from("giveaway_entries").update({ magic_sent_at: new Date().toISOString() }).eq("id", data.id);
-        await log(data.id, "dashboard_email", { sent, resend: true });
-      }
-    }
+    if (!(await rateOk(ipHash, "resend", 10, 3600))) return json({ error: "Too many attempts. Please try again later." }, 429);
+    const { data } = await supabase.from("giveaway_entries").select("id, email, magic_token, magic_sent_at, disqualified_at").eq("email", email).maybeSingle();
+    // Always the same answer, so this form cannot be used to test which emails entered.
+    if (data && !data.disqualified_at) await emailKnownEntry(data, now, true);
     return json({ ok: true });
   }
 
   if (action === "complete") {
-    if (now >= CLOSES_AT) return json({ error: "Entries are closed." }, 400);
-    const row = await byToken(String(body.token ?? ""));
-    if (!row) return json({ error: "Enter the giveaway first." }, 401);
+    if (!isOpen(now)) return json({ error: now < OPENS_AT ? "The giveaway opens on October 1." : "Entries are closed." }, 400);
+    const token = String(body.token ?? "");
+    if (!token) return json({ error: "Enter the giveaway first." }, 401);
     const task = String(body.task ?? "");
-    const progress = { ...(row.progress as Record<string, number>) };
+    if (!(await rateOk(ipHash, "complete", 60, 3600))) return json({ error: "Too many attempts. Please try again later." }, 429);
 
     if (HONOR_TASKS.has(task)) {
-      if (!progress[task]) {
-        progress[task] = 1;
-        await supabase.from("giveaway_entries").update({ progress }).eq("id", row.id);
-        await log(row.id, "task", { task });
-      }
-      return json(publicView({ ...row, progress }));
+      if (task === "kickstarter" && !KICKSTARTER_URL) return json({ error: "The Kickstarter task is not open yet." }, 400);
+      const { data, error } = await supabase.rpc("giveaway_complete_task", { p_token: token, p_task: task });
+      if (error) return json({ error: "Could not record that. Please try again." }, 503);
+      if (!data?.ok) return json({ error: data?.reason === "no_session" ? "Enter the giveaway first." : "That task is not available." }, data?.reason === "no_session" ? 401 : 400);
+      return json(data.entrant);
     }
 
     if (task === "app") {
-      if (progress.app) return json(publicView(row));
-      if (!(await appAccountExists(row.email))) {
-        return json({ error: `No Eiger account found for ${row.email} yet. Sign up in the app with that email, then try again.` }, 400);
+      const { data, error } = await supabase.rpc("giveaway_verify_app", { p_token: token });
+      if (error) return json({ error: "Could not check your account right now. Please try again." }, 503);
+      if (!data?.ok) {
+        if (data?.reason === "no_session") return json({ error: "Enter the giveaway first." }, 401);
+        if (data?.reason === "no_account") return json({ error: "No confirmed Eiger account found for your email yet. Sign up in the app with the same email, confirm it, then try again." }, 400);
+        return json({ error: "That task is not available." }, 400);
       }
-      progress.app = 1;
-      await supabase.from("giveaway_entries").update({ progress, app_verified_at: new Date().toISOString() }).eq("id", row.id);
-      await log(row.id, "verified_app");
-      // Credit the referrer once, up to three friends.
-      if (row.referred_by) {
-        const ref = await supabase.from("giveaway_entries").select("id, progress").eq("id", row.referred_by).maybeSingle();
-        if (ref.data) {
-          const rp = { ...(ref.data.progress as Record<string, number>) };
-          if ((rp.referral ?? 0) < 3) {
-            rp.referral = (rp.referral ?? 0) + 1;
-            await supabase.from("giveaway_entries").update({ progress: rp }).eq("id", ref.data.id);
-            await log(ref.data.id, "referral_credit", { from: row.id });
-          }
-        }
-      }
-      return json(publicView({ ...row, progress }));
+      return json(data.entrant);
     }
 
     return json({ error: "Unknown task" }, 400);

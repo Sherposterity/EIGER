@@ -85,7 +85,7 @@ const TicketMeter = ({ tickets }) => {
   );
 };
 
-const TaskRow = ({ task, units, onDo, busy }) => {
+const TaskRow = ({ task, units, onDo, busy, open }) => {
   const done = task.perUnit ? units >= task.maxUnits : units > 0;
   const earned = task.perUnit ? task.tickets * Math.min(units, task.maxUnits) : units ? task.tickets : 0;
   const available = task.perUnit ? task.tickets * task.maxUnits : task.tickets;
@@ -116,7 +116,7 @@ const TaskRow = ({ task, units, onDo, busy }) => {
           <button
             type="button"
             onClick={() => onDo(task)}
-            disabled={busy}
+            disabled={busy || (!open && task.id !== 'referral')}
             className="rounded-full bg-white px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-black transition hover:bg-white/90 disabled:opacity-50"
           >
             {task.id === 'app' ? 'I signed up' : task.id === 'referral' ? 'Copy my link' : 'Follow'}
@@ -133,7 +133,10 @@ export default function GiveawayPage() {
   const ref = params.get('ref');
   const entryToken = params.get('entry');
   const now = useNow();
-  const phase = now ? phaseFor(now) : 'open';
+  const realPhase = now ? phaseFor(now) : 'open';
+  // Review mode (local backend) keeps the window open so the flow can be
+  // walked through before October 1; the countdown still shows the real dates.
+  const phase = backend.mode === 'local' ? 'open' : realPhase;
   const [entrant, setEntrant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -162,14 +165,20 @@ export default function GiveawayPage() {
   const submit = async (e) => {
     e.preventDefault();
     setError('');
-    if (form.honeypot) return;
     if (!isValidEmail(form.email)) return setError('Enter a valid email address.');
     if (!form.consent) return setError('Please confirm you are 18 or older and agree to the rules.');
+    if (phase !== 'open') return setError(phase === 'upcoming' ? 'The giveaway opens on October 1. Come back then.' : 'Entries are closed.');
     setBusy(true);
     try {
-      const next = await backend.enter({ email: form.email.trim(), country: form.country, consent: true, ref });
+      // The hidden field travels to the server too: a filled one is dropped there.
+      const next = await backend.enter({ email: form.email.trim(), country: form.country, consent: true, ref, website: form.honeypot });
+      if (next?.existing) {
+        // A known email never gets its dashboard back from the form; the inbox link is the way in.
+        setNotice(next.emailed ? `That email already has an entry. We sent its dashboard link to ${form.email.trim()}.` : `That email already has an entry. A dashboard link was sent recently; check your inbox, or try again in ten minutes.`);
+        return;
+      }
       setEntrant(next);
-      setNotice(next.emailed === false ? 'You are in. We could not send your dashboard email, so keep this browser to track your tickets.' : `You are in. We emailed a dashboard link to ${form.email.trim()} so you can come back from any device.`);
+      setNotice(next.emailed === false ? 'You are in. We could not send your dashboard email, so keep this browser to track your tickets, or use "Already entered?" below later to get the link again.' : `You are in. We emailed a dashboard link to ${form.email.trim()} so you can come back from any device.`);
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
@@ -194,6 +203,7 @@ export default function GiveawayPage() {
   };
 
   const doTask = async (task) => {
+    if (phase !== 'open' && task.id !== 'referral') return setError(phase === 'upcoming' ? 'Tasks open on October 1.' : 'Entries are closed.');
     setBusy(true);
     try {
       if (task.id === 'tiktok' || task.id === 'instagram' || task.id === 'kickstarter') {
@@ -230,7 +240,7 @@ export default function GiveawayPage() {
           <p className="mx-auto mt-6 max-w-2xl text-lg text-white/60">
             {GIVEAWAY.prize.line} Free to enter. Up to {GIVEAWAY.maxTickets} tickets from easy tasks, and every ticket is one more name in the hat.
           </p>
-          <Countdown phase={phase} />
+          <Countdown phase={realPhase} />
         </div>
       </section>
 
@@ -268,7 +278,12 @@ export default function GiveawayPage() {
       {/* Entry or dashboard */}
       <section className="px-6 pb-24">
         <div className="mx-auto max-w-5xl">
-          {loading ? null : !entrant ? (
+          {loading ? null : backend.mode === 'disabled' ? (
+            <div className="glass-card mx-auto max-w-xl p-8 text-center sm:p-10">
+              <Eyebrow>Enter the draw</Eyebrow>
+              <p className="mt-6 text-white/70">Entries are not open on this site yet. Check back soon.</p>
+            </div>
+          ) : !entrant ? (
             <div className="glass-card mx-auto max-w-xl p-8 sm:p-10">
               <Eyebrow>{resendMode ? 'Find my entry' : 'Enter the draw'}</Eyebrow>
               {notice ? <div className="mt-4 text-sm text-white/70">{notice}</div> : null}
@@ -300,7 +315,7 @@ export default function GiveawayPage() {
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="you@example.com"
                   className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-white placeholder-white/30 outline-none transition focus:border-white/40"
-                  disabled={phase !== 'open' && phase !== 'upcoming'}
+                  disabled={phase !== 'open'}
                 />
                 <select
                   value={form.country}
@@ -324,10 +339,10 @@ export default function GiveawayPage() {
                 {error ? <div className="text-sm text-red-300">{error}</div> : null}
                 <button
                   type="submit"
-                  disabled={busy || phase === 'closed'}
+                  disabled={busy || phase !== 'open'}
                   className="w-full rounded-full bg-white px-6 py-4 text-sm font-semibold uppercase tracking-[0.2em] text-black transition hover:bg-white/90 disabled:opacity-50"
                 >
-                  {phase === 'closed' ? 'Entries closed' : busy ? 'Entering' : 'Enter the giveaway'}
+                  {phase === 'closed' ? 'Entries closed' : phase === 'upcoming' ? 'Opens October 1' : busy ? 'Entering' : 'Enter the giveaway'}
                 </button>
                 {ref ? <div className="text-center text-xs text-white/40">Referred by a friend. They get tickets when you sign up for Eiger.</div> : null}
                 <div className="text-center text-xs text-white/30">No purchase necessary. One entry per person.</div>
@@ -343,7 +358,7 @@ export default function GiveawayPage() {
               <TicketMeter tickets={tickets} />
               <ul className="space-y-3">
                 {TASKS.map((task) => (
-                  <TaskRow key={task.id} task={task} units={entrant.progress?.[task.id] ?? 0} onDo={doTask} busy={busy} />
+                  <TaskRow key={task.id} task={task} units={entrant.progress?.[task.id] ?? 0} onDo={doTask} busy={busy} open={phase === 'open'} />
                 ))}
               </ul>
               <div className="glass-card p-6 sm:p-8">

@@ -21,7 +21,7 @@
     // is forwarded to the matching in-app route. Anything else lands on home.
     (function () {
       var path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
-      var known = { '/mission': '/mission', '/about': '/about' };
+      var known = { '/mission': '/mission', '/about': '/about', '/giveaway': '/giveaway', '/giveaway/rules': '/giveaway/rules' };
       var target = known[path] || '/';
       window.location.replace('/#' + target + window.location.search);
     })();
