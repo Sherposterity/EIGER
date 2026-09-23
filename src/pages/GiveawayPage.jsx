@@ -179,7 +179,7 @@ export default function GiveawayPage() {
           next.emailOutcome === 'sent'
             ? `That email already has an entry. We sent its dashboard link to ${who}.`
             : next.emailOutcome === 'throttled'
-              ? `That email already has an entry. A dashboard link went out in the last ten minutes; check your inbox and spam, or try again in ${Math.max(1, Math.ceil((next.retryAfterSeconds ?? 600) / 60))} minutes.`
+              ? `That email already has an entry. A dashboard link was requested in the last ten minutes; check your inbox and spam, or try again in ${Math.max(1, Math.ceil((next.retryAfterSeconds ?? 600) / 60))} minutes.`
               : `That email already has an entry, but we could not send its dashboard link just now. Please try again in a moment.`
         );
         return;
@@ -201,7 +201,7 @@ export default function GiveawayPage() {
     setBusy(true);
     try {
       await backend.resend(target);
-      setNotice(entrant ? `If a dashboard link can be sent right now, it is on its way to ${target}. Links go out at most once every ten minutes.` : `If ${target} entered the giveaway, a fresh dashboard link is on its way.`);
+      setNotice(`If ${target} entered the giveaway and a link can be sent right now, it is on its way. Links go out at most once every ten minutes.`);
       setResendMode(false);
     } catch (err) {
       setError(err.message || 'Could not send the link. Please try again.');
