@@ -141,9 +141,22 @@ const localBackend = {
 // Supabase backend: every call goes through the edge function, which owns the
 // service role. The browser never reads or writes the tables directly.
 // ---------------------------------------------------------------------------
+// supabase-js reports any non-2xx reply as a generic "non-2xx status code"
+// error; the function always answers with a plain-language { error } body,
+// so read that first and surface it (device, 2026-09-22: an expired dashboard
+// link showed the generic text instead of "That link is not valid").
 const call = async (action, body) => {
   const { data, error } = await supabase.functions.invoke('giveaway', { body: { action, ...body } });
-  if (error) throw new Error(error.message || 'Request failed');
+  if (error) {
+    let message = '';
+    try {
+      const payload = await error.context?.json?.();
+      message = payload?.error || '';
+    } catch {
+      message = '';
+    }
+    throw new Error(message || 'Something went wrong. Please try again.');
+  }
   if (data?.error) throw new Error(data.error);
   return data;
 };
