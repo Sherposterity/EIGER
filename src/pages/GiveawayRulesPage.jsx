@@ -106,7 +106,7 @@ export default function GiveawayRulesPage() {
           </Section>
         </div>
 
-        <p className="mt-10 text-xs text-white/30">Last updated 2026-09-22. Draft for legal review.</p>
+        <p className="mt-10 text-xs text-white/30">Last updated 2026-09-22.</p>
       </main>
       <Footer />
     </div>
