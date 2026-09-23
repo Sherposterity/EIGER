@@ -112,7 +112,13 @@ def admin_delete_user(uid):
 TEST = ["gvt-referrer", "gvt-friend1", "gvt-friend2", "gvt-friend3", "gvt-friend4", "gvt-noacct", "gvt-rollback"]
 emails = {t: f"{t}@eiger014.com" for t in TEST}
 uids = {}
+ids = {}
 exit_code = 1
+# Preflight: fixture addresses must not belong to real entrants or users.
+_pre = sql("select (select count(*) from public.giveaway_entries where email like 'gvt-%@eiger014.com') as e, (select count(*) from auth.users where email like 'gvt-%@eiger014.com') as u")[0]
+if _pre["e"] or _pre["u"]:
+    print(f"ABORT: fixture prefix already in use (entries={_pre['e']} users={_pre['u']}); clean up by hand before running.")
+    sys.exit(2)
 try:
     for t in TEST:
         if t != "gvt-noacct":
@@ -124,7 +130,7 @@ try:
         return sql(f"""insert into public.giveaway_entries (email, country, code, session_token, magic_token, referred_by)
                        values ('{emails[t]}', 'Test', upper(substr(md5('{t}'),1,6)), 'tok-{t}', 'magic-{t}', {ref}) returning id""")[0]["id"]
 
-    ids = {"gvt-referrer": mk("gvt-referrer")}
+    ids["gvt-referrer"] = mk("gvt-referrer")
     for t in TEST[1:]:
         ids[t] = mk(t, referred_by=True)
     print(f"created {len(ids)} test entries")
@@ -225,7 +231,13 @@ except Exception as e:  # noqa: BLE001
     print("UNEXPECTED ERROR:", str(e)[:400])
     exit_code = 2
 finally:
-    n = sql("with d as (delete from public.giveaway_entries where email like 'gvt-%@eiger014.com' returning id) select count(*) c from d")[0]["c"]
+    # Only what this run created: entry ids we inserted (events and credits cascade), the
+    # test-only rate scope, and the auth users we created.
+    if ids:
+        idlist = ",".join(f"'{i}'" for i in ids.values())
+        n = sql(f"with d as (delete from public.giveaway_entries where id in ({idlist}) returning id) select count(*) c from d")[0]["c"]
+    else:
+        n = 0
     m = sql("with d as (delete from public.giveaway_requests where ip_hash='iphash-test' returning id) select count(*) c from d")[0]["c"]
     for uid in uids.values():
         admin_delete_user(uid)
