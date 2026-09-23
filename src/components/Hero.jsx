@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import GiveawayPill from './GiveawayPill';
 import EigerLogo from '../assets/EigerLogo.png';
 
 // Background footage playlist (the founders' own climbing trips), rotated with
@@ -205,6 +206,11 @@ const Hero = () => {
                 {/* Main content - flex-1 centers and shrinks dynamically */}
                 <div className="flex-1 flex flex-col items-center justify-center min-h-0">
                     <div className={`transition-all duration-1000 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+
+                        {/* Launch giveaway: first thing on the page */}
+                        <div className="mb-6 md:mb-8">
+                            <GiveawayPill />
+                        </div>
 
                         {/* Main Title - Logo - dynamically sized */}
                         <img

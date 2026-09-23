@@ -64,6 +64,36 @@ const Countdown = ({ phase }) => {
   );
 };
 
+// The prize value, counted up once on load so it is the first thing read on
+// the page. Static under Reduce Motion.
+const reduceMotion = () => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+const ValueCounter = ({ target }) => {
+  const [value, setValue] = useState(() => (reduceMotion() ? target : 0));
+  useEffect(() => {
+    if (reduceMotion()) return undefined;
+    const start = performance.now();
+    const duration = 1400;
+    let raf = 0;
+    const tick = (t) => {
+      const p = Math.min(1, (t - start) / duration);
+      const eased = 1 - (1 - p) ** 3;
+      setValue(Math.round(target * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target]);
+  return (
+    <div className="mt-8">
+      <div className="flex items-baseline justify-center gap-2 drop-shadow-[0_0_48px_rgba(255,255,255,0.28)]">
+        <span className="text-2xl font-semibold text-white/50 sm:text-3xl">USD</span>
+        <span className="text-7xl font-bold leading-none tabular-nums sm:text-8xl lg:text-9xl">{value}</span>
+      </div>
+      <div className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/60">Retail value. Gear of your choice. One winner.</div>
+    </div>
+  );
+};
+
 const TicketMeter = ({ tickets }) => {
   const pct = Math.round((tickets / GIVEAWAY.maxTickets) * 100);
   return (
@@ -296,7 +326,8 @@ export default function GiveawayPage() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_40%_at_50%_10%,rgba(255,255,255,0.07),transparent_70%)]" />
         <div className="relative mx-auto max-w-3xl">
           <Eyebrow>Launch giveaway</Eyebrow>
-          <h1 className="mt-8 text-4xl font-bold leading-tight sm:text-6xl">
+          <ValueCounter target={GIVEAWAY.prize.valueUsd} />
+          <h1 className="mt-10 text-3xl font-bold leading-tight sm:text-5xl">
             Win the piece of gear you have been putting off.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-white/60">
@@ -312,7 +343,11 @@ export default function GiveawayPage() {
           <div className="glass-card p-8 sm:p-10">
             <Eyebrow>The prize</Eyebrow>
             <h2 className="mt-6 text-3xl font-bold">{GIVEAWAY.prize.title}</h2>
-            <div className="mt-2 text-white/40">Up to USD {GIVEAWAY.prize.valueUsd} retail value</div>
+            <div className="mt-4 inline-flex items-baseline gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2">
+              <span className="text-xs uppercase tracking-[0.2em] text-white/50">Up to</span>
+              <span className="text-2xl font-bold tabular-nums">USD {GIVEAWAY.prize.valueUsd}</span>
+              <span className="text-xs uppercase tracking-[0.2em] text-white/50">retail</span>
+            </div>
             <ul className="mt-6 space-y-3 text-white/60">
               <li>One winner, drawn at random from every ticket.</li>
               <li>You choose the item. We buy it from a retailer in your country and ship it to you.</li>

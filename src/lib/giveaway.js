@@ -14,12 +14,14 @@
 // Copy in this file is user-facing: no dashes.
 
 import { supabase } from './supabase';
+import { GIVEAWAY_CLOSES_AT, GIVEAWAY_OPENS_AT, phaseFor } from './giveawayWindow';
+
+export { phaseFor };
 
 export const GIVEAWAY = {
-  // Founder ruling 2026-09-22: opens October 1, runs 40 days, closes before
-  // November 15. Times are UTC so the countdown is the same everywhere.
-  opensAt: '2026-10-01T16:00:00Z',
-  closesAt: '2026-11-10T16:00:00Z',
+  // Window lives in lib/giveawayWindow.js (shared with the home page pill).
+  opensAt: GIVEAWAY_OPENS_AT,
+  closesAt: GIVEAWAY_CLOSES_AT,
   prize: {
     title: 'A piece of mountaineering gear of your choice',
     valueUsd: 500,
@@ -58,12 +60,6 @@ export const ticketsFor = (progress) =>
       return sum + task.tickets * (task.perUnit ? Math.min(units, task.maxUnits) : 1);
     }, 0)
   );
-
-export const phaseFor = (now = Date.now()) => {
-  if (now < Date.parse(GIVEAWAY.opensAt)) return 'upcoming';
-  if (now >= Date.parse(GIVEAWAY.closesAt)) return 'closed';
-  return 'open';
-};
 
 // HashRouter site: the route lives after the hash, and react-router reads the query from inside it.
 export const referralLink = (code) => `${window.location.origin}/#/giveaway?ref=${code}`;
