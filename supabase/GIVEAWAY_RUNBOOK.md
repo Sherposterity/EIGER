@@ -66,6 +66,10 @@ for anything credited from a disqualified entry and reverse it by hand.
 5. If the winner does not respond in 7 days or is ineligible, redraw with the
    same seed and the skipped id: `select * from public.giveaway_draw('<seed>', array['<winner id>']::uuid[]);`
 
+## Marketing emails (winner announcement, reminders)
+
+The dashboard email is transactional. Anything else sent to entrants is marketing under the entry consent and must (1) be sent only to `select * from public.giveaway_marketing_audience` (consenting, not disqualified, not opted out), and (2) carry the same unsubscribe link and List-Unsubscribe headers the function uses (`<function url>?unsubscribe=<magic_token>`). Opt-outs land in `marketing_opt_out_at` and never affect the entry itself.
+
 ## Winner verification and prize
 
 Email the winner from business@: confirm age and country of residence, the

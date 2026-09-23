@@ -46,6 +46,8 @@ EXPECTED = ["window closed: enter refused"] if WINDOW_CLOSED else [
     "referrer credited: 4 + 2 = 6 tickets",
     "honeypot: fake success, nothing stored",
     "resend: uniform reply for entered and unknown emails",
+    "unsubscribe: GET redirects to the site and records the opt-out; entry stays valid",
+    "unsubscribe: one-click POST answers 200; unknown token redirects with 0",
 ]
 results = {}
 created_entry_ids = []
@@ -136,6 +138,31 @@ try:
         st, df = call({"action": "resend", "email": NOACCT})
         st2, dg = call({"action": "resend", "email": "never-entered@example.com"})
         check("resend: uniform reply for entered and unknown emails", st == 200 and st2 == 200 and df == dg == {"ok": True})
+
+        # unsubscribe: footer link (GET) and RFC 8058 one-click (POST)
+        class NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, *a, **k):
+                return None
+        opener = urllib.request.build_opener(NoRedirect)
+        def raw(method):
+            req = urllib.request.Request(f"{URL}?unsubscribe={magic}", data=b"List-Unsubscribe=One-Click" if method == "POST" else None, method=method,
+                                         headers={"Content-Type": "application/x-www-form-urlencoded"} if method == "POST" else {})
+            try:
+                with opener.open(req, timeout=60) as r:
+                    return r.status, r.headers.get("Location", ""), r.read().decode()[:40]
+            except urllib.error.HTTPError as e:
+                return e.code, e.headers.get("Location", ""), ""
+        st, loc, _ = raw("GET")
+        opt = sql(f"select marketing_opt_out_at is not null as out, disqualified_at is null as valid, public.giveaway_tickets(progress) t from public.giveaway_entries where id='{created_entry_ids[0]}'")[0]
+        check("unsubscribe: GET redirects to the site and records the opt-out; entry stays valid", st == 302 and loc.endswith("/#/giveaway?unsubscribed=1") and opt["out"] and opt["valid"] and opt["t"] == 6, f"{st} {loc} opt={opt}")
+        st, _, body = raw("POST")
+        req = urllib.request.Request(f"{URL}?unsubscribe=NOT-A-TOKEN", method="GET")
+        try:
+            with opener.open(req, timeout=60) as r:
+                st2, loc2 = r.status, r.headers.get("Location", "")
+        except urllib.error.HTTPError as e:
+            st2, loc2 = e.code, e.headers.get("Location", "")
+        check("unsubscribe: one-click POST answers 200; unknown token redirects with 0", st == 200 and body == "ok" and st2 == 302 and loc2.endswith("unsubscribed=0"), f"post={st} {body} unknown={st2} {loc2}")
 except Exception as e:  # noqa: BLE001
     unexpected = f"{type(e).__name__}: {str(e)[:300]}"
     print("UNEXPECTED ERROR:", unexpected)

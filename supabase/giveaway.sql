@@ -233,3 +233,32 @@ language sql security definer set search_path = public as $$
    limit 1
 $$;
 revoke all on function public.giveaway_draw(text, uuid[]) from anon, authenticated, public;
+
+-- ---------------------------------------------------------------------------
+-- 107 (2026-09-22): marketing opt-out. See hike scripts/migrations/107_giveaway_opt_out.sql.
+-- ---------------------------------------------------------------------------
+
+alter table public.giveaway_entries
+  add column if not exists marketing_opt_out_at timestamptz;
+
+create or replace function public.giveaway_opt_out(p_magic text)
+returns boolean language plpgsql security definer set search_path = public as $$
+declare e_id uuid;
+begin
+  update public.giveaway_entries
+     set marketing_opt_out_at = coalesce(marketing_opt_out_at, now())
+   where magic_token = p_magic
+  returning id into e_id;
+  if e_id is null then return false; end if;
+  insert into public.giveaway_events (entry_id, kind) values (e_id, 'opted_out');
+  return true;
+end $$;
+revoke all on function public.giveaway_opt_out(text) from anon, authenticated, public;
+
+-- The only list a marketing send may use.
+create or replace view public.giveaway_marketing_audience as
+  select id, email, country, code, magic_token
+    from public.giveaway_entries
+   where disqualified_at is null and marketing_opt_out_at is null;
+revoke all on public.giveaway_marketing_audience from anon, authenticated;
+

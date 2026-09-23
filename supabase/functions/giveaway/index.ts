@@ -13,6 +13,8 @@
 //   resume   { entry }                 -> { token, entrant }   (entry = magic token from the email link)
 //   resend   { email }                 -> { ok: true }         (uniform reply, throttled per email and per IP)
 //   complete { token, task }           -> entrant
+//   GET/POST ?unsubscribe=<magic>       -> records a marketing opt-out (email footer link + RFC 8058 one-click);
+//                                          GET redirects to the site with ?unsubscribed=1, POST answers 200
 //     tiktok | instagram | kickstarter : honor tasks, atomic + idempotent in SQL (giveaway_complete_task)
 //     app                              : confirmed auth.users email + referral credit in one transaction (giveaway_verify_app)
 //
@@ -89,6 +91,8 @@ async function log(entryId: string | null, kind: string, detail: unknown = null)
 }
 
 const dashboardLink = (magic: string) => `${SITE_URL}/#/giveaway?entry=${magic}`;
+const FUNCTION_URL = `${Deno.env.get("SUPABASE_URL")}/functions/v1/giveaway`;
+const unsubscribeLink = (magic: string) => `${FUNCTION_URL}?unsubscribe=${magic}`;
 
 // Returns true only when Resend accepted the message. Never throws.
 async function sendDashboardEmail(email: string, magic: string): Promise<boolean> {
@@ -102,6 +106,7 @@ async function sendDashboardEmail(email: string, magic: string): Promise<boolean
       <p style="color:rgba(255,255,255,0.65);line-height:1.6;margin:0 0 24px;">This link opens your giveaway dashboard on any device: your tickets, the tasks, and your referral link. Keep this email, it is your way back in.</p>
       <a href="${link}" style="display:inline-block;background:#FFFFFF;color:#000000;text-decoration:none;font-weight:600;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;padding:14px 26px;border-radius:999px;">Open my dashboard</a>
       <p style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.6;margin:28px 0 0;">If you did not enter the Eiger giveaway, ignore this email and nothing happens. No purchase necessary. Sponsor: Eiger LLC, Texas, USA. Official rules: ${SITE_URL}/#/giveaway/rules</p>
+      <p style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.6;margin:12px 0 0;">You received this because you entered the giveaway. To stop any further giveaway or Eiger emails, <a href="${unsubscribeLink(magic)}" style="color:rgba(255,255,255,0.6);">unsubscribe</a>. Your entry stays in the draw.</p>
     </div>
   </div>`;
   try {
@@ -109,7 +114,16 @@ async function sendDashboardEmail(email: string, magic: string): Promise<boolean
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       // Replies go to the sponsor contact named in the rules, not to the sending address.
-      body: JSON.stringify({ from: FROM, to: [email], reply_to: "business@eiger014.com", subject: "Your Eiger giveaway dashboard", html, text: `You are in the Eiger launch giveaway. Open your dashboard on any device: ${link}` }),
+      body: JSON.stringify({
+        from: FROM, to: [email], reply_to: "business@eiger014.com", subject: "Your Eiger giveaway dashboard", html,
+        text: `You are in the Eiger launch giveaway. Open your dashboard on any device: ${link}
+
+To stop further giveaway or Eiger emails: ${unsubscribeLink(magic)}`,
+        headers: {
+          "List-Unsubscribe": `<${unsubscribeLink(magic)}>, <mailto:business@eiger014.com?subject=unsubscribe>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
+      }),
     });
     return res.ok;
   } catch {
@@ -134,6 +148,15 @@ async function emailEntry(row: { id: string; email: string; magic_token: string 
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+
+  // Unsubscribe: a GET from the email footer or a one-click POST from a mail client.
+  const unsub = new URL(req.url).searchParams.get("unsubscribe");
+  if (unsub && (req.method === "GET" || req.method === "POST")) {
+    const { data } = await supabase.rpc("giveaway_opt_out", { p_magic: unsub.slice(0, 64) });
+    if (req.method === "POST") return new Response(data ? "ok" : "unknown", { status: 200, headers: CORS });
+    return Response.redirect(`${SITE_URL}/#/giveaway?unsubscribed=${data ? "1" : "0"}`, 302);
+  }
+
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
   let body: Record<string, unknown>;
   try {

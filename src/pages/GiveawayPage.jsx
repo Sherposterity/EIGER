@@ -132,6 +132,7 @@ export default function GiveawayPage() {
   const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const ref = params.get('ref');
   const entryToken = params.get('entry');
+  const unsubscribed = params.get('unsubscribed');
   const now = useNow();
   const realPhase = now ? phaseFor(now) : 'open';
   // Review mode (local backend) keeps the window open so the flow can be
@@ -145,6 +146,11 @@ export default function GiveawayPage() {
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState('');
   const [resendMode, setResendMode] = useState(false);
+
+  useEffect(() => {
+    if (unsubscribed === '1') setNotice('You are unsubscribed from further giveaway and Eiger emails. Your entry stays in the draw.');
+    else if (unsubscribed === '0') setNotice('That unsubscribe link was not recognised. Write to business@eiger014.com and we will take care of it.');
+  }, [unsubscribed]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
