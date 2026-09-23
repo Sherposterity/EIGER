@@ -101,7 +101,7 @@ async function sendDashboardEmail(email: string, magic: string): Promise<boolean
       <h1 style="font-size:26px;margin:18px 0 10px;">You are in the draw.</h1>
       <p style="color:rgba(255,255,255,0.65);line-height:1.6;margin:0 0 24px;">This link opens your giveaway dashboard on any device: your tickets, the tasks, and your referral link. Keep this email, it is your way back in.</p>
       <a href="${link}" style="display:inline-block;background:#FFFFFF;color:#000000;text-decoration:none;font-weight:600;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;padding:14px 26px;border-radius:999px;">Open my dashboard</a>
-      <p style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.6;margin:28px 0 0;">If you did not enter the Eiger giveaway, ignore this email and nothing happens. No purchase necessary. Sponsor: Eiger014 LLC, Texas, USA. Official rules: ${SITE_URL}/#/giveaway/rules</p>
+      <p style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.6;margin:28px 0 0;">If you did not enter the Eiger giveaway, ignore this email and nothing happens. No purchase necessary. Sponsor: Eiger LLC, Texas, USA. Official rules: ${SITE_URL}/#/giveaway/rules</p>
     </div>
   </div>`;
   try {

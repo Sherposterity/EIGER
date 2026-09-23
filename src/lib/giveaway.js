@@ -34,7 +34,7 @@ export const GIVEAWAY = {
     // Set when the Kickstarter page exists; until then the task shows as coming soon.
     kickstarter: null,
   },
-  sponsor: { name: 'Eiger014 LLC', place: 'Texas, USA', email: 'business@eiger014.com' },
+  sponsor: { name: 'Eiger LLC', place: 'Texas, USA', email: 'business@eiger014.com' },
   excludedRegions: 'Italy, Spain, Belgium, Sweden, Brazil, Australia, Quebec, mainland China, Russia, and any country subject to United States sanctions',
 };
 
