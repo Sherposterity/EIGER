@@ -65,6 +65,7 @@ const publicView = (row: Record<string, unknown>) => ({
   code: row.code,
   progress: row.progress,
   tickets: tickets((row.progress ?? {}) as Record<string, number>),
+  referred: !!row.referred_by,
   createdAt: row.created_at,
 });
 

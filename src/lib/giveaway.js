@@ -43,7 +43,7 @@ export const GIVEAWAY = {
 export const TASKS = [
   { id: 'entry', label: 'Enter with your email', tickets: 1, verifiable: true, auto: true, detail: 'Your free entry. This is all it takes to be in the draw.' },
   { id: 'app', label: 'Create your Eiger account', tickets: 4, verifiable: true, detail: 'Download Eiger and sign up with the same email you entered with. We confirm the account on our side.' },
-  { id: 'referral', label: 'Bring a friend', tickets: 2, perUnit: true, maxUnits: 3, verifiable: true, detail: 'Share your link. Each friend who enters and creates an Eiger account earns you 2 tickets, up to 3 friends.' },
+  { id: 'referral', label: 'Bring a friend', tickets: 2, perUnit: true, maxUnits: 3, verifiable: true, detail: 'Share your link. Each friend who enters through it, creates an Eiger account with their email, and taps "I signed up" earns you 2 tickets, up to 3 friends.' },
   { id: 'tiktok', label: 'Follow Eiger on TikTok', tickets: 3, verifiable: false, detail: '@eiger_tech' },
   { id: 'instagram', label: 'Follow Eiger on Instagram', tickets: 3, verifiable: false, detail: '@eiger014' },
   { id: 'kickstarter', label: 'Visit the Kickstarter', tickets: 3, verifiable: false, detail: 'Have a look. Backing is never required.' },
@@ -67,6 +67,34 @@ export const phaseFor = (now = Date.now()) => {
 
 // HashRouter site: the route lives after the hash, and react-router reads the query from inside it.
 export const referralLink = (code) => `${window.location.origin}/#/giveaway?ref=${code}`;
+
+// A referral code survives pre-entry navigation (reading the rules and coming
+// back drops the query). Policy: the most recently opened link wins; the
+// stored code is consumed by a successful new entry and never applied to an
+// existing one (Codex REFERRAL_REVIEW, 2026-09-22).
+const PENDING_REF_KEY = 'eiger_giveaway_pending_ref';
+export const rememberReferral = (code) => {
+  if (!code) return;
+  try {
+    sessionStorage.setItem(PENDING_REF_KEY, String(code).toUpperCase().slice(0, 12));
+  } catch {
+    /* private mode */
+  }
+};
+export const pendingReferral = () => {
+  try {
+    return sessionStorage.getItem(PENDING_REF_KEY) || null;
+  } catch {
+    return null;
+  }
+};
+export const clearReferral = () => {
+  try {
+    sessionStorage.removeItem(PENDING_REF_KEY);
+  } catch {
+    /* ignore */
+  }
+};
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 export const isValidEmail = (email) => EMAIL_REGEX.test(String(email || '').trim());
@@ -108,6 +136,7 @@ const localBackend = {
       country,
       consent: !!consent,
       referredBy: ref || null,
+      referred: !!ref,
       code: makeCode(),
       magic: makeCode() + makeCode(),
       progress: { entry: 1 },

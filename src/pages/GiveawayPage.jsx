@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import SiteNav from '../components/SiteNav';
 import Footer from '../components/Footer';
-import { GIVEAWAY, TASKS, backend, isValidEmail, phaseFor, referralLink, ticketsFor } from '../lib/giveaway';
+import { GIVEAWAY, TASKS, backend, clearReferral, isValidEmail, pendingReferral, phaseFor, referralLink, rememberReferral, ticketsFor } from '../lib/giveaway';
 
 const COUNTRIES = ['United States', 'Canada', 'United Kingdom', 'France', 'Switzerland', 'Germany', 'Austria', 'Norway', 'Other'];
 
@@ -130,7 +130,13 @@ const TaskRow = ({ task, units, onDo, busy, open }) => {
 export default function GiveawayPage() {
   const location = useLocation();
   const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
-  const ref = params.get('ref');
+  // The link's code is remembered so reading the rules and coming back keeps the attribution.
+  const refParam = params.get('ref');
+  useEffect(() => {
+    if (refParam) rememberReferral(refParam);
+  }, [refParam]);
+  const ref = refParam || pendingReferral();
+  const rulesTo = ref ? `/giveaway/rules?ref=${encodeURIComponent(ref)}` : '/giveaway/rules';
   const entryToken = params.get('entry');
   const unsubscribed = params.get('unsubscribed');
   const now = useNow();
@@ -150,6 +156,19 @@ export default function GiveawayPage() {
   useEffect(() => {
     if (unsubscribed === '1') setNotice('You are unsubscribed from giveaway and Eiger marketing emails. Your entry stays in the draw, and dashboard links you request are still sent.');
   }, [unsubscribed]);
+
+  // A referrer who keeps the page open sees a friend's credit when they come back to the tab.
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === 'visible') backend.status().then((s) => { if (s) setEntrant(s); }).catch(() => undefined);
+    };
+    document.addEventListener('visibilitychange', refresh);
+    window.addEventListener('focus', refresh);
+    return () => {
+      document.removeEventListener('visibilitychange', refresh);
+      window.removeEventListener('focus', refresh);
+    };
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -190,6 +209,11 @@ export default function GiveawayPage() {
         return;
       }
       setEntrant(next);
+      clearReferral();
+      if (ref && !next.referred) {
+        setNotice(`You are in. The referral link you used did not match an active entry, so no friend is credited, but your own tickets are unaffected.${next.emailOutcome === 'failed' ? '' : ` We emailed a dashboard link to ${form.email.trim()}.`}`);
+        return;
+      }
       setNotice(next.emailOutcome === 'failed' ? 'You are in. We could not send your dashboard email just now. Keep this browser to track your tickets, or use "Resend my dashboard link" below.' : `You are in. We emailed a dashboard link to ${form.email.trim()} so you can come back from any device.`);
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
@@ -280,7 +304,7 @@ export default function GiveawayPage() {
               </ol>
             </div>
             <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/50">
-              <Link to="/giveaway/rules" className="underline-offset-4 hover:text-white hover:underline">Official rules</Link>
+              <Link to={rulesTo} className="underline-offset-4 hover:text-white hover:underline">Official rules</Link>
               <a href="/terms.html" className="underline-offset-4 hover:text-white hover:underline">Terms of Use</a>
               <a href="/privacy.html" className="underline-offset-4 hover:text-white hover:underline">Privacy Policy</a>
             </div>
@@ -344,7 +368,7 @@ export default function GiveawayPage() {
                   <input type="checkbox" checked={form.consent} onChange={(e) => setForm({ ...form, consent: e.target.checked })} className="mt-1 h-4 w-4 accent-white" />
                   <span>
                     I am 18 or older, I live somewhere this giveaway is open, and I agree to the{' '}
-                    <Link to="/giveaway/rules" className="underline underline-offset-4 hover:text-white">official rules</Link>, the{' '}
+                    <Link to={rulesTo} className="underline underline-offset-4 hover:text-white">official rules</Link>, the{' '}
                     <a href="/terms.html" className="underline underline-offset-4 hover:text-white">Terms of Use</a>, and the{' '}
                     <a href="/privacy.html" className="underline underline-offset-4 hover:text-white">Privacy Policy</a>. Eiger may email me about the giveaway and the app. I can unsubscribe any time.
                   </span>
@@ -357,7 +381,7 @@ export default function GiveawayPage() {
                 >
                   {phase === 'closed' ? 'Entries closed' : phase === 'upcoming' ? 'Opens October 1' : busy ? 'Entering' : 'Enter the giveaway'}
                 </button>
-                {ref ? <div className="text-center text-xs text-white/40">Referred by a friend. They get tickets when you sign up for Eiger.</div> : null}
+                {ref ? <div className="text-center text-xs text-white/40">Referred by a friend. They get tickets once you create your Eiger account with this email and tap "I signed up" on your dashboard.</div> : null}
                 <div className="text-center text-xs text-white/30">No purchase necessary. One entry per person.</div>
                 <button type="button" onClick={() => { setResendMode(true); setError(''); }} className="w-full text-center text-xs text-white/40 underline-offset-4 hover:text-white hover:underline">
                   Already entered? Email me my dashboard link
@@ -375,7 +399,12 @@ export default function GiveawayPage() {
                 ))}
               </ul>
               <div className="glass-card p-6 sm:p-8">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-white/40">Your referral link</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-[11px] uppercase tracking-[0.22em] text-white/40">Your referral link</div>
+                  <button type="button" onClick={() => backend.status().then((s) => { if (s) setEntrant(s); }).catch(() => undefined)} className="text-xs text-white/40 underline underline-offset-4 hover:text-white">
+                    Refresh
+                  </button>
+                </div>
                 <div className="mt-3 flex flex-col gap-3 sm:flex-row">
                   <code className="flex-1 truncate rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/70">{referralLink(entrant.code)}</code>
                   <button
@@ -389,6 +418,7 @@ export default function GiveawayPage() {
                 <div className="mt-3 text-xs text-white/40">
                   Get the app: <a className="underline underline-offset-4 hover:text-white" href={GIVEAWAY.links.appStore} target="_blank" rel="noreferrer">iPhone</a> or{' '}
                   <a className="underline underline-offset-4 hover:text-white" href={GIVEAWAY.links.playStore} target="_blank" rel="noreferrer">Android</a>. Sign up with {entrant.email}.
+                  A friend who uses your link counts once they enter, create an Eiger account with their email, and tap "I signed up" on their dashboard.
                 </div>
                 <button type="button" onClick={resendLink} disabled={busy} className="mt-3 text-xs text-white/40 underline underline-offset-4 hover:text-white disabled:opacity-50">
                   Resend my dashboard link

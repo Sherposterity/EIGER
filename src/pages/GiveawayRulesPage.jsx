@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import SiteNav from '../components/SiteNav';
 import Footer from '../components/Footer';
 import { GIVEAWAY, TASKS } from '../lib/giveaway';
@@ -27,6 +27,9 @@ export default function GiveawayRulesPage() {
     window.scrollTo(0, 0);
   }, []);
   const s = GIVEAWAY.sponsor;
+  // Keep a referral code through the rules round trip (the page also remembers it in session storage).
+  const ref = new URLSearchParams(useLocation().search).get('ref');
+  const backTo = ref ? `/giveaway?ref=${encodeURIComponent(ref)}` : '/giveaway';
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       <SiteNav />
@@ -37,7 +40,7 @@ export default function GiveawayRulesPage() {
           NO PURCHASE, PAYMENT, OR PLEDGE OF ANY KIND IS NECESSARY TO ENTER OR WIN. A purchase, payment, or pledge will not increase your chances of winning. Void where prohibited.
         </p>
         <p className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/40">
-          <Link to="/giveaway" className="underline underline-offset-4 hover:text-white">Back to the giveaway</Link>
+          <Link to={backTo} className="underline underline-offset-4 hover:text-white">Back to the giveaway</Link>
           <a href="/terms.html" className="underline underline-offset-4 hover:text-white">Terms of Use</a>
           <a href="/privacy.html" className="underline underline-offset-4 hover:text-white">Privacy Policy</a>
         </p>
