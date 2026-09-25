@@ -1,11 +1,16 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { motion, useReducedMotion } from 'motion/react';
+import { ArrowDown, ArrowRight } from 'lucide-react';
 import GiveawayPill from './GiveawayPill';
-import EigerLogo from '../assets/EigerLogo.png';
+import { Magnetic } from './home/motion';
+import { EASE_OUT_EXPO, focusRing, scrollToSection } from './home/utils';
 
 // Background footage playlist (the founders' own climbing trips), rotated with
-// a crossfade. Native-resolution (1080p; hero-11 1440p)/no-audio in public/videos — keep clips lean;
-// this is the heaviest asset on the page and loads only the current clip plus
-// the next one (preloaded on the hidden layer so swaps are instant).
+// a crossfade. Native-resolution (1080p; hero-11 1440p)/no-audio in public/videos; keep clips lean.
+// This is the heaviest asset on the page: the poster paints first, the first
+// clip streams with preload="metadata", and the second layer only starts
+// buffering once the browser is idle.
 const CLIP_IDS = [
     'hero-1',
     'hero-4',
@@ -45,6 +50,7 @@ const buildPlaylist = () => {
 };
 
 const HERO_VIDEOS = buildPlaylist();
+const POSTER = '/videos/hero-poster.jpg';
 
 // TikTok's in-app browser renders <video> on a native surface that loses CSS
 // stacking when the element is unmounted/remounted (SPA nav to /mission and
@@ -53,15 +59,39 @@ const HERO_VIDEOS = buildPlaylist();
 const isTikTokBrowser = () =>
     /tiktok|musical_ly|bytedance/i.test(navigator.userAgent);
 
+const prefersReducedMotion = () =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// requestIdleCallback is missing in Safari; a short timeout stands in.
+const onIdle = (fn) => {
+    if ('requestIdleCallback' in window) {
+        const id = window.requestIdleCallback(fn, { timeout: 2500 });
+        return () => window.cancelIdleCallback(id);
+    }
+    const id = window.setTimeout(fn, 1200);
+    return () => window.clearTimeout(id);
+};
+
+// Start the crossfade this long before the current clip ends, so the fade
+// blends two moving pictures instead of fading through a frozen frame.
+const CROSSFADE_LEAD_S = 0.8;
+
+// Hero copy is staged in: every line rises 12 px and settles, all done by
+// 600 ms. The H1 starts at 0.6 opacity so it is legible from the first frame.
+const rise = (delay, fromOpacity = 0) => ({
+    initial: { opacity: fromOpacity, y: 12 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.4, ease: EASE_OUT_EXPO, delay },
+});
+
 const Hero = () => {
-    const [isVisible, setIsVisible] = useState(false);
+    const reduceMotion = useReducedMotion();
     const heroRef = useRef(null);
 
     // Two stacked <video> layers crossfade between playlist clips. The swap
     // starts CROSSFADE_LEAD_S before the current clip ends, so both layers
     // are still in motion during the fade (no freeze-frame); the ended
     // handler is only a fallback for clips whose duration isn't readable.
-    // Reduced-motion users keep the static poster.
     const videoARef = useRef(null);
     const videoBRef = useRef(null);
     const videoIndexRef = useRef(0);
@@ -70,17 +100,18 @@ const Hero = () => {
     // (its final timeupdates + ended) can be told apart from the active one.
     const activeLayerRef = useRef(0);
     const [activeLayer, setActiveLayer] = useState(0);
-    const [posterOnly] = useState(isTikTokBrowser);
+    // TikTok and reduced-motion visitors get the still poster only.
+    const [posterOnly] = useState(() => isTikTokBrowser() || prefersReducedMotion());
 
     useEffect(() => {
-        if (posterOnly) return;
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (posterOnly) return undefined;
         const first = videoARef.current;
-        if (!first) return;
+        const second = videoBRef.current;
+        if (!first) return undefined;
         // In-app browsers (Instagram, TikTok, etc.) decide inline-vs-native
         // playback from the HTML attributes, but React only sets the `muted`
-        // JS property — mirror the attributes onto both layers before play().
-        [videoARef.current, videoBRef.current].forEach((el) => {
+        // JS property; mirror the attributes onto both layers before play().
+        [first, second].forEach((el) => {
             if (!el) return;
             el.setAttribute('muted', '');
             el.setAttribute('playsinline', '');
@@ -88,26 +119,54 @@ const Hero = () => {
         });
         first.src = HERO_VIDEOS[0];
         first.play().catch(() => {});
-        // Buffer the next clip on the hidden layer while the first one plays,
-        // so the first swap needs no network round-trip.
-        if (videoBRef.current) videoBRef.current.src = HERO_VIDEOS[1];
-        return () => clearTimeout(preloadTimerRef.current);
-    }, [posterOnly]);
+        const cancelIdle = onIdle(() => {
+            if (second && !second.getAttribute('src')) {
+                second.preload = 'auto';
+                second.src = HERO_VIDEOS[1];
+            }
+        });
 
-    // Start the crossfade this long before the current clip ends, so the fade
-    // blends two moving pictures instead of fading through a frozen frame.
-    const CROSSFADE_LEAD_S = 0.8;
+        // Pause the footage while the hero is off screen or the tab is hidden.
+        let heroInView = true;
+        const sync = () => {
+            const video =
+                activeLayerRef.current === 0 ? videoARef.current : videoBRef.current;
+            if (!video) return;
+            if (heroInView && !document.hidden) {
+                video.play().catch(() => {});
+            } else {
+                video.pause();
+            }
+        };
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                heroInView = entry.isIntersecting;
+                sync();
+            },
+            { threshold: 0 },
+        );
+        if (heroRef.current) observer.observe(heroRef.current);
+        document.addEventListener('visibilitychange', sync);
+
+        return () => {
+            cancelIdle();
+            observer.disconnect();
+            document.removeEventListener('visibilitychange', sync);
+            clearTimeout(preloadTimerRef.current);
+        };
+    }, [posterOnly]);
 
     const advanceFrom = (layer) => {
         // Ignore late events (final timeupdates, ended) from a layer that
-        // already handed off — otherwise one clip could trigger two swaps.
+        // already handed off; otherwise one clip could trigger two swaps.
         if (layer !== activeLayerRef.current) return;
-        videoIndexRef.current = (videoIndexRef.current + 1) % HERO_VIDEOS.length;
         const next = layer === 0 ? videoBRef.current : videoARef.current;
         const outgoing = layer === 0 ? videoARef.current : videoBRef.current;
         if (!next) return;
-        // The incoming layer was preloaded with this clip when the previous
-        // swap happened (or on mount) — just start it and crossfade.
+        videoIndexRef.current = (videoIndexRef.current + 1) % HERO_VIDEOS.length;
+        // Normally the idle preload has already filled the incoming layer; if
+        // the first clip ended before the browser went idle, load it now.
+        if (!next.getAttribute('src')) next.src = HERO_VIDEOS[videoIndexRef.current];
         next.play().catch(() => {});
         activeLayerRef.current = layer === 0 ? 1 : 0;
         setActiveLayer(activeLayerRef.current);
@@ -118,7 +177,9 @@ const Hero = () => {
             HERO_VIDEOS[(videoIndexRef.current + 1) % HERO_VIDEOS.length];
         clearTimeout(preloadTimerRef.current);
         preloadTimerRef.current = setTimeout(() => {
-            if (outgoing) outgoing.src = followingClip;
+            if (!outgoing) return;
+            outgoing.preload = 'auto';
+            outgoing.src = followingClip;
         }, 1100);
     };
 
@@ -128,41 +189,25 @@ const Hero = () => {
         if (el.duration - el.currentTime <= CROSSFADE_LEAD_S) advanceFrom(layer);
     };
 
-    const scrollToWaitlist = () => {
-        const section = document.getElementById('waitlist');
-        if (!section) return;
-        // Aim for the email input so the form lands in view, not just the section heading.
-        const target = section.querySelector('input[type="email"]') || section;
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const jump = (id) => (event) => {
+        if (scrollToSection(id)) event.preventDefault();
     };
 
-    const scrollToPlatforms = () => {
-        const section = document.getElementById('platforms');
-        if (!section) return;
-        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    };
-
-    useEffect(() => {
-        const reveal = window.requestAnimationFrame(() => {
-            setIsVisible(true);
-        });
-        return () => window.cancelAnimationFrame(reveal);
-    }, []);
+    // Motion props, or none at all under reduced motion.
+    const stage = (delay, fromOpacity) => (reduceMotion ? {} : rise(delay, fromOpacity));
 
     return (
         <section
             ref={heroRef}
-            className="relative h-screen w-full overflow-hidden"
+            aria-label="Introduction"
+            className="relative flex min-h-svh w-full flex-col overflow-hidden bg-bg"
         >
-            {/* Full-Screen Video Background — rotating climbing footage.
-                TikTok's in-app browser gets the static poster instead (see
-                isTikTokBrowser above). */}
             <div className="absolute inset-0 z-0">
                 {posterOnly ? (
                     <img
-                        src="/videos/hero-poster.jpg"
+                        src={POSTER}
                         alt=""
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 h-full w-full object-cover"
                     />
                 ) : (
                     <>
@@ -170,95 +215,109 @@ const Hero = () => {
                             ref={videoARef}
                             muted
                             playsInline
-                            preload="auto"
+                            preload="metadata"
                             disablePictureInPicture
                             disableRemotePlayback
-                            poster="/videos/hero-poster.jpg"
+                            poster={POSTER}
+                            aria-hidden="true"
                             onTimeUpdate={() => handleTimeUpdate(0)}
                             onEnded={() => advanceFrom(0)}
-                            className={`pointer-events-none absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${activeLayer === 0 ? 'opacity-100' : 'opacity-0'}`}
+                            className={`pointer-events-none absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${activeLayer === 0 ? 'opacity-100' : 'opacity-0'}`}
                         />
                         <video
                             ref={videoBRef}
                             muted
                             playsInline
-                            preload="auto"
+                            preload="none"
                             disablePictureInPicture
                             disableRemotePlayback
+                            aria-hidden="true"
                             onTimeUpdate={() => handleTimeUpdate(1)}
                             onEnded={() => advanceFrom(1)}
-                            className={`pointer-events-none absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${activeLayer === 1 ? 'opacity-100' : 'opacity-0'}`}
+                            className={`pointer-events-none absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${activeLayer === 1 ? 'opacity-100' : 'opacity-0'}`}
                         />
                     </>
                 )}
 
-                {/* Dark Overlay for text readability */}
-                <div className="absolute inset-0 bg-black/45" />
-
-                {/* Gradient overlay at bottom — blends the footage into the
-                    page. The old mountain-silhouette SVGs were removed once
-                    real climbing footage landed; they covered half the video. */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
+                {/* Black scrims only: an even dim, a fade into the page at the
+                    bottom, and on desktop a heavier corner scrim behind the copy. */}
+                <div className="absolute inset-0 bg-black/35" />
+                <div className="absolute inset-x-0 bottom-0 h-2/3 bg-linear-to-t from-bg via-bg/60 to-transparent" />
+                <div className="absolute inset-0 hidden bg-[radial-gradient(ellipse_80%_75%_at_0%_100%,rgb(0_0_0/0.65),transparent_70%)] md:block" />
             </div>
 
-            {/* Content Overlay */}
-            <div className="relative z-10 h-full flex flex-col items-center px-6 text-center">
-                {/* Main content - flex-1 centers and shrinks dynamically */}
-                <div className="flex-1 flex flex-col items-center justify-center min-h-0">
-                    <div className={`transition-all duration-1000 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pt-28 pb-8 sm:px-6 md:pb-16 lg:px-8">
+                <div className="mx-auto flex max-w-3xl flex-col items-center text-center md:mx-0 md:items-start md:text-left">
+                    <motion.div {...stage(0.25)} className="mb-6">
+                        <GiveawayPill />
+                    </motion.div>
 
-                        {/* Launch giveaway: first thing on the page */}
-                        <div className="mb-6 md:mb-8">
-                            <GiveawayPill />
-                        </div>
+                    <motion.h1
+                        {...stage(0, 0.6)}
+                        className="font-display text-display-xl text-balance text-fg"
+                    >
+                        You cannot afford a mistake on the mountain.
+                    </motion.h1>
 
-                        {/* Main Title - Logo - dynamically sized */}
-                        <img
-                            src={EigerLogo}
-                            alt="EIGER"
-                            className="mx-auto mb-4 md:mb-6 object-contain drop-shadow-2xl"
-                            style={{ height: 'clamp(14rem, 40vh, 30rem)' }}
-                        />
+                    <motion.p
+                        {...stage(0.08)}
+                        className="mt-6 max-w-2xl text-body-lg text-pretty text-fg-muted"
+                    >
+                        Our mission is to mitigate that with expert verified gear recommendations mapped to every conceivable hike.
+                    </motion.p>
 
-                        {/* Tagline with personality */}
-                        <p className="text-lg md:text-2xl lg:text-3xl text-white/80 font-light max-w-3xl mx-auto leading-relaxed mb-2 md:mb-4">
-                            Your mountain. Your gear. One app.
-                        </p>
+                    <motion.div {...stage(0.12)} className="mt-3">
+                        <Link
+                            to="/verification"
+                            className={`group inline-flex items-center gap-2 rounded-sm text-body font-medium text-fg underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-fg ${focusRing}`}
+                        >
+                            Take a look at our process
+                            <ArrowRight
+                                aria-hidden="true"
+                                className="size-4 transition-transform duration-300 group-hover:translate-x-0.5"
+                            />
+                        </Link>
+                    </motion.div>
 
-                        <p className="text-base md:text-xl text-white/60 font-light max-w-2xl mx-auto italic">
-                            The summit waits for no one, but you'll be ready
-                        </p>
-
-                        {/* CTA: primary = get the app (public beta live), secondary = waitlist */}
-                        <div className="mt-6 md:mt-12 flex flex-col items-center gap-3">
-                            <button
-                                type="button"
-                                onClick={scrollToPlatforms}
-                                className="inline-block px-10 py-4 bg-white text-black font-semibold text-lg rounded-full hover:bg-white/90 hover:scale-105 transition-all duration-300 shadow-2xl"
+                    <motion.div
+                        {...stage(0.16)}
+                        className="mt-8 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center"
+                    >
+                        <Magnetic className="w-full sm:w-auto">
+                            <a
+                                href="#get-the-app"
+                                onClick={jump('get-the-app')}
+                                className={`inline-flex h-12 w-full items-center justify-center rounded-pill bg-fg px-7 text-body font-semibold text-bg transition-colors hover:bg-fg/85 sm:w-auto ${focusRing}`}
                             >
                                 Get the app
-                            </button>
-                            <button
-                                type="button"
-                                onClick={scrollToWaitlist}
-                                className="text-sm text-white/60 hover:text-white underline underline-offset-4 decoration-white/30 hover:decoration-white transition-colors"
-                            >
-                                Or leave your email for release updates
-                            </button>
-                        </div>
+                            </a>
+                        </Magnetic>
+                        <a
+                            href="#how-it-works"
+                            onClick={jump('how-it-works')}
+                            className={`inline-flex h-12 w-full items-center justify-center rounded-pill border border-line-strong bg-bg/30 px-7 text-body font-semibold text-fg backdrop-blur-sm transition-colors hover:border-fg/40 hover:bg-bg/50 sm:w-auto ${focusRing}`}
+                        >
+                            See how it works
+                        </a>
+                    </motion.div>
 
-                    </div>
+                    <motion.p
+                        {...stage(0.2)}
+                        className="mt-5 font-mono text-small text-fg-subtle"
+                    >
+                        Free on the App Store and Google Play.
+                    </motion.p>
                 </div>
 
-                {/* Scroll Indicator - always visible, in-flow at bottom */}
-                <div className="pb-6 pt-4 animate-bounce shrink-0">
-                    <div className="flex flex-col items-center gap-2 text-white/50">
-                        <span className="text-xs tracking-widest uppercase">Explore</span>
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                        </svg>
-                    </div>
-                </div>
+                {/* Scroll cue: static, nothing loops. */}
+                <a
+                    href="#how-it-works"
+                    onClick={jump('how-it-works')}
+                    className={`mt-6 flex flex-col items-center gap-1 self-center rounded-sm text-fg-subtle transition-colors hover:text-fg md:absolute md:right-8 md:bottom-16 md:mt-0 md:gap-2 ${focusRing}`}
+                >
+                    <span className="font-mono text-eyebrow uppercase">Explore</span>
+                    <ArrowDown aria-hidden="true" className="size-4" />
+                </a>
             </div>
         </section>
     );
