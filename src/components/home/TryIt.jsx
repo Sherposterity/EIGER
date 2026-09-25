@@ -170,15 +170,22 @@ export default function TryIt() {
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <span id={`${ids}-season`} className="text-small font-medium leading-none text-fg-muted">
+                    <Label id={`${ids}-season`} className="text-small text-fg-muted">
                       Season
-                    </span>
+                    </Label>
                     <SeasonToggle value={season} onChange={setSeason} labelId={`${ids}-season`} />
                   </div>
                 </div>
 
                 <p className="mt-6 text-small text-fg-subtle">
-                  {fine ? 'Drag or tap a tile to add it to your kit.' : 'Tap a tile to add it to your kit.'}
+                  {fine ? (
+                    <>
+                      <span className="lg:hidden">Tap a tile to add it to your kit.</span>
+                      <span className="hidden lg:inline">Drag or tap a tile to add it to your kit.</span>
+                    </>
+                  ) : (
+                    'Tap a tile to add it to your kit.'
+                  )}
                 </p>
 
                 <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
@@ -219,10 +226,17 @@ export default function TryIt() {
                   </div>
                   {inKit.length === 0 ? (
                     <p className="mt-6 text-small text-fg-subtle">
-                      {fine ? 'Drop tiles here.' : 'Tapped tiles appear here.'}
+                      {fine ? (
+                        <>
+                          <span className="lg:hidden">Tapped tiles appear here.</span>
+                          <span className="hidden lg:inline">Drop tiles here.</span>
+                        </>
+                      ) : (
+                        'Tapped tiles appear here.'
+                      )}
                     </p>
                   ) : (
-                    <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
+                    <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                       {inKit.map((name, i) => (
                         <li key={name}>
                           <GearTile {...tileProps(name, i)} inKit appearDelay={null} />
