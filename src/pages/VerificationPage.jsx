@@ -95,6 +95,10 @@ export default function VerificationPage() {
   const panelRef = useRef(null);
   const timers = useRef([]);
   const lastScrollStage = useRef(1);
+  const runRef = useRef(run);
+  useEffect(() => {
+    runRef.current = run;
+  }, [run]);
 
   const mountainIndex = Math.max(0, MOUNTAINS.findIndex((m) => m.slug === slug));
   const mountain = MOUNTAINS[mountainIndex];
@@ -145,7 +149,9 @@ export default function VerificationPage() {
         lastScrollStage.current = best;
         setScrollStage(best);
         setSpoken(true);
-        stopRun();
+        // A run scrolls the page itself; only the reader scrolling somewhere
+        // else should interrupt it.
+        if (!runRef.current.active || best !== runRef.current.stage) stopRun();
       }
     };
     const onScroll = () => {
@@ -160,6 +166,21 @@ export default function VerificationPage() {
       if (frame) cancelAnimationFrame(frame);
     };
   }, [desktop, stopRun]);
+
+  // While a run plays, scroll the step text alongside the diagram so both
+  // advance together (founder request). Reduced motion jumps instead of gliding.
+  useEffect(() => {
+    if (!run.active) return;
+    const el = stepRefs.current[run.stage - 1];
+    if (!el) return;
+    const vh = window.innerHeight;
+    const panelBottom = !desktop && panelRef.current ? panelRef.current.getBoundingClientRect().bottom : 0;
+    const ref = desktop ? vh / 2 : (Math.max(0, panelBottom) + vh) / 2;
+    const r = el.getBoundingClientRect();
+    const top = window.scrollY + r.top + r.height / 2 - ref;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: Math.max(0, top), behavior: reduce ? 'auto' : 'smooth' });
+  }, [run.active, run.stage, desktop]);
 
   const startRun = useCallback(() => {
     timers.current.forEach(clearTimeout);
