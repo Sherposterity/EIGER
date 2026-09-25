@@ -91,8 +91,9 @@ const LaunchBanner = () => {
     <motion.aside
       ref={ref}
       aria-label="Launch announcement"
-      // Sits right under the fixed nav: 76 px tall on phones (44 px menu button), 72 px from lg.
-      className="absolute inset-x-0 top-[76px] z-40 border-y border-line bg-surface-2 lg:top-[72px]"
+      // Sits right under the fixed header: 77 px tall on phones (44 px menu button), 73 px from lg (both include its 1 px border).
+      // z-45: above the z-40 AscentLine strip, below the z-50 header.
+      className="absolute inset-x-0 top-[77px] z-[45] border-y border-line bg-surface-2 lg:top-[73px]"
       {...motionProps}
     >
       <div className="mx-auto flex max-w-7xl items-start gap-3 px-4 py-2.5 sm:items-center sm:px-6 lg:px-8">
