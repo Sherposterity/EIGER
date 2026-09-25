@@ -78,6 +78,9 @@ export default function AscentLine({ data = rainierDC, variant = 'margin' }) {
   const smooth = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.4, restDelta: 0.0005 });
   // Reduced motion: no spring, the marker sits exactly at the scroll position
   const progress = reduced ? scrollYProgress : smooth;
+  // The hero owns the first screen; the strip fades in as it scrolls away.
+  const { scrollY } = useScroll();
+  const stripOpacity = useTransform(scrollY, [viewportH * 0.55, viewportH * 0.95], [0, 1]);
 
   const waypoints = data?.waypoints ?? NO_WAYPOINTS;
   const plotH = Math.max(120, viewportH - PAD_TOP - PAD_BOTTOM);
@@ -132,10 +135,10 @@ export default function AscentLine({ data = rainierDC, variant = 'margin' }) {
   const polyPoints = geo.pts.map((p) => `${p.x},${p.y}`).join(' ');
 
   return (
-    <div
+    <motion.div
       aria-hidden="true"
       className="pointer-events-none fixed top-0 left-0 z-40 h-dvh select-none"
-      style={{ width: STRIP_W }}
+      style={{ width: STRIP_W, opacity: stripOpacity }}
     >
       <svg className="absolute inset-0 overflow-visible" width={STRIP_W} height={viewportH}>
         <polyline
@@ -193,6 +196,6 @@ export default function AscentLine({ data = rainierDC, variant = 'margin' }) {
       >
         {CAPTION}
       </span>
-    </div>
+    </motion.div>
   );
 }
