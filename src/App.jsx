@@ -10,6 +10,7 @@ import GetTheApp from './components/home/GetTheApp';
 import EmailCapture from './components/home/EmailCapture';
 import Faq from './components/home/Faq';
 import Footer from './components/Footer';
+import AscentLine from './components/AscentLine';
 import { MISSION_REDIRECT } from './lib/routes';
 
 // Mission and About are split out of the home bundle so the landing page
@@ -67,6 +68,8 @@ function Home() {
   return (
     <div className="min-h-screen bg-bg text-fg">
       <SiteNav />
+      {/* Signature motif: the Rainier DC route profile as the page's scroll progress. Home only, desktop only. */}
+      <AscentLine />
       <main>
         <Hero />
         <Walkthrough />

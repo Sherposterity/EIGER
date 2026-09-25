@@ -158,3 +158,9 @@ results. No giveaway or waitlist form was submitted.
 Not verified: the real GitHub Pages host (only a local imitation), and
 whether a direct load of `/#platforms` scrolls to the section (the anchor is
 kept but the section renders after the browser's own anchor jump).
+
+## Update 2026-09-25 (assembly)
+- `/mission` now redirects to `/about` (`MISSION_REDIRECT = true`); `/mission` removed from the sitemap.
+- New route `/verification` (Verification process page), in `routes.js`, `copy-routes.mjs` and the sitemap.
+- Old in-page anchors `#platforms` and `#waitlist` map to `#get-the-app` and `#updates`.
+- The edge function still emits `#/giveaway` links; they keep working through the hash redirect. Switching them is a separate change.

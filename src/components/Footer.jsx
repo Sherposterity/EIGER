@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Check, Copy } from 'lucide-react';
 import lockup from '../assets/logo/lockup.svg';
 
-const CONTACT_EMAIL = 'business@eiger014.com';
+const CONTACT_EMAIL = 'support@eiger014.com';
 
 const focusRing =
   'outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-bg';

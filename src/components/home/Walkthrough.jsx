@@ -7,9 +7,9 @@ import {
   useTransform,
 } from 'motion/react';
 import { Iphone } from '@/components/ui/iphone';
-import missionControl from '@/assets/E_MissionControl.png';
-import summitIntel from '@/assets/E_SummitIntel.png';
-import gearVault from '@/assets/E_GearVault.png';
+import missionControl from '@/assets/E_MissionControl.webp';
+import summitIntel from '@/assets/E_SummitIntel.webp';
+import gearVault from '@/assets/E_GearVault.webp';
 import ProofLine from './ProofLine';
 import { FadeIn } from './motion';
 import { EASE_OUT_EXPO } from './utils';

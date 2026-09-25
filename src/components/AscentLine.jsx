@@ -28,19 +28,19 @@ import {
  *   data     Route JSON shaped like src/data/ascent-rainier-dc.json
  *            ({ waypoints: [{ name, m, mi, ... }] }, ordered trailhead to
  *            summit). Defaults to the Rainier DC file.
- *   variant  'margin' (default): the strip at >= 1280px, nothing below.
- *            'bar': the strip at >= 1280px, and below that a 2px progress
+ *   variant  'margin' (default): the strip at >= 1440px, nothing below.
+ *            'bar': the strip at >= 1440px, and below that a 2px progress
  *            line on the top edge with the waypoints as ticks.
  *            'none': renders nothing.
  *
  * Mount it once per page, anywhere in the tree (it is position: fixed).
  * The strip is STRIP_W px wide at the left edge, z-40 (under the z-50 nav),
- * so page content at >= 1280px needs at least that much left margin.
+ * so page content at >= 1440px needs at least that much left margin.
  */
 
-const STRIP_W = 120; // px; labels need about 84px for "Disappointment" at 10px mono
+const STRIP_W = 150; // px; room for the widened profile plus 10px mono labels
 const LINE_X0 = 10; // profile's horizontal band inside the strip (distance, compressed)
-const LINE_W = 16;
+const LINE_W = 40;
 const LABEL_X = 34;
 const LABEL_CHARS = 14; // 10px JetBrains Mono advances 6px a character
 const LINE_H = 13; // label line height in px
@@ -70,7 +70,7 @@ function useMediaQuery(query) {
 const fmtM = (m) => `${Math.round(m).toLocaleString('en-US')} m`;
 
 export default function AscentLine({ data = rainierDC, variant = 'margin' }) {
-  const isWide = useMediaQuery('(min-width: 1280px)');
+  const isWide = useMediaQuery('(min-width: 1440px)');
   const reduced = useReducedMotion();
   const viewportH = useSyncExternalStore(subscribeResize, getViewportH, () => 900);
 

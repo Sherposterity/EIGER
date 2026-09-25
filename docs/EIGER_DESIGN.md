@@ -66,7 +66,7 @@ hand written CSS.
 - **Monochrome.** One near black base, white at fixed strengths for text and
   lines, three stepped surfaces for depth. No accent colour. Emerald appears
   only where it already means live or success (the beta dot, "Copied!", the
-  waitlist confirmation). Red appears only for form errors.
+  waitlist confirmation). Form errors are white text with a marker, never red.
 - **Alpine and restrained.** The photography and video carry the colour.
   Type does the rest: League Spartan for display and the wordmark, Inter for
   reading, JetBrains Mono for numbers, elevations and small labels.
