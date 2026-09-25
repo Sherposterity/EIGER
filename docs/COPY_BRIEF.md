@@ -4,7 +4,7 @@ All text on the site is written by Muad. This file lists every place text appear
 
 House rules already agreed: no em or en dashes (use commas or rewrite); "EIGER" in headings and marketing text, "Eiger LLC" only in legal and sponsor lines (confirm this rule below); short, concrete, specific; say what the app does, not what it is like.
 
-Palette is black and white only; nothing here needs colour words.
+Palette is black and white only; nothing here needs colour words. No pulsing status dots anywhere; status is shown with text tags and glyphs.
 
 ---
 
@@ -60,12 +60,12 @@ Palette is black and white only; nothing here needs colour words.
 > Label for 11,000+:
 > Fourth figure and label:
 
-**H8. Try-it section** (the interactive mountain + month check). The visitor picks a mountain and a month and sees that mountain's required gear from a snapshot of the catalogue.
+**H8. Try-it section** (the interactive mountain + season check). The visitor picks a mountain and flips Summer or Winter, exactly as in the app (the app does not derive season from a date), and sees that mountain's required gear from a snapshot of the catalogue; winter raises the insulation requirement and adds the winter essentials.
 > Eyebrow (2 or 3 words):
 > Heading, an invitation (3 to 6 words):
 > Intro (1 sentence: what the check is, and that the app does this against your own kit):
 > Label for the mountain dropdown (1 word):
-> Label for the month dropdown (1 word):
+> Label for the season switch (1 word) and the two options (Summer / Winter or your wording):
 > Snapshot note (1 sentence: this is an example snapshot; the app is live data):
 > Closing line (1 sentence pointing to the app):
 

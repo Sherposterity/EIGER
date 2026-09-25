@@ -22,6 +22,7 @@
   --color-fg-subtle: rgb(250 250 250 / 0.50);
   --color-line: rgb(255 255 255 / 0.08);
   --color-line-strong: rgb(255 255 255 / 0.14);
+  --color-focus: rgb(250 250 250 / 0.70);
   /* Tailwind emerald-500, the colour the live beta dot already uses */
   --color-live: oklch(69.6% 0.17 162.48);
 
@@ -101,7 +102,7 @@
   --destructive: oklch(70.4% 0.191 22.216);
   --border: var(--color-line);
   --input: var(--color-line-strong);
-  --ring: var(--color-line-strong);
+  --ring: var(--color-focus);
 }
 
 @theme inline {

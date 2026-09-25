@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test tests/*.test.js",
+    "postbuild": "node scripts/copy-routes.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.90.1",
