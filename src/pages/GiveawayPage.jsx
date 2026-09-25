@@ -461,7 +461,7 @@ export default function GiveawayPage() {
                     Resend the activation link
                   </button>
                   {backend.mode === 'local' ? (
-                    <a href={`/#/giveaway?entry=${entrant.magic}`} className="ml-4 text-xs text-white/30 underline underline-offset-4 hover:text-white/60">Review mode: open the emailed link</a>
+                    <Link to={`/giveaway?entry=${entrant.magic}`} className="ml-4 text-xs text-white/30 underline underline-offset-4 hover:text-white/60">Review mode: open the emailed link</Link>
                   ) : null}
                 </div>
               )}
@@ -503,9 +503,9 @@ export default function GiveawayPage() {
                   <button type="button" onClick={async () => { await backend.reset(); setEntrant(null); setNotice(''); }} className="underline underline-offset-4 hover:text-white/60">
                     Review mode: reset this browser's entry
                   </button>
-                  <a href={`/#/giveaway?entry=${entrant.magic}`} className="underline underline-offset-4 hover:text-white/60">
+                  <Link to={`/giveaway?entry=${entrant.magic}`} className="underline underline-offset-4 hover:text-white/60">
                     Review mode: open the emailed dashboard link
-                  </a>
+                  </Link>
                 </div>
               ) : null}
             </div>

@@ -61,8 +61,9 @@ export const ticketsFor = (progress) =>
     }, 0)
   );
 
-// HashRouter site: the route lives after the hash, and react-router reads the query from inside it.
-export const referralLink = (code) => `${window.location.origin}/#/giveaway?ref=${code}`;
+// Path URL (BrowserRouter). Links shared before the move used /#/giveaway?ref=
+// and still work: src/lib/hashRedirect.js rewrites them on load.
+export const referralLink = (code) => `${window.location.origin}/giveaway?ref=${code}`;
 
 // A referral code survives pre-entry navigation (reading the rules and coming
 // back drops the query). Policy: the most recently opened link wins; the

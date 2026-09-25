@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import Hero from './components/Hero';
 import SiteNav from './components/SiteNav';
 import Features from './components/Features';
@@ -9,6 +9,7 @@ import Platforms from './components/Platforms';
 import BetaToast from './components/BetaToast';
 import Waitlist from './components/Waitlist';
 import Footer from './components/Footer';
+import { MISSION_REDIRECT } from './lib/routes';
 
 // Mission and About are split out of the home bundle so the landing page
 // ships less JavaScript; they load on first navigation.
@@ -66,16 +67,34 @@ function Home() {
   );
 }
 
+// Unknown paths get a real not-found page instead of silently showing Home.
+// Placeholder copy; the founder will replace it.
+function NotFound() {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#0A0A0A] px-6 text-center text-white">
+      <h1 className="text-3xl font-bold">Page not found</h1>
+      <p className="text-white/60">This page does not exist.</p>
+      <Link to="/" className="underline underline-offset-4 hover:text-white/60">Go to the home page</Link>
+    </div>
+  );
+}
+
+// Used only when MISSION_REDIRECT is flipped on: keeps the query string.
+function MissionRedirect() {
+  const { search } = useLocation();
+  return <Navigate to={{ pathname: '/about', search }} replace />;
+}
+
 function App() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-[#0A0A0A]" />}>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/mission" element={<MissionPage />} />
+        <Route path="/mission" element={MISSION_REDIRECT ? <MissionRedirect /> : <MissionPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/giveaway" element={<GiveawayPage />} />
         <Route path="/giveaway/rules" element={<GiveawayRulesPage />} />
-        <Route path="*" element={<Home />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
   );

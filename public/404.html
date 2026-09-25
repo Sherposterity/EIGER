@@ -16,14 +16,24 @@
     a { color: #fff; }
   </style>
   <script>
-    // GitHub Pages serves this for any unknown path. The app uses hash
-    // routes, so a bare /mission or /about (typed, or shared without the #)
-    // is forwarded to the matching in-app route. Anything else lands on home.
+    // GitHub Pages serves this page for any path it has no file for, which
+    // includes every app route loaded directly (/about, /giveaway?ref=abc).
+    // Hand the path and query to the app at / using the spa-github-pages
+    // encoding: /giveaway?ref=abc becomes /?/giveaway&ref=abc (a literal "&"
+    // is written as "~and~"). src/lib/hashRedirect.js decodes it before the
+    // router renders, restoring the exact original path and query. Paths that
+    // look like files (a dot in the last segment) stay here and show the text
+    // below. See docs/ROUTING.md.
     (function () {
-      var path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
-      var known = { '/mission': '/mission', '/about': '/about', '/giveaway': '/giveaway', '/giveaway/rules': '/giveaway/rules' };
-      var target = known[path] || '/';
-      window.location.replace('/#' + target + window.location.search);
+      var l = window.location;
+      var last = l.pathname.split('/').pop();
+      if (last.indexOf('.') !== -1) return;
+      l.replace(
+        l.protocol + '//' + l.host + '/?/' +
+        l.pathname.slice(1).replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
     })();
   </script>
 </head>
