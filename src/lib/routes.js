@@ -3,7 +3,7 @@
 // it forwards every extensionless unknown path into the app, and the app's
 // NotFound route handles anything not listed here.
 
-export const ROUTE_PATHS = ['/', '/mission', '/about', '/giveaway', '/giveaway/rules'];
+export const ROUTE_PATHS = ['/', '/mission', '/about', '/verification', '/giveaway', '/giveaway/rules'];
 
 // TODO(mission merge): the Mission and About pages are being merged. Until the
 // merge lands both pages render at their own paths. Flip this to true when it
