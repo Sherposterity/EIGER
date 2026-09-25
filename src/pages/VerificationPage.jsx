@@ -151,16 +151,16 @@ export default function VerificationPage() {
     <div className="min-h-screen overflow-x-clip bg-bg text-fg">
       <SiteNav />
       <main>
-        <section className="px-4 pb-section-sm pt-40 sm:px-gutter">
-          <div className="mx-auto max-w-5xl">
+        <section className="pb-section-sm pt-40">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <h1 className="text-display-lg">Verification process</h1>
             <p className="mt-6">
               <span className={pendingTag}>{PENDING}</span>
             </p>
           </div>
         </section>
-        <section className="px-4 pb-section sm:px-gutter" aria-label="Verification process">
-          <div className="mx-auto max-w-5xl">
+        <section className="pb-section" aria-label="Verification process">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <Pipeline />
           </div>
         </section>
