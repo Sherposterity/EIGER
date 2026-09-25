@@ -183,8 +183,8 @@ export default function TryIt() {
 
           <p className="mt-6 text-center text-small text-fg-subtle">
             {canDrag
-              ? 'Drag or tap a tile to add it to your kit.'
-              : 'Tap a tile to add it to your kit.'}
+              ? 'Drag or tap an item to add it to your kit.'
+              : 'Tap an item to add it to your kit.'}
           </p>
 
           {/* The radial diagram. Its height is reserved up front, so the kit
@@ -205,8 +205,8 @@ export default function TryIt() {
               emptyLabel={
                 kit.length === 0
                   ? canDrag
-                    ? 'Drop tiles here.'
-                    : 'Tapped tiles appear here.'
+                    ? 'Drop items here.'
+                    : 'Tapped items appear here.'
                   : null
               }
             />
