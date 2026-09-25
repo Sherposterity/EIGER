@@ -246,7 +246,7 @@ const Hero = () => {
                 <div className="absolute inset-0 hidden bg-[radial-gradient(ellipse_80%_75%_at_0%_100%,rgb(0_0_0/0.65),transparent_70%)] md:block" />
             </div>
 
-            <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pt-28 pb-8 sm:px-6 md:pb-16 lg:px-8">
+            <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pt-[calc(7rem+var(--launch-banner-h,0px))] pb-8 sm:px-6 md:pb-16 lg:px-8">
                 <div className="mx-auto flex max-w-3xl flex-col items-center text-center md:mx-0 md:items-start md:text-left">
                     <motion.div {...stage(0.25)} className="mb-6">
                         <GiveawayPill />

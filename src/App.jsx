@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import Hero from './components/Hero';
 import SiteNav from './components/SiteNav';
+import LaunchBanner from './components/home/LaunchBanner';
 import Walkthrough from './components/home/Walkthrough';
 import TryIt from './components/home/TryIt';
 import WhyEiger from './components/home/WhyEiger';
@@ -66,8 +67,9 @@ function Home() {
   }, [location.search, location.hash]);
 
   return (
-    <div className="min-h-screen bg-bg text-fg">
+    <div className="relative min-h-screen bg-bg text-fg">
       <SiteNav />
+      <LaunchBanner />
       {/* Signature motif: the Rainier DC route profile as the page's scroll progress. Home only, desktop only. */}
       <AscentLine />
       <main>
