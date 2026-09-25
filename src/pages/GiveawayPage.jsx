@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { Check } from 'lucide-react';
 import SiteNav from '../components/SiteNav';
 import Footer from '../components/Footer';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { GIVEAWAY, TASKS, backend, clearReferral, isValidEmail, pendingReferral, phaseFor, referralLink, rememberReferral, ticketsFor } from '../lib/giveaway';
 
 const COUNTRIES = ['United States', 'Canada', 'United Kingdom', 'France', 'Switzerland', 'Germany', 'Austria', 'Norway', 'Other'];
@@ -30,32 +34,53 @@ const useCountdown = (targetIso) => {
   };
 };
 
-const Eyebrow = ({ children }) => (
-  <span className="inline-block rounded-full border border-white/10 px-4 py-2 text-[11px] uppercase tracking-[0.22em] text-white/50">
-    {children}
-  </span>
-);
+// Shared styles. Monochrome only: state is shown by white versus grey, never
+// by colour. Errors are white text with a marker, not red.
+const focusRing =
+  'outline-none focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:ring-offset-2 focus-visible:ring-offset-bg';
+const surface = 'rounded-lg border border-line bg-surface-1';
+const primaryBtn = `inline-flex items-center justify-center rounded-pill bg-fg font-semibold uppercase tracking-[0.18em] text-bg transition-opacity duration-300 hover:opacity-85 disabled:opacity-50 ${focusRing}`;
+const outlineBtn = `inline-flex items-center justify-center rounded-pill border border-line-strong font-semibold uppercase tracking-[0.18em] text-fg transition-colors duration-300 hover:bg-surface-3 disabled:opacity-50 ${focusRing}`;
+const textLink = `rounded-sm underline decoration-line-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-fg ${focusRing}`;
+const fieldClass =
+  'h-12 rounded-pill border-line-strong bg-surface-2 px-5 text-body text-fg placeholder:text-fg-subtle aria-invalid:border-fg aria-invalid:ring-fg/20 dark:bg-surface-2 dark:aria-invalid:border-fg dark:aria-invalid:ring-fg/20';
 
+const Eyebrow = ({ children, as = 'p' }) => {
+  const Tag = as;
+  return <Tag className="font-mono text-eyebrow font-semibold uppercase text-fg-subtle">{children}</Tag>;
+};
+
+// Error text: announced politely, monochrome, marked so it does not rely on colour.
+const ErrorText = ({ children, className = '' }) =>
+  children ? (
+    <p className={`flex items-start gap-2 text-small font-medium text-fg ${className}`}>
+      <span aria-hidden="true" className="font-mono">!</span>
+      <span>{children}</span>
+    </p>
+  ) : null;
+
+// The countdown ticks every second, so it is deliberately not a live region:
+// screen readers read it when they reach it and are not interrupted by it.
 const Countdown = ({ phase }) => {
   const target = phase === 'upcoming' ? GIVEAWAY.opensAt : GIVEAWAY.closesAt;
   const t = useCountdown(target);
   const label = phase === 'upcoming' ? 'Opens in' : phase === 'closed' ? 'Entries closed' : 'Closes in';
   return (
-    <div className="mt-10">
-      <div className="text-[11px] uppercase tracking-[0.22em] text-white/40">{label}</div>
+    <div className="mt-12">
+      <Eyebrow>{label}</Eyebrow>
       {phase === 'closed' ? (
-        <div className="mt-3 text-2xl text-white/70">The draw is being run. Winner announced by email and on this page.</div>
+        <div className="mt-3 text-heading text-fg-muted">The draw is being run. Winner announced by email and on this page.</div>
       ) : (
-        <div className="mt-4 flex justify-center gap-3 sm:gap-6">
+        <div className="mt-4 flex justify-center gap-2 sm:gap-4">
           {[
             ['Days', t.days],
             ['Hours', t.hours],
             ['Min', t.minutes],
             ['Sec', t.seconds],
           ].map(([unit, value]) => (
-            <div key={unit} className="glass-card w-[72px] py-4 sm:w-24 sm:py-5">
-              <div className="text-3xl font-bold tabular-nums sm:text-4xl">{pad(value)}</div>
-              <div className="mt-1 text-[10px] uppercase tracking-[0.2em] text-white/40">{unit}</div>
+            <div key={unit} className={`${surface} w-[68px] py-4 sm:w-24 sm:py-5`}>
+              <div className="font-mono text-3xl font-semibold tabular-nums sm:text-4xl">{pad(value)}</div>
+              <div className="mt-1 font-mono text-eyebrow uppercase text-fg-subtle">{unit}</div>
             </div>
           ))}
         </div>
@@ -64,102 +89,85 @@ const Countdown = ({ phase }) => {
   );
 };
 
-// The prize value, counted up once on load so it is the first thing read on
-// the page. Static under Reduce Motion.
-const reduceMotion = () => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-const ValueCounter = ({ target }) => {
-  const [value, setValue] = useState(() => (reduceMotion() ? target : 0));
-  useEffect(() => {
-    if (reduceMotion()) return undefined;
-    const start = performance.now();
-    const duration = 1400;
-    let raf = 0;
-    const tick = (t) => {
-      const p = Math.min(1, (t - start) / duration);
-      const eased = 1 - (1 - p) ** 3;
-      setValue(Math.round(target * eased));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target]);
-  return (
-    <div className="mt-8">
-      <div className="flex items-baseline justify-center gap-2 drop-shadow-[0_0_48px_rgba(255,255,255,0.28)]">
-        <span className="text-2xl font-semibold text-white/50 sm:text-3xl">USD</span>
-        <span className="text-7xl font-bold leading-none tabular-nums sm:text-8xl lg:text-9xl">{value}</span>
-      </div>
-      <div className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/60">Retail value. Gear of your choice. One winner.</div>
+// The prize value, as a fixed number.
+const PrizeValue = ({ value }) => (
+  <div className="mt-8">
+    <div className="flex items-baseline justify-center gap-3">
+      <span className="font-mono text-2xl font-medium text-fg-subtle sm:text-3xl">USD</span>
+      <span className="font-mono text-7xl font-semibold leading-none tabular-nums sm:text-8xl lg:text-9xl">{value}</span>
     </div>
-  );
-};
+    <div className="mt-4 font-mono text-eyebrow font-semibold uppercase text-fg-muted">Retail value. Gear of your choice. One winner.</div>
+  </div>
+);
 
 const TicketMeter = ({ tickets }) => {
   const pct = Math.round((tickets / GIVEAWAY.maxTickets) * 100);
   return (
-    <div className="glass-card p-6 sm:p-8">
-      <div className="flex items-end justify-between">
+    <div className={`${surface} p-6 sm:p-8`}>
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="text-[11px] uppercase tracking-[0.22em] text-white/40">Your tickets</div>
-          <div className="mt-1 text-5xl font-bold tabular-nums">
+          <Eyebrow>Your tickets</Eyebrow>
+          <div className="mt-1 font-mono text-5xl font-semibold tabular-nums">
             {tickets}
-            <span className="text-2xl text-white/30"> / {GIVEAWAY.maxTickets}</span>
+            <span className="text-2xl text-fg-subtle"> / {GIVEAWAY.maxTickets}</span>
           </div>
         </div>
-        <div className="text-right text-sm text-white/50">More tickets, better odds.<br />Every task is free.</div>
+        <div className="text-right text-small text-fg-muted">More tickets, better odds.<br />Every task is free.</div>
       </div>
-      <div className="mt-5 h-2 w-full overflow-hidden rounded-full bg-white/10">
-        <div className="h-full rounded-full bg-white transition-all duration-700" style={{ width: `${pct}%` }} />
+      <div className="mt-5 h-2 w-full overflow-hidden rounded-pill bg-surface-3">
+        <div className="h-full rounded-pill bg-fg transition-[width] duration-700 ease-out-expo" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
 };
 
-const TaskRow = ({ task, units, onDo, busy, open, activated, opened, onOpen }) => {
+const TaskRow = ({ task, units, onDo, busy, open, activated, opened, onOpen, copied }) => {
   const done = task.perUnit ? units >= task.maxUnits : units > 0;
   const honor = task.id === 'tiktok' || task.id === 'instagram' || task.id === 'kickstarter';
   const earned = task.perUnit ? task.tickets * Math.min(units, task.maxUnits) : units ? task.tickets : 0;
   const available = task.perUnit ? task.tickets * task.maxUnits : task.tickets;
   const comingSoon = task.id === 'kickstarter' && !GIVEAWAY.links.kickstarter;
+  const isReferral = task.id === 'referral';
   return (
-    <li className={`glass-card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between ${done ? 'opacity-70' : ''}`}>
+    <li className={`${surface} flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between`}>
       <div className="flex items-start gap-4">
-        <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${done ? 'border-white bg-white text-black' : 'border-white/20 text-white/60'}`}>
-          {done ? (
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-          ) : (
-            <span className="text-xs font-semibold">{available}</span>
-          )}
+        <div className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-pill border ${done ? 'border-fg bg-fg text-bg' : 'border-line-strong text-fg-muted'}`}>
+          {done ? <Check className="size-4" strokeWidth={3} aria-hidden="true" /> : <span className="font-mono text-xs font-semibold">{available}</span>}
         </div>
         <div>
-          <div className="font-semibold">{task.label}</div>
-          <div className="mt-1 text-sm text-white/50">{task.detail}</div>
-          {task.perUnit ? <div className="mt-1 text-xs text-white/40">{units} of {task.maxUnits} friends counted</div> : null}
+          <div className={`font-semibold ${done ? 'text-fg-muted' : 'text-fg'}`}>{task.label}</div>
+          <div className="mt-1 text-small text-fg-muted">{task.detail}</div>
+          {task.perUnit ? <div className="mt-1 font-mono text-xs text-fg-subtle">{units} of {task.maxUnits} friends counted</div> : null}
         </div>
       </div>
       <div className="flex items-center gap-3 sm:justify-end">
-        <span className="text-sm tabular-nums text-white/50">
+        <span className="whitespace-nowrap font-mono text-small tabular-nums text-fg-muted">
           {earned}/{available} tickets
         </span>
         {task.auto ? null : comingSoon ? (
-          <span className="rounded-full border border-white/10 px-4 py-2 text-xs uppercase tracking-[0.18em] text-white/30">Coming soon</span>
+          <span className="whitespace-nowrap rounded-pill border border-line px-4 py-2 font-mono text-eyebrow uppercase text-fg-subtle">Coming soon</span>
         ) : done ? null : honor && !opened ? (
           <button
             type="button"
             onClick={() => onOpen(task)}
             disabled={busy || !open || !activated}
-            className="rounded-full border border-white/20 px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:border-white/50 disabled:opacity-50"
+            className={`${outlineBtn} h-9 whitespace-nowrap px-5 text-xs`}
           >
             {task.id === 'kickstarter' ? 'Open Kickstarter' : `Open ${task.id === 'tiktok' ? 'TikTok' : 'Instagram'}`}
           </button>
         ) : (
           <button
             type="button"
-            onClick={() => onDo(task)}
-            disabled={busy || (!open && task.id !== 'referral') || (!activated && task.id !== 'referral')}
-            className="rounded-full bg-white px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-black transition hover:bg-white/90 disabled:opacity-50"
+            onClick={() => {
+              if (isReferral && busy) return;
+              onDo(task);
+            }}
+            aria-disabled={isReferral && busy ? true : undefined}
+            // The copy button stays enabled while busy so keyboard focus stays on it.
+            disabled={isReferral ? false : busy || !open || !activated}
+            className={`${primaryBtn} h-9 whitespace-nowrap px-5 text-xs`}
           >
-            {task.id === 'app' ? 'I signed up' : task.id === 'referral' ? 'Copy my link' : task.id === 'kickstarter' ? 'I had a look' : 'I followed'}
+            {task.id === 'app' ? 'I signed up' : isReferral ? (copied ? 'Copied' : 'Copy my link') : task.id === 'kickstarter' ? 'I had a look' : 'I followed'}
           </button>
         )}
       </div>
@@ -192,6 +200,11 @@ export default function GiveawayPage() {
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState('');
   const [resendMode, setResendMode] = useState(false);
+  // Which field failed validation, so it can be marked and focused.
+  const [invalidField, setInvalidField] = useState(null);
+  const emailRef = useRef(null);
+  const consentRef = useRef(null);
+  const resendEmailRef = useRef(null);
   // Honor tasks are two steps: open the profile, then claim. Nothing is verified by the open itself.
   const [openedTasks, setOpenedTasks] = useState({});
   // Status refreshes can resolve out of order; only the newest request may update the dashboard.
@@ -242,8 +255,17 @@ export default function GiveawayPage() {
   const submit = async (e) => {
     e.preventDefault();
     setError('');
-    if (!isValidEmail(form.email)) return setError('Enter a valid email address.');
-    if (!form.consent) return setError('Please confirm you are 18 or older and agree to the rules.');
+    setInvalidField(null);
+    if (!isValidEmail(form.email)) {
+      setInvalidField('email');
+      emailRef.current?.focus();
+      return setError('Enter a valid email address.');
+    }
+    if (!form.consent) {
+      setInvalidField('consent');
+      consentRef.current?.focus();
+      return setError('Please confirm you are 18 or older and agree to the rules.');
+    }
     if (phase !== 'open') return setError(phase === 'upcoming' ? 'The giveaway opens on October 1. Come back then.' : 'Entries are closed.');
     setBusy(true);
     try {
@@ -279,7 +301,12 @@ export default function GiveawayPage() {
     e?.preventDefault?.();
     setError('');
     const target = entrant?.email || form.email.trim();
-    if (!isValidEmail(target)) return setError('Enter the email you entered with.');
+    if (!isValidEmail(target)) {
+      setInvalidField('resend');
+      resendEmailRef.current?.focus();
+      return setError('Enter the email you entered with.');
+    }
+    setInvalidField(null);
     setBusy(true);
     try {
       await backend.resend(target);
@@ -317,20 +344,31 @@ export default function GiveawayPage() {
     }
   };
 
+
+  // Notice and error each sit in a polite live region: they change only when
+  // the form or a task changes state, never on a timer.
+  const noticeRegion = (
+    <div aria-live="polite" className="mt-4 empty:hidden">
+      {notice ? <p className="text-small text-fg-muted">{notice}</p> : null}
+    </div>
+  );
+  const errorRegion = (
+    <div aria-live="polite" className="empty:hidden">
+      <ErrorText>{error}</ErrorText>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="min-h-screen overflow-x-clip bg-bg text-fg">
       <SiteNav />
 
       {/* Hero */}
-      <section className="relative overflow-hidden px-6 pb-16 pt-36 text-center lg:pt-44">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_40%_at_50%_10%,rgba(255,255,255,0.07),transparent_70%)]" />
-        <div className="relative mx-auto max-w-3xl">
+      <section className="px-4 pb-section-sm pt-36 text-center sm:px-gutter lg:pt-44">
+        <div className="mx-auto max-w-3xl">
           <Eyebrow>Launch giveaway</Eyebrow>
-          <ValueCounter target={GIVEAWAY.prize.valueUsd} />
-          <h1 className="mt-10 text-3xl font-bold leading-tight sm:text-5xl">
-            Win the piece of gear you have been putting off.
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-white/60">
+          <PrizeValue value={GIVEAWAY.prize.valueUsd} />
+          <h1 className="mt-10 text-balance text-display-md">Win the piece of gear you have been putting off.</h1>
+          <p className="mx-auto mt-6 max-w-2xl text-body-lg text-fg-muted">
             {GIVEAWAY.prize.line} Free to enter. Up to {GIVEAWAY.maxTickets} tickets from easy tasks, and every ticket is one more name in the hat.
           </p>
           <Countdown phase={realPhase} />
@@ -338,172 +376,212 @@ export default function GiveawayPage() {
       </section>
 
       {/* Prize */}
-      <section className="px-6 pb-16">
+      <section className="px-4 pb-16 sm:px-gutter">
         <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-[1.2fr_1fr]">
-          <div className="glass-card p-8 sm:p-10">
+          <div className={`${surface} p-6 sm:p-10`}>
             <Eyebrow>The prize</Eyebrow>
-            <h2 className="mt-6 text-3xl font-bold">{GIVEAWAY.prize.title}</h2>
-            <div className="mt-4 inline-flex items-baseline gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2">
-              <span className="text-xs uppercase tracking-[0.2em] text-white/50">Up to</span>
-              <span className="text-2xl font-bold tabular-nums">USD {GIVEAWAY.prize.valueUsd}</span>
-              <span className="text-xs uppercase tracking-[0.2em] text-white/50">retail</span>
+            <h2 className="mt-5 text-heading">{GIVEAWAY.prize.title}</h2>
+            <div className="mt-5 inline-flex flex-wrap items-baseline gap-2 rounded-pill border border-line-strong bg-surface-2 px-4 py-2">
+              <span className="font-mono text-eyebrow uppercase text-fg-subtle">Up to</span>
+              <span className="font-mono text-2xl font-semibold tabular-nums">USD {GIVEAWAY.prize.valueUsd}</span>
+              <span className="font-mono text-eyebrow uppercase text-fg-subtle">retail</span>
             </div>
-            <ul className="mt-6 space-y-3 text-white/60">
+            <ul className="mt-6 space-y-3 text-fg-muted">
               <li>One winner, drawn at random from every ticket.</li>
               <li>You choose the item. We buy it from a retailer in your country and ship it to you.</li>
               <li>Open worldwide where lawful. United States, Canada, the United Kingdom, France, and Switzerland are all in.</li>
             </ul>
           </div>
-          <div className="glass-card flex flex-col justify-between p-8 sm:p-10">
+          <div className={`${surface} flex flex-col justify-between p-6 sm:p-10`}>
             <div>
               <Eyebrow>How it works</Eyebrow>
-              <ol className="mt-6 space-y-4 text-white/70">
-                <li><span className="mr-3 text-white/30">1</span>Enter with your email. That alone puts you in the draw.</li>
-                <li><span className="mr-3 text-white/30">2</span>Do any of the tasks below for more tickets. All of them are free.</li>
-                <li><span className="mr-3 text-white/30">3</span>Share your link. Friends who join earn you tickets too.</li>
+              <ol className="mt-6 space-y-4 text-fg-muted">
+                <li className="flex gap-3"><span className="font-mono text-fg-subtle">1</span><span>Enter with your email. That alone puts you in the draw.</span></li>
+                <li className="flex gap-3"><span className="font-mono text-fg-subtle">2</span><span>Do any of the tasks below for more tickets. All of them are free.</span></li>
+                <li className="flex gap-3"><span className="font-mono text-fg-subtle">3</span><span>Share your link. Friends who join earn you tickets too.</span></li>
               </ol>
             </div>
-            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/50">
-              <Link to={rulesTo} className="underline-offset-4 hover:text-white hover:underline">Official rules</Link>
-              <a href="/terms.html" className="underline-offset-4 hover:text-white hover:underline">Terms of Use</a>
-              <a href="/privacy.html" className="underline-offset-4 hover:text-white hover:underline">Privacy Policy</a>
+            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-small text-fg-muted">
+              <Link to={rulesTo} className={textLink}>Official rules</Link>
+              <a href="/terms.html" className={textLink}>Terms of Use</a>
+              <a href="/privacy.html" className={textLink}>Privacy Policy</a>
             </div>
           </div>
         </div>
       </section>
 
       {/* Entry or dashboard */}
-      <section className="px-6 pb-24">
+      <section className="px-4 pb-section-sm sm:px-gutter">
         <div className="mx-auto max-w-5xl">
           {loading ? null : backend.mode === 'disabled' ? (
-            <div className="glass-card mx-auto max-w-xl p-8 text-center sm:p-10">
+            <div className={`${surface} mx-auto max-w-xl p-6 text-center sm:p-10`}>
               <Eyebrow>Enter the draw</Eyebrow>
-              <p className="mt-6 text-white/70">Entries are not open on this site yet. Check back soon.</p>
+              <p className="mt-6 text-fg-muted">Entries are not open on this site yet. Check back soon.</p>
             </div>
           ) : !entrant ? (
-            <div className="glass-card mx-auto max-w-xl p-8 sm:p-10">
-              <Eyebrow>{resendMode ? 'Find my entry' : 'Enter the draw'}</Eyebrow>
-              {notice ? <div className="mt-4 text-sm text-white/70">{notice}</div> : null}
+            <div className={`${surface} mx-auto max-w-xl p-6 sm:p-10`}>
+              <Eyebrow as="h2">{resendMode ? 'Find my entry' : 'Enter the draw'}</Eyebrow>
+              {noticeRegion}
               {resendMode ? (
-                <form onSubmit={resendLink} className="mt-6 space-y-4">
-                  <p className="text-sm text-white/50">Already entered on another device? Enter the same email and we will send your dashboard link again.</p>
-                  <input
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="you@example.com"
-                    className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-white placeholder-white/30 outline-none transition focus:border-white/40"
-                  />
-                  {error ? <div className="text-sm text-red-300">{error}</div> : null}
-                  <button type="submit" disabled={busy} className="w-full rounded-full bg-white px-6 py-4 text-sm font-semibold uppercase tracking-[0.2em] text-black transition hover:bg-white/90 disabled:opacity-50">
+                <form onSubmit={resendLink} className="mt-6 space-y-5" noValidate>
+                  <p className="text-small text-fg-muted">Already entered on another device? Enter the same email and we will send your dashboard link again.</p>
+                  <div className="space-y-2">
+                    <Label htmlFor="giveaway-resend-email" className="text-small text-fg">Email</Label>
+                    <Input
+                      id="giveaway-resend-email"
+                      ref={resendEmailRef}
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={form.email}
+                      onChange={(e) => {
+                        setForm({ ...form, email: e.target.value });
+                        if (invalidField === 'resend') setInvalidField(null);
+                      }}
+                      placeholder="you@example.com"
+                      aria-invalid={invalidField === 'resend' || undefined}
+                      className={fieldClass}
+                    />
+                  </div>
+                  {errorRegion}
+                  <button type="submit" disabled={busy} className={`${primaryBtn} h-12 w-full px-6 text-small`}>
                     {busy ? 'Sending' : 'Email me my link'}
                   </button>
-                  <button type="button" onClick={() => { setResendMode(false); setError(''); }} className="w-full text-center text-xs text-white/40 underline-offset-4 hover:text-white hover:underline">
+                  <button type="button" onClick={() => { setResendMode(false); setError(''); setInvalidField(null); }} className={`${textLink} mx-auto block text-small text-fg-muted`}>
                     Back to entering
                   </button>
                 </form>
               ) : (
-              <form onSubmit={submit} className="mt-6 space-y-4">
-                <input
-                  type="email"
-                  required
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="you@example.com"
-                  className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-white placeholder-white/30 outline-none transition focus:border-white/40"
-                  disabled={phase !== 'open'}
-                />
-                <select
-                  value={form.country}
-                  onChange={(e) => setForm({ ...form, country: e.target.value })}
-                  className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-white outline-none transition focus:border-white/40 [&>option]:bg-[#0A0A0A]"
-                >
-                  {COUNTRIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-                <input type="text" value={form.honeypot} onChange={(e) => setForm({ ...form, honeypot: e.target.value })} className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />
-                <label className="flex items-start gap-3 text-sm text-white/50">
-                  <input type="checkbox" checked={form.consent} onChange={(e) => setForm({ ...form, consent: e.target.checked })} className="mt-1 h-4 w-4 accent-white" />
-                  <span>
-                    I am 18 or older, I live somewhere this giveaway is open, and I agree to the{' '}
-                    <Link to={rulesTo} className="underline underline-offset-4 hover:text-white">official rules</Link>, the{' '}
-                    <a href="/terms.html" className="underline underline-offset-4 hover:text-white">Terms of Use</a>, and the{' '}
-                    <a href="/privacy.html" className="underline underline-offset-4 hover:text-white">Privacy Policy</a>. Eiger may email me about the giveaway and the app. I can unsubscribe any time.
-                  </span>
-                </label>
-                {error ? <div className="text-sm text-red-300">{error}</div> : null}
-                <button
-                  type="submit"
-                  disabled={busy || phase !== 'open'}
-                  className="w-full rounded-full bg-white px-6 py-4 text-sm font-semibold uppercase tracking-[0.2em] text-black transition hover:bg-white/90 disabled:opacity-50"
-                >
-                  {phase === 'closed' ? 'Entries closed' : phase === 'upcoming' ? 'Opens October 1' : busy ? 'Entering' : 'Enter the giveaway'}
-                </button>
-                {ref ? <div className="text-center text-xs text-white/40">Referred by a friend. They get tickets once you create your Eiger account with this email and tap "I signed up" on your dashboard.</div> : null}
-                <div className="text-center text-xs text-white/30">No purchase necessary. One entry per person.</div>
-                <button type="button" onClick={() => { setResendMode(true); setError(''); }} className="w-full text-center text-xs text-white/40 underline-offset-4 hover:text-white hover:underline">
-                  Already entered? Email me my dashboard link
-                </button>
-              </form>
+                <form onSubmit={submit} className="mt-6 space-y-5" noValidate>
+                  <div className="space-y-2">
+                    <Label htmlFor="giveaway-email" className="text-small text-fg">Email</Label>
+                    <Input
+                      id="giveaway-email"
+                      ref={emailRef}
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={form.email}
+                      onChange={(e) => {
+                        setForm({ ...form, email: e.target.value });
+                        if (invalidField === 'email') setInvalidField(null);
+                      }}
+                      placeholder="you@example.com"
+                      aria-invalid={invalidField === 'email' || undefined}
+                      className={fieldClass}
+                      disabled={phase !== 'open'}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="giveaway-country" className="text-small text-fg">Country</Label>
+                    <Select value={form.country} onValueChange={(country) => setForm({ ...form, country })}>
+                      <SelectTrigger id="giveaway-country" className={`${fieldClass} w-full data-[size=default]:h-12`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent position="popper" className="border-line-strong bg-surface-2">
+                        {COUNTRIES.map((c) => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <input type="text" value={form.honeypot} onChange={(e) => setForm({ ...form, honeypot: e.target.value })} className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+                  <div className="flex items-start gap-3">
+                    <input
+                      id="giveaway-consent"
+                      ref={consentRef}
+                      type="checkbox"
+                      checked={form.consent}
+                      onChange={(e) => {
+                        setForm({ ...form, consent: e.target.checked });
+                        if (invalidField === 'consent') setInvalidField(null);
+                      }}
+                      aria-invalid={invalidField === 'consent' || undefined}
+                      className={`mt-1 size-4 shrink-0 accent-white ${focusRing} aria-invalid:outline-2 aria-invalid:outline-offset-2 aria-invalid:outline-fg`}
+                    />
+                    <label htmlFor="giveaway-consent" className="text-small text-fg-muted">
+                      I am 18 or older, I live somewhere this giveaway is open, and I agree to the{' '}
+                      <Link to={rulesTo} className={textLink}>official rules</Link>, the{' '}
+                      <a href="/terms.html" className={textLink}>Terms of Use</a>, and the{' '}
+                      <a href="/privacy.html" className={textLink}>Privacy Policy</a>. Eiger may email me about the giveaway and the app. I can unsubscribe any time.
+                    </label>
+                  </div>
+                  {errorRegion}
+                  <button type="submit" disabled={busy || phase !== 'open'} className={`${primaryBtn} h-12 w-full px-6 text-small`}>
+                    {phase === 'closed' ? 'Entries closed' : phase === 'upcoming' ? 'Opens October 1' : busy ? 'Entering' : 'Enter the giveaway'}
+                  </button>
+                  {ref ? <p className="text-center text-small text-fg-muted">Referred by a friend. They get tickets once you create your Eiger account with this email and tap "I signed up" on your dashboard.</p> : null}
+                  <p className="text-center text-small text-fg-subtle">No purchase necessary. One entry per person.</p>
+                  <button type="button" onClick={() => { setResendMode(true); setError(''); setInvalidField(null); }} className={`${textLink} mx-auto block text-small text-fg-muted`}>
+                    Already entered? Email me my dashboard link
+                  </button>
+                </form>
               )}
             </div>
           ) : (
             <div className="space-y-6">
-              {notice ? <div className="glass-card px-6 py-4 text-sm text-white/70">{notice}</div> : null}
+              <div aria-live="polite" className="empty:hidden">
+                {notice ? <div className={`${surface} px-6 py-4 text-small text-fg-muted`}>{notice}</div> : null}
+              </div>
               {entrant.activated ? null : (
-                <div className="glass-card border-white/20 px-6 py-5" data-testid="pending-banner">
-                  <div className="text-[11px] uppercase tracking-[0.22em] text-white/40">One step left</div>
+                <div className={`${surface} border-line-strong px-6 py-5`} data-testid="pending-banner">
+                  <Eyebrow>One step left</Eyebrow>
                   <div className="mt-2 font-semibold">Open the link we emailed to {entrant.email} to activate your entry.</div>
-                  <div className="mt-1 text-sm text-white/50">Until then your entry is reserved but not in the draw, and tasks stay locked. Once opened, that link is your way back in on any device. Nothing in the inbox? Check spam, or resend below.</div>
-                  <button type="button" onClick={resendLink} disabled={busy} className="mt-3 rounded-full bg-white px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-black transition hover:bg-white/90 disabled:opacity-50">
-                    Resend the activation link
-                  </button>
-                  {backend.mode === 'local' ? (
-                    <Link to={`/giveaway?entry=${entrant.magic}`} className="ml-4 text-xs text-white/30 underline underline-offset-4 hover:text-white/60">Review mode: open the emailed link</Link>
-                  ) : null}
+                  <div className="mt-1 text-small text-fg-muted">Until then your entry is reserved but not in the draw, and tasks stay locked. Once opened, that link is your way back in on any device. Nothing in the inbox? Check spam, or resend below.</div>
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3">
+                    <button type="button" onClick={resendLink} disabled={busy} className={`${primaryBtn} h-9 px-5 text-xs`}>
+                      Resend the activation link
+                    </button>
+                    {backend.mode === 'local' ? (
+                      <Link to={`/giveaway?entry=${entrant.magic}`} className={`${textLink} text-small text-fg-subtle`}>Review mode: open the emailed link</Link>
+                    ) : null}
+                  </div>
                 </div>
               )}
               <TicketMeter tickets={tickets} />
               <ul className="space-y-3">
                 {TASKS.map((task) => (
-                  <TaskRow key={task.id} task={task} units={entrant.progress?.[task.id] ?? 0} onDo={doTask} onOpen={openTask} opened={!!openedTasks[task.id]} busy={busy} open={phase === 'open'} activated={!!entrant.activated} />
+                  <TaskRow key={task.id} task={task} units={entrant.progress?.[task.id] ?? 0} onDo={doTask} onOpen={openTask} opened={!!openedTasks[task.id]} busy={busy} open={phase === 'open'} activated={!!entrant.activated} copied={copied} />
                 ))}
               </ul>
-              <div className="glass-card p-6 sm:p-8">
+              <div className={`${surface} p-6 sm:p-8`}>
                 <div className="flex items-center justify-between">
-                  <div className="text-[11px] uppercase tracking-[0.22em] text-white/40">Your referral link</div>
-                  <button type="button" onClick={refreshStatus} className="text-xs text-white/40 underline underline-offset-4 hover:text-white">
+                  <Eyebrow>Your referral link</Eyebrow>
+                  <button type="button" onClick={refreshStatus} className={`${textLink} text-small text-fg-muted`}>
                     Refresh
                   </button>
                 </div>
                 <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                  <code className="flex-1 truncate rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/70">{referralLink(entrant.code)}</code>
+                  <code className="min-w-0 flex-1 truncate rounded-pill border border-line bg-surface-2 px-5 py-3 font-mono text-small text-fg-muted">{referralLink(entrant.code)}</code>
                   <button
                     type="button"
-                    onClick={() => doTask(TASKS.find((t) => t.id === 'referral'))}
-                    className="rounded-full bg-white px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-black transition hover:bg-white/90"
+                    onClick={() => {
+                      if (busy) return;
+                      doTask(TASKS.find((t) => t.id === 'referral'));
+                    }}
+                    className={`${primaryBtn} h-11 min-w-28 px-5 text-xs`}
                   >
                     {copied ? 'Copied' : 'Copy'}
                   </button>
                 </div>
-                <div className="mt-3 text-xs text-white/40">
-                  Get the app: <a className="underline underline-offset-4 hover:text-white" href={GIVEAWAY.links.appStore} target="_blank" rel="noreferrer">iPhone</a> or{' '}
-                  <a className="underline underline-offset-4 hover:text-white" href={GIVEAWAY.links.playStore} target="_blank" rel="noreferrer">Android</a>. Sign up with {entrant.email}.
+                <p className="mt-3 text-small text-fg-muted">
+                  Get the app: <a className={textLink} href={GIVEAWAY.links.appStore} target="_blank" rel="noreferrer">iPhone</a> or{' '}
+                  <a className={textLink} href={GIVEAWAY.links.playStore} target="_blank" rel="noreferrer">Android</a>. Sign up with {entrant.email}.
                   A friend who uses your link counts once they enter, create an Eiger account with their email, and tap "I signed up" on their dashboard.
-                </div>
-                <button type="button" onClick={resendLink} disabled={busy} className="mt-3 text-xs text-white/40 underline underline-offset-4 hover:text-white disabled:opacity-50">
+                </p>
+                <button type="button" onClick={resendLink} disabled={busy} className={`${textLink} mt-3 text-small text-fg-muted disabled:opacity-50`}>
                   Resend my dashboard link
                 </button>
-                {error ? <div className="mt-3 text-sm text-red-300">{error}</div> : null}
+                <div aria-live="polite" className="mt-3 empty:hidden">
+                  <ErrorText>{error}</ErrorText>
+                </div>
               </div>
               {backend.mode === 'local' ? (
-                <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/30">
-                  <button type="button" onClick={async () => { await backend.reset(); setEntrant(null); setNotice(''); }} className="underline underline-offset-4 hover:text-white/60">
+                <div className="flex flex-wrap gap-x-5 gap-y-2 text-small text-fg-subtle">
+                  <button type="button" onClick={async () => { await backend.reset(); setEntrant(null); setNotice(''); }} className={textLink}>
                     Review mode: reset this browser's entry
                   </button>
-                  <Link to={`/giveaway?entry=${entrant.magic}`} className="underline underline-offset-4 hover:text-white/60">
+                  <Link to={`/giveaway?entry=${entrant.magic}`} className={textLink}>
                     Review mode: open the emailed dashboard link
                   </Link>
                 </div>
@@ -513,10 +591,11 @@ export default function GiveawayPage() {
         </div>
       </section>
 
-      <section className="px-6 pb-24">
-        <div className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-white/30">
-          No purchase necessary. Open to entrants 18 or older, or the age of majority where they live, in any country where such promotions are lawful, excluding {GIVEAWAY.excludedRegions}. Void where prohibited. Ends {new Date(GIVEAWAY.closesAt).toUTCString().slice(0, 16)}. One prize, approximate retail value USD {GIVEAWAY.prize.valueUsd}. Odds depend on the number of tickets received. Sponsor: {GIVEAWAY.sponsor.name}, {GIVEAWAY.sponsor.place}. This promotion is in no way sponsored, endorsed, administered by, or associated with TikTok, Instagram, Meta, Apple, Google, or Kickstarter. See the <Link to="/giveaway/rules" className="underline underline-offset-4 hover:text-white/60">official rules</Link>, the <a href="/terms.html" className="underline underline-offset-4 hover:text-white/60">Terms of Use</a>, and the <a href="/privacy.html" className="underline underline-offset-4 hover:text-white/60">Privacy Policy</a>.
-        </div>
+      {/* Fine print */}
+      <section className="px-4 pb-section-sm sm:px-gutter">
+        <p className="mx-auto max-w-3xl text-center text-small text-fg-subtle">
+          No purchase necessary. Open to entrants 18 or older, or the age of majority where they live, in any country where such promotions are lawful, excluding {GIVEAWAY.excludedRegions}. Void where prohibited. Ends {new Date(GIVEAWAY.closesAt).toUTCString().slice(0, 16)}. One prize, approximate retail value USD {GIVEAWAY.prize.valueUsd}. Odds depend on the number of tickets received. Sponsor: {GIVEAWAY.sponsor.name}, {GIVEAWAY.sponsor.place}. This promotion is in no way sponsored, endorsed, administered by, or associated with TikTok, Instagram, Meta, Apple, Google, or Kickstarter. See the <Link to="/giveaway/rules" className={textLink}>official rules</Link>, the <a href="/terms.html" className={textLink}>Terms of Use</a>, and the <a href="/privacy.html" className={textLink}>Privacy Policy</a>.
+        </p>
       </section>
 
       <Footer />
