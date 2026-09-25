@@ -11,25 +11,27 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 
-// Public beta is live: the nav CTA sends people to the store links, not the waitlist.
-// The Platforms section only exists on the home page; from any other route the
-// button goes home first and lets Home's ?section= handler do the scroll.
-const scrollToPlatforms = () => {
-  const section = document.getElementById('platforms');
+// In-page sections live on Home only. From any other route the link goes to
+// /?section=<id> and Home's ?section= handler does the scroll.
+const scrollToHomeSection = (id) => {
+  const section = document.getElementById(id);
   if (!section) return false;
-  section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  section.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
   return true;
 };
 
+// `section` marks an anchor on the home page; the rest are routes.
 const NAV_LINKS = [
-  { to: '/mission', label: 'Our Mission' },
-  { to: '/about', label: 'About Us' },
+  { to: '/?section=how-it-works', section: 'how-it-works', label: 'How it works' },
+  { to: '/about', label: 'About' },
+  { to: '/verification', label: 'Verification process' },
   { to: '/giveaway', label: 'Giveaway' },
 ];
 
 // Shared focus ring: every link and button in the nav shows it on keyboard focus.
 const focusRing =
-  'outline-none focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:ring-offset-2 focus-visible:ring-offset-bg';
+  'outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-bg';
 
 const linkClass = `rounded-sm text-eyebrow font-semibold uppercase text-fg-muted transition-colors duration-300 hover:text-fg ${focusRing}`;
 
@@ -37,7 +39,7 @@ const ctaClass = `h-10 rounded-pill px-5 text-eyebrow font-semibold uppercase ${
 
 // Fixed top navigation: wordmark left, links and the store CTA right. Transparent
 // over the hero video, gains a blurred backdrop once the page scrolls so the
-// links stay readable. Below md the links move into a sheet from the right.
+// links stay readable. Below lg (four links no longer fit) the links move into a sheet from the right.
 const SiteNav = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -47,9 +49,20 @@ const SiteNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const getTheApp = () => {
-    if (location.pathname === '/' && scrollToPlatforms()) return;
-    navigate('/?section=platforms');
+  // Scroll when the section is on this page, otherwise go home and let the
+  // ?section= handler scroll there.
+  const goToSection = (id) => {
+    if (location.pathname === '/' && scrollToHomeSection(id)) return;
+    navigate(`/?section=${id}`);
+  };
+  const getTheApp = () => goToSection('get-the-app');
+  // A section link inside the sheet waits, like "Get the app", until the
+  // sheet has closed and released its scroll lock.
+  const pendingSection = useRef(null);
+
+  const onSectionClick = (id) => (event) => {
+    event.preventDefault();
+    goToSection(id);
   };
 
   useEffect(() => {
@@ -78,9 +91,14 @@ const SiteNav = () => {
         </Link>
 
         {/* Desktop */}
-        <div className="hidden items-center gap-8 md:flex">
-          {NAV_LINKS.map(({ to, label }) => (
-            <Link key={to} to={to} className={linkClass}>
+        <div className="hidden items-center gap-7 lg:flex">
+          {NAV_LINKS.map(({ to, section, label }) => (
+            <Link
+              key={to}
+              to={to}
+              onClick={section ? onSectionClick(section) : undefined}
+              className={linkClass}
+            >
               {label}
             </Link>
           ))}
@@ -95,15 +113,21 @@ const SiteNav = () => {
             <button
               type="button"
               aria-label="Open menu"
-              className={`-mr-2 inline-flex size-11 items-center justify-center rounded-md text-fg md:hidden ${focusRing}`}
+              className={`-mr-2 inline-flex size-11 items-center justify-center rounded-md text-fg lg:hidden ${focusRing}`}
             >
               <Menu className="size-6" aria-hidden="true" />
             </button>
           </SheetTrigger>
           <SheetContent
             side="right"
-            className="w-[85vw] max-w-xs border-line bg-surface-1 px-6 pt-20 pb-8 md:hidden"
+            className="w-[85vw] max-w-xs border-line bg-surface-1 px-6 pt-20 pb-8 lg:hidden"
             onCloseAutoFocus={() => {
+              if (pendingSection.current) {
+                const id = pendingSection.current;
+                pendingSection.current = null;
+                goToSection(id);
+                return;
+              }
               if (!pendingGetApp.current) return;
               pendingGetApp.current = false;
               getTheApp();
@@ -112,10 +136,24 @@ const SiteNav = () => {
             <SheetTitle className="sr-only">Menu</SheetTitle>
             <SheetDescription className="sr-only">Site navigation</SheetDescription>
             <ul className="flex flex-col gap-2">
-              {NAV_LINKS.map(({ to, label }) => (
+              {NAV_LINKS.map(({ to, section, label }) => (
                 <li key={to}>
                   <SheetClose asChild>
-                    <Link to={to} className={`block py-3 ${linkClass}`}>
+                    <Link
+                      to={to}
+                      onClick={
+                        section
+                          ? (event) => {
+                              // Radix skips its own close when the click is
+                              // default-prevented, so close the sheet here.
+                              event.preventDefault();
+                              pendingSection.current = section;
+                              setMenuOpen(false);
+                            }
+                          : undefined
+                      }
+                      className={`block py-3 ${linkClass}`}
+                    >
                       {label}
                     </Link>
                   </SheetClose>
