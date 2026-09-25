@@ -38,8 +38,8 @@ Palette is black and white only; nothing here needs colour words.
 > Primary label: explain this to me
 > Secondary label: explain this to me as well
 
-**H4. Availability line (launch)** (under 10 words). Small line under the buttons: free, on the App Store and Google Play (e.g. platforms + price). No "beta".
-> Availability line: Public beta is live and free! Available to android and IOS.
+**H4. Beta line** (under 10 words). Small line under the buttons saying the beta is live and free on both platforms.
+> Beta line: Public beta is live and free! Available to android and IOS.
 
 **H5. Walkthrough eyebrow** (2 or 3 words) and **heading** (4 to 8 words). Introduces the three-step tour of the app. The eyebrow is the small label above the heading (today's equivalent is "Inside the app").
 > Eyebrow:
@@ -91,53 +91,54 @@ My change; I think the video that we have embedded currently is nice
 > One line (free, public beta, both platforms): Free beta is out now! 
 > Beta note (under 15 words): 
 
-**H12. Email capture (launch).** One field, one button. After launch this is an updates list, not a waitlist: say what they get (new mountains, features, expedition notes) and how often; the privacy line should be specific, not "no spam ever".
+**H12. Email capture.** One field, one button. Say what they will get and how often; the privacy line should be specific, not "no spam ever".
 > Heading (4 to 7 words): Be the first to get updates
 > One line:
 > Button label:
 > Privacy line (under 12 words): 
 > Success message (1 or 2 sentences): You're on the list!
 
-**H13. FAQ (launch)** (three questions a new visitor asks before downloading, plus a link to the support page). Suggested: is it free and what does Pro add and cost; which mountains are covered and how they are reviewed; does it work on Android and iPhone. Answers 1 to 3 sentences; the support page has drafts.
+**H13. FAQ** (three questions a new visitor asks before downloading, plus a link to the support page). Suggested: how to get the beta; what Pro is and what it costs; whether it works on Android. Answers 1 to 3 sentences; the support page has drafts.
 
 My note: we are releasing the app soon. as in, we're planning on launching on october 1st. 
 > Heading:
 > Q1 / A1: How exactly is gear verified? / We have a team of experts meticulously verifying fine-tuned SOTA agents. See our blog for more info!
-> Q2 / A2: What does Pro offer? / You are able to see not only your overall gear readiness, but your mountain specific compatibility for every single mountain in our database.
-> Q3 / A3:
-> Support link label:
+> Q2 / A2: What does Pro offer? / You are not only able to see your overall gear readiness, but your mountain specific compatibility for every single mountain in our database.
+> Q3 / A3: Is this available to both Apple and Android? Yes!
+> Support link label: Have more questions? Hit support@eiger014.com and we'll answer.
 
 ---
 
 ## About (Mission and About merged)
 
 **A1. Statement hero** over a full-width alpine still. Headline says why the app exists; the paragraph expands it. Do not tell the origin story here; that is A2.
-> Headline (5 to 9 words):
-> Paragraph (2 or 3 sentences):
+> Headline (5 to 9 words): Unpreparedness and Misinformation Costs Lives.
+> Paragraph (2 or 3 sentences): Hiking, Mountaineering and long-term outdoor journeys with especially difficult terrain cannot be something planned half-assedly. Moreover, the process of amalgamation of all of the information you need for a specific hike is tedious; It simply takes too long. With out app, you know what you're lacking and you can confidently make decisions on what to buy(with our expert verification system) in minutes. 
 
 **A2. The story, told once** (three short paragraphs beside a photo). The Mt. Elbert trip that started it, the problem you kept hitting, what you decided to build. This is the only place the origin story appears on the site.
 > Paragraph 1 (the trip):
-> Paragraph 2 (the problem):
-> Paragraph 3 (what you built):
+Hello Climbers! We are Eiger, a startup led by three university students who want to make hiking and preparation of hiking a safer and less tedious experience. Last year, we took on the challenge of climbing Mount Elbert, a 4400 meter mountain during the winter. With this came extensive, unorganized and non-coordinated planning around what gear to bring between 8 different people. We can recall multiple tabs open, cross checking between different forums, and being hours deep into a reddit thread. Even so, our hiking group ended up forgetting items as crucial as headlights and microspikes. 
+
+> Paragraph 3 (what you built):This app is the brainchild of what we wished we had to plan out complex expeditions, with tailored gear specific to mountain conditions and a multi-step expert verification pipeline before gear ever hits our recommended. Beyond that, you can organize trips with your friends so each person knows what their individual responsibilities are to the group. 
 
 **A3. What we believe** (three items, title of 2 or 3 words plus 1 or 2 sentences each). Codex's note: each must say something concrete about how you build the product; if they come out generic, cut to two or fold into A2.
-> Item 1:
-> Item 2:
-> Item 3:
+> Item 1: Our app is built on safety. If we don't know whether a gear list works, or isn't verified, you WILL know.
+> Item 2: We want to balance this by putting out valuable information is quickly as possible, to mitigate potentially hazardous trips NOW. 
+> Both of these tenets are indisbutiably correlated and so we must find a balance between the two. With more users on our app, fine-tuning and the safety process will only get safer. 
 
 **A4. Founders.** Heading for the section, then for each founder a role and a two-sentence bio (existing bios are usable drafts).
-> Section heading:
-> Rishav, role / bio:
-> Muad, role / bio:
-> Cody, role / bio:
+> Section heading: Who we are
+> Rishav, CEO / put whats on the page rn. dont have it yet:
+> Muad, Chief Data Officer / My name is Muad Shaikh and I'm currently a senior at the University of Houston studying biochemistry with a minor in computer science, with multiple awards merit based scholarships for quantitative data analysis in human physiology. Climbing is my passion and I want to bring a medical perspective of safety and health in the hiking field that is often absent in these high impact sports:
+> Cody, Chief Technology Officer / put whats on the page rn. dont have it yet:
 
 **A5. Athlete, short version** (one sentence, not the Home wording).
-> Sentence:
+> Sentence: With several years of climbing already under his belt, it is an understatement to say Timoteo is a seasoned climber. Every safety concerning feature is passed by him before implementation.
 
 **A6. Community (Summit Society).** Heading, two sentences, button label for the Discord link.
-> Heading:
-> Text:
-> Button:
+> Heading: Community Partner
+> Text: We've partnered with the Summit Society, a community of hikers who you can hit up for help planning your next trip.
+> Button: Join Their Discord
 
 **A7. Get the app + email capture.** Reuses H11/H12 wording unless you want a page-specific heading.
 > Heading (optional):
@@ -161,3 +162,5 @@ Optional rewrites (leave blank to keep):
 **B1.** Name and route are yours (e.g. "Field Notes" at /notes). Only needed if you have a finished, useful article ready.
 > Name / route:
 > First article (title, or "later"):
+
+deferred. i was thinking for this bit, instead of a blog, we have a page dedicated to how we verify gear. what do yo uthink?
