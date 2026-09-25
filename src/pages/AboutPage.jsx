@@ -3,6 +3,8 @@ import { animate, motion, useReducedMotion, useScroll, useTransform } from 'moti
 import { ArrowUpRight, Gauge, ShieldCheck } from 'lucide-react';
 import SiteNav from '../components/SiteNav';
 import Footer from '../components/Footer';
+import GetTheApp from '../components/home/GetTheApp';
+import EmailCapture from '../components/home/EmailCapture';
 import RishavPhoto from '../assets/founders/rishav.jpg';
 import MuadPhoto from '../assets/founders/muad.jpg';
 import CodyPhoto from '../assets/founders/cody.jpg';
@@ -123,33 +125,6 @@ function StoryPhoto() {
   );
 }
 
-// The shared closing block: Home's GetTheApp and EmailCapture. Loaded with a
-// glob so this page still builds while the Home components are not there
-// yet; in that case the "Get the app" heading alone stands in.
-const homeModules = import.meta.glob(['../components/home/GetTheApp.jsx', '../components/home/EmailCapture.jsx'], {
-  eager: true,
-});
-const GetTheApp = homeModules['../components/home/GetTheApp.jsx']?.default;
-const EmailCapture = homeModules['../components/home/EmailCapture.jsx']?.default;
-
-function ClosingBlock() {
-  if (GetTheApp || EmailCapture) {
-    return (
-      <>
-        {GetTheApp ? <GetTheApp /> : null}
-        {EmailCapture ? <EmailCapture /> : null}
-      </>
-    );
-  }
-  return (
-    <section id="platforms" className="border-t border-line px-4 py-section-sm sm:px-gutter">
-      <div className="mx-auto max-w-6xl">
-        <h2 className="text-display-md">Available on iOS and Android</h2>
-      </div>
-    </section>
-  );
-}
-
 export default function AboutPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -161,7 +136,7 @@ export default function AboutPage() {
 
       <main>
         {/* Statement hero over a full width alpine still, black scrim for legibility */}
-        <section className="relative isolate flex min-h-[88svh] items-end overflow-hidden">
+        <section className="relative isolate flex min-h-[min(88svh,60rem)] items-end overflow-hidden">
           <img
             src={HERO_STILL}
             alt=""
@@ -174,7 +149,7 @@ export default function AboutPage() {
             className="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-bg to-transparent"
             aria-hidden="true"
           />
-          <div className="mx-auto w-full max-w-6xl px-4 pb-section-sm pt-40 sm:px-gutter">
+          <div className="mx-auto w-full max-w-7xl px-4 pb-section-sm pt-40 sm:px-6 lg:px-8">
             <h1 className="max-w-4xl text-balance text-display-lg">Unpreparedness and Misinformation Costs Lives.</h1>
             <p className="mt-8 max-w-2xl text-body-lg text-fg-muted">
               Hiking, mountaineering and long-term outdoor journeys with especially difficult terrain cannot be planned
@@ -186,8 +161,8 @@ export default function AboutPage() {
         </section>
 
         {/* The story */}
-        <section className="px-4 py-section sm:px-gutter" aria-label="The story">
-          <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
+        <section className="py-section" aria-label="The story">
+          <div className="mx-auto grid max-w-7xl px-4 sm:px-6 lg:px-8 items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
             <Rise className="space-y-6 text-body-lg text-fg-muted">
               <p>
                 Hello Climbers! We are EIGER, a startup led by three university students who want to make hiking and
@@ -209,8 +184,8 @@ export default function AboutPage() {
         </section>
 
         {/* What we believe */}
-        <section className="border-t border-line px-4 py-section-sm sm:px-gutter" aria-labelledby="about-believe">
-          <div className="mx-auto max-w-6xl">
+        <section className="border-t border-line py-section-sm" aria-labelledby="about-believe">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <Rise>
               <h2 id="about-believe" className="text-display-md">
                 What we believe
@@ -241,8 +216,8 @@ export default function AboutPage() {
         </section>
 
         {/* Who we are */}
-        <section className="border-t border-line px-4 py-section-sm sm:px-gutter" aria-labelledby="about-team">
-          <div className="mx-auto max-w-6xl">
+        <section className="border-t border-line py-section-sm" aria-labelledby="about-team">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <Rise>
               <h2 id="about-team" className="text-display-md">
                 Who we are
@@ -273,8 +248,8 @@ export default function AboutPage() {
         </section>
 
         {/* Athlete, short version: still + TikTok, no video here */}
-        <section className="border-t border-line px-4 py-section-sm sm:px-gutter" aria-labelledby="about-athlete">
-          <Rise className="mx-auto grid max-w-6xl items-center gap-8 sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-12">
+        <section className="border-t border-line py-section-sm" aria-labelledby="about-athlete">
+          <Rise className="mx-auto grid max-w-7xl px-4 sm:px-6 lg:px-8 items-center gap-8 sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-12">
             <div className="aspect-[4/5] w-full max-w-56 overflow-hidden rounded-lg border border-line bg-surface-2">
               <img
                 src={ATHLETE_STILL}
@@ -306,8 +281,8 @@ export default function AboutPage() {
         </section>
 
         {/* Community Partner */}
-        <section className="px-4 pb-section-sm sm:px-gutter" aria-labelledby="about-partner">
-          <Rise className="mx-auto max-w-6xl">
+        <section className="pb-section-sm" aria-labelledby="about-partner">
+          <Rise className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col gap-8 rounded-lg border border-line bg-surface-1 p-6 sm:p-10 md:flex-row md:items-end md:justify-between">
               <div className="max-w-2xl">
                 <h2 id="about-partner" className={eyebrow}>
@@ -331,7 +306,8 @@ export default function AboutPage() {
           </Rise>
         </section>
 
-        <ClosingBlock />
+        <GetTheApp />
+        <EmailCapture />
       </main>
 
       <Footer />
