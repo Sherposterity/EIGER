@@ -57,14 +57,14 @@ test('large clusters show ten circles plus one overflow circle', () => {
   }
 });
 
-test('stage sequencing returns stages 1 to 6 in order, and Run takes about ten seconds', () => {
+test('stage sequencing returns stages 1 to 6 in order, and Run takes about twenty seconds', () => {
   assert.deepEqual(stageSequence(), [1, 2, 3, 4, 5, 6]);
   assert.deepEqual(RUN_SCHEDULE.map((s) => s.stage), [1, 2, 3, 4, 5, 6]);
   for (let i = 1; i < RUN_SCHEDULE.length; i += 1) {
     assert.ok(RUN_SCHEDULE[i].at > RUN_SCHEDULE[i - 1].at);
   }
   const end = RUN_SCHEDULE.at(-1).at;
-  assert.ok(end >= 9000 && end <= 11000, `Run reaches stage 6 at ${end} ms`);
+  assert.ok(end >= 19000 && end <= 22000, `Run reaches stage 6 at ${end} ms`);
   // Stage 2 holds for the whole thinking beat: three phrases, two seconds each.
   assert.ok(RUN_SCHEDULE[2].at - RUN_SCHEDULE[1].at >= 6000);
 });

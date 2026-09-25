@@ -19,7 +19,7 @@ import { RUN_SCHEDULE, STAGES, announce, phrasesFor } from '@/components/verific
 // The diagram shows
 // the pipeline for one snapshot mountain and follows whichever step block
 // is nearest the middle of the reading area; "Run" plays all six stages in
-// about ten seconds without scrolling.
+// about twenty seconds, scrolling the step text along with it.
 
 const MOUNTAINS = snapshot.mountains;
 const DEFAULT_SLUG = MOUNTAINS.some((m) => m.slug === 'mount-rainier') ? 'mount-rainier' : MOUNTAINS[0].slug;

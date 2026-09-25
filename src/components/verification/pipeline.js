@@ -130,16 +130,16 @@ export function stageSequence() {
 // The thinking beat: three phrases, two seconds each.
 export const PHRASE_MS = 2000;
 
-// Run button: every stage in order, about ten seconds end to end. Stage 2
+// Run button: every stage in order, about twenty seconds end to end with a 2 s buffer between stages. Stage 2
 // holds for the full thinking beat (3 x 2 s).
-export const RUN_SCHEDULE = [
-  { stage: 1, at: 0 },
-  { stage: 2, at: 900 },
-  { stage: 3, at: 900 + 3 * PHRASE_MS },
-  { stage: 4, at: 900 + 3 * PHRASE_MS + 1100 },
-  { stage: 5, at: 900 + 3 * PHRASE_MS + 1100 + 1500 },
-  { stage: 6, at: 900 + 3 * PHRASE_MS + 1100 + 1500 + 700 },
-];
+// Run: each stage gets its own beat plus a 2 s buffer before the next
+// (founder request), so the reader can take in the text beside it.
+const BUFFER_MS = 2000;
+const STAGE_MS = [900, 3 * PHRASE_MS, 1100, 1500, 700];
+export const RUN_SCHEDULE = STAGE_MS.reduce(
+  (acc, ms, i) => [...acc, { stage: i + 2, at: acc[i].at + ms + BUFFER_MS }],
+  [{ stage: 1, at: 0 }],
+);
 
 // Timed marks (ms after a stage is entered) that drive the small beats
 // inside a stage. The component counts how many have passed.
