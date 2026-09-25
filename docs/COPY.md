@@ -81,9 +81,9 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 - Closing line: Both of these tenets are indisputably correlated and so we must find a balance between the two. With more users on our app, fine-tuning and the safety process will only get safer.
 
 ### Who we are
-- Rishav Akilla, CEO: (current live bio)
+- Rishav Akilla, CEO: My name is Rishav Akilla and I am currently studying Biochemistry at the University of Houston. I have heavy knowledge within the medical research field as several of my publications are on the National Institute of Health. Mountaineering is my passion and I integrate research capabilities into the development of safety and technical data.
 - Muad Shaikh, Chief Data Officer: My name is Muad Shaikh and I'm currently a senior at the University of Houston studying biochemistry with a minor in computer science, with multiple merit based scholarships for quantitative data analysis in human physiology. Climbing is my passion and I want to bring a medical perspective of safety and health in the hiking field that is often absent in these high impact sports.
-- Cody Luc, Chief Technology Officer: (current live bio)
+- Cody Luc, Chief Technology Officer: My name is Cody Luc and I currently have experience at several S&P 500 companies as a software intern. I study computer science at the University of Houston and apply that knowledge to the main infrastructure of the app as the technical cofounder. (founder's text, two small grammar fixes)
 
 ### Athlete (short)
 - With several years of climbing already under his belt, it is an understatement to say Timoteo is a seasoned climber. Every safety concerning feature is passed by him before implementation.
@@ -100,6 +100,8 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 ## Verification process (/verification; replaces the blog)
 - Nav label: Verification process
 - Copy: Muad to write against the outline provided in chat (pipeline: agents scrape under mountain-specific guidelines → staging and de-duplication → the mountaineer's review → promotion into the app → what users see). Motion graphics show the pipeline; text is his.
+
+- Intro (under the H1): We are committed to ensuring that the gear lists we provide are, above all, safe, even if the process is tedious, costly and time consuming on our part. This is why we want to be transparent in how exactly our recommendation pipeline works. Rest assured, as more people join our community, we'll be able to iterate quicker without compromising on safety.
 
 ## Verification process: step copy (Muad, 2026-09-25; typo fixes applied)
 1. At the start of every scraping task, the model is given handwritten expert documentation on general rules it should follow when choosing which gear to map to what conditions (e.g. at 6,000+ meter altitudes, crampons are required).

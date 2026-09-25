@@ -10,8 +10,8 @@ import MuadPhoto from '../assets/founders/muad.jpg';
 import CodyPhoto from '../assets/founders/cody.jpg';
 
 // About (merged with the old Mission page). Every string on this page is from
-// docs/COPY.md, section About (Rishav's and Cody's bios are the live ones, as
-// the deck says). The shared "Get the app" and email blocks at the bottom are
+// docs/COPY.md, section About (all three bios are the founders' own words,
+// 2026-09-25). The shared "Get the app" and email blocks at the bottom are
 // the Home components, so the wording lives in one place.
 
 const HERO_STILL = '/images/about-alpine.jpg';
@@ -25,7 +25,7 @@ const founders = [
     name: 'Rishav Akilla',
     role: 'CEO',
     photo: RishavPhoto,
-    body: 'Rishav is a biochemistry student at the University of Houston whose weekends belong to the mountains. Climbing trips through Canada and Colorado kept ending the same way, hours of scattered research for a single ascent, and EIGER began as his answer to that gap.',
+    body: 'My name is Rishav Akilla and I am currently studying Biochemistry at the University of Houston. I have heavy knowledge within the medical research field as several of my publications are on the National Institute of Health. Mountaineering is my passion and I integrate research capabilities into the development of safety and technical data.',
   },
   {
     name: 'Muad Shaikh',
@@ -37,7 +37,7 @@ const founders = [
     name: 'Cody Luc',
     role: 'Chief Technology Officer',
     photo: CodyPhoto,
-    body: 'Cody is a computer science student at the University of Houston and EIGER’s technical backbone, running the app’s infrastructure end to end. Between deploys you’ll find him where he’s happiest, on the wall, chasing the next grade.',
+    body: 'My name is Cody Luc and I currently have experience at several S&P 500 companies as a software intern. I study computer science at the University of Houston and apply that knowledge to the main infrastructure of the app as the technical cofounder.',
   },
 ];
 

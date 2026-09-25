@@ -208,6 +208,9 @@ export default function VerificationPage() {
           <section className="pb-10 pt-32 lg:pb-section-sm lg:pt-40">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <h1 className="text-display-lg">Verification process</h1>
+              <p className="mt-6 max-w-prose text-body-lg text-fg-muted">
+                We are committed to ensuring that the gear lists we provide are, above all, safe, even if the process is tedious, costly and time consuming on our part. This is why we want to be transparent in how exactly our recommendation pipeline works. Rest assured, as more people join our community, we'll be able to iterate quicker without compromising on safety.
+              </p>
             </div>
           </section>
 
