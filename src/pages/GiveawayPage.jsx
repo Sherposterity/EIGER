@@ -145,7 +145,13 @@ const TaskRow = ({ task, units, onDo, busy, open, activated, opened, onOpen, cop
           {earned}/{available} tickets
         </span>
         {task.auto ? null : comingSoon ? (
-          <span className="whitespace-nowrap rounded-pill border border-line px-4 py-2 font-mono text-eyebrow uppercase text-fg-subtle">Coming soon</span>
+          // Until the campaign URL exists the pill points at our own /kickstarter page.
+          <Link
+            to="/kickstarter"
+            className={`whitespace-nowrap rounded-pill border border-line px-4 py-2 font-mono text-eyebrow uppercase text-fg-subtle transition-colors hover:border-line-strong hover:text-fg ${focusRing}`}
+          >
+            Coming soon
+          </Link>
         ) : done ? null : honor && !opened ? (
           <button
             type="button"

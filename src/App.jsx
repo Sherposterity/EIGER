@@ -21,6 +21,7 @@ const AboutPage = lazy(() => import('./pages/AboutPage'));
 const GiveawayPage = lazy(() => import('./pages/GiveawayPage'));
 const GiveawayRulesPage = lazy(() => import('./pages/GiveawayRulesPage'));
 const VerificationPage = lazy(() => import('./pages/VerificationPage'));
+const KickstarterPage = lazy(() => import('./pages/KickstarterPage'));
 
 // Old home anchors that may still be linked from outside (bios, emails).
 const LEGACY_SECTIONS = { platforms: 'get-the-app', waitlist: 'updates' };
@@ -115,6 +116,7 @@ function App() {
         <Route path="/verification" element={<VerificationPage />} />
         <Route path="/giveaway" element={<GiveawayPage />} />
         <Route path="/giveaway/rules" element={<GiveawayRulesPage />} />
+        <Route path="/kickstarter" element={<KickstarterPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

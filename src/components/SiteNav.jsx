@@ -27,6 +27,7 @@ const NAV_LINKS = [
   { to: '/about', label: 'About' },
   { to: '/verification', label: 'Verification process' },
   { to: '/giveaway', label: 'Giveaway' },
+  { to: '/kickstarter', label: 'Kickstarter' },
 ];
 
 // Shared focus ring: every link and button in the nav shows it on keyboard focus.

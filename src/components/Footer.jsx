@@ -17,6 +17,7 @@ const SITE_LINKS = [
   { to: '/about', label: 'About' },
   { to: '/verification', label: 'Verification process' },
   { to: '/giveaway', label: 'Giveaway' },
+  { to: '/kickstarter', label: 'Kickstarter' },
 ];
 
 const LEGAL_LINKS = [

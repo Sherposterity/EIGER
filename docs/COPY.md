@@ -3,7 +3,8 @@
 Source of truth for every string on the redesigned site. Muad's words, with the agreed fixes applied (iOS casing, typos, "headlamps", "4,400 m", launch wording instead of beta, one informal word softened). Items marked [PROPOSED] are mine and need Muad's yes; everything else is his as written or as ruled. No em or en dashes anywhere. EIGER in marketing text; "Eiger LLC" only in legal and sponsor lines.
 
 ## Global
-- Nav (in order): How it works (anchor to the walkthrough) · About · Verification process · Giveaway · button "Get the app"
+- Nav (in order): How it works (anchor to the walkthrough) · About · Verification process · Giveaway · Kickstarter · button "Get the app"
+- Launch banner (home, under the nav, until 2026-10-01 16:00 UTC, dismissible) [PROPOSED, founder to veto]: "October 1: the app launches, the giveaway opens, and our Kickstarter goes live." + countdown "in N days" / "today" + links "Giveaway", "Kickstarter"
 - Footer tagline: Reduce your prep time from hours to minutes.
 - Support address: support@eiger014.com
 
@@ -112,3 +113,11 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 6. The expert documentation is updated for errors and exceptional cases while users concurrently give reviews on the mountain lists. The system gets safer.
 Thinking phrases: Determining optimal gear · Analyzing terrain conditions · Synthesizing gear-mountain connections · Think-maxxing · Jestering · High-on-my-potenusing.
 Page intro paragraph under the H1: none for now (slot open).
+
+## Kickstarter (/kickstarter; copy pending from the founder)
+- Tag: Launches October 1
+- H1: Kickstarter
+- Intro: [copy pending]
+- Button: Back us on Kickstarter (disabled until the URL is in src/data/store-links.json); note while disabled: Link coming October 1
+- Section: What backing gets you, three items, each [copy pending]
+- Link: The launch giveaway opens the same day (to /giveaway)

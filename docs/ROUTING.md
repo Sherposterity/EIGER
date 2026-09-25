@@ -17,6 +17,7 @@ loaded as before):
 | `/about` | AboutPage |
 | `/giveaway` | GiveawayPage. Reads `?ref=`, `?entry=`, `?unsubscribed=` |
 | `/giveaway/rules` | GiveawayRulesPage. Reads `?ref=` |
+| `/kickstarter` | KickstarterPage (copy pending; button disabled until `kickstarter` is set in `src/data/store-links.json`) |
 | anything else | NotFound (placeholder copy, to be replaced by the founder) |
 
 Matching is case insensitive and ignores a trailing slash (react-router default).
