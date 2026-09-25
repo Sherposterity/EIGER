@@ -12,13 +12,17 @@ import { GIVEAWAY, TASKS } from '../lib/giveaway';
 const fmt = (iso) =>
   new Date(iso).toLocaleString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' UTC';
 
+const focusRing =
+  'outline-none focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:ring-offset-2 focus-visible:ring-offset-bg';
+const link = `rounded-sm underline decoration-line-strong underline-offset-4 transition-colors hover:text-fg hover:decoration-fg ${focusRing}`;
+
 const Section = ({ n, title, children }) => (
-  <section className="border-t border-white/10 py-8">
-    <h2 className="text-lg font-semibold">
-      <span className="mr-3 text-white/30">{n}.</span>
+  <section className="border-t border-line py-10">
+    <h2 className="flex items-baseline gap-3 text-heading">
+      <span className="font-mono text-small font-medium text-fg-subtle">{String(n).padStart(2, '0')}</span>
       {title}
     </h2>
-    <div className="mt-3 space-y-3 text-sm leading-relaxed text-white/60">{children}</div>
+    <div className="mt-4 space-y-4 text-body text-fg-muted">{children}</div>
   </section>
 );
 
@@ -31,18 +35,18 @@ export default function GiveawayRulesPage() {
   const ref = new URLSearchParams(useLocation().search).get('ref');
   const backTo = ref ? `/giveaway?ref=${encodeURIComponent(ref)}` : '/giveaway';
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="min-h-screen overflow-x-clip bg-bg text-fg">
       <SiteNav />
-      <main className="mx-auto max-w-3xl px-6 pb-24 pt-36 lg:pt-44">
-        <span className="inline-block rounded-full border border-white/10 px-4 py-2 text-[11px] uppercase tracking-[0.22em] text-white/50">Official rules</span>
-        <h1 className="mt-8 text-3xl font-bold sm:text-4xl">Eiger Launch Giveaway</h1>
-        <p className="mt-4 text-white/60">
+      <main className="mx-auto max-w-prose px-4 pb-section-sm pt-36 sm:px-gutter lg:pt-44">
+        <p className="font-mono text-eyebrow font-semibold uppercase text-fg-subtle">Official rules</p>
+        <h1 className="mt-5 text-display-md">Eiger Launch Giveaway</h1>
+        <p className="mt-6 text-body text-fg">
           NO PURCHASE, PAYMENT, OR PLEDGE OF ANY KIND IS NECESSARY TO ENTER OR WIN. A purchase, payment, or pledge will not increase your chances of winning. Void where prohibited.
         </p>
-        <p className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/40">
-          <Link to={backTo} className="underline underline-offset-4 hover:text-white">Back to the giveaway</Link>
-          <a href="/terms.html" className="underline underline-offset-4 hover:text-white">Terms of Use</a>
-          <a href="/privacy.html" className="underline underline-offset-4 hover:text-white">Privacy Policy</a>
+        <p className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-small text-fg-muted">
+          <Link to={backTo} className={link}>Back to the giveaway</Link>
+          <a href="/terms.html" className={link}>Terms of Use</a>
+          <a href="/privacy.html" className={link}>Privacy Policy</a>
         </p>
 
         <div className="mt-10">
@@ -68,7 +72,7 @@ export default function GiveawayRulesPage() {
 
           <Section n={5} title="Bonus tickets">
             <p>After entering, an entrant may earn additional tickets by completing any of the following optional and free actions, up to a maximum of {GIVEAWAY.maxTickets} tickets in total per entrant:</p>
-            <ul className="list-disc space-y-1 pl-6">
+            <ul className="list-disc space-y-2 pl-6 marker:text-fg-subtle">
               {TASKS.map((t) => (
                 <li key={t.id}>
                   {t.label}: {t.tickets} ticket{t.tickets === 1 ? '' : 's'}
@@ -96,12 +100,12 @@ export default function GiveawayRulesPage() {
           </Section>
 
           <Section n={9} title="General conditions">
-            <p>By entering you agree to these rules, to the Sponsor's <a href="/terms.html" className="underline underline-offset-4 hover:text-white">Terms of Use</a> and <a href="/privacy.html" className="underline underline-offset-4 hover:text-white">Privacy Policy</a>, and to the Sponsor's decisions, which are final. The Sponsor may disqualify anyone who tampers with the entry process, acts in bad faith, or breaches these rules, and may cancel, suspend, or modify the Giveaway if fraud, technical failure, or any cause beyond its control affects its integrity, in which case the prize will be awarded from the valid entries received before the action. The Sponsor is not responsible for lost, late, incomplete, or misdirected entries, or for technical failures of any kind.</p>
+            <p>By entering you agree to these rules, to the Sponsor's <a href="/terms.html" className={link}>Terms of Use</a> and <a href="/privacy.html" className={link}>Privacy Policy</a>, and to the Sponsor's decisions, which are final. The Sponsor may disqualify anyone who tampers with the entry process, acts in bad faith, or breaches these rules, and may cancel, suspend, or modify the Giveaway if fraud, technical failure, or any cause beyond its control affects its integrity, in which case the prize will be awarded from the valid entries received before the action. The Sponsor is not responsible for lost, late, incomplete, or misdirected entries, or for technical failures of any kind.</p>
             <p>These rules are governed by the laws of the State of Texas, United States, without regard to conflict of law principles, except where the mandatory consumer law of the entrant's place of residence provides otherwise.</p>
           </Section>
 
           <Section n={10} title="Privacy">
-            <p>Personal information collected for the Giveaway (email, country, referral relationships, task confirmations, and, for the winner, name and shipping address) is used to administer the Giveaway and, with the consent given at entry, to send email about the Giveaway and the Eiger app. You can unsubscribe at any time using the link in any email or by writing to {s.email}. The Sponsor's <a href="/privacy.html" className="underline underline-offset-4 hover:text-white">Privacy Policy</a> applies. Entrants in the European Union, the United Kingdom, and Switzerland may request access to, correction of, or deletion of their data at {s.email}. Shipping details are deleted after the prize is delivered.</p>
+            <p>Personal information collected for the Giveaway (email, country, referral relationships, task confirmations, and, for the winner, name and shipping address) is used to administer the Giveaway and, with the consent given at entry, to send email about the Giveaway and the Eiger app. You can unsubscribe at any time using the link in any email or by writing to {s.email}. The Sponsor's <a href="/privacy.html" className={link}>Privacy Policy</a> applies. Entrants in the European Union, the United Kingdom, and Switzerland may request access to, correction of, or deletion of their data at {s.email}. Shipping details are deleted after the prize is delivered.</p>
           </Section>
 
           <Section n={11} title="Platform notices">
@@ -109,7 +113,7 @@ export default function GiveawayRulesPage() {
           </Section>
         </div>
 
-        <p className="mt-10 text-xs text-white/30">Last updated 2026-09-22.</p>
+        <p className="mt-10 font-mono text-small text-fg-subtle">Last updated 2026-09-22.</p>
       </main>
       <Footer />
     </div>
