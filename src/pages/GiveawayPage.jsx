@@ -565,8 +565,16 @@ export default function GiveawayPage() {
                   </button>
                 </div>
                 <p className="mt-3 text-small text-fg-muted">
-                  Get the app: <a className={textLink} href={GIVEAWAY.links.appStore} target="_blank" rel="noreferrer">iPhone</a> or{' '}
-                  <a className={textLink} href={GIVEAWAY.links.playStore} target="_blank" rel="noreferrer">Android</a>. Sign up with {entrant.email}.
+                  Get the app:{' '}
+                  {GIVEAWAY.links.appStore && GIVEAWAY.links.playStore ? (
+                    <>
+                      <a className={textLink} href={GIVEAWAY.links.appStore} target="_blank" rel="noreferrer">iPhone</a> or{' '}
+                      <a className={textLink} href={GIVEAWAY.links.playStore} target="_blank" rel="noreferrer">Android</a>
+                    </>
+                  ) : (
+                    'iPhone or Android (from October 1)'
+                  )}
+                  . Sign up with {entrant.email}.
                   A friend who uses your link counts once they enter, create an Eiger account with their email, and tap "I signed up" on their dashboard.
                 </p>
                 <button type="button" onClick={resendLink} disabled={busy} className={`${textLink} mt-3 text-small text-fg-muted disabled:opacity-50`}>

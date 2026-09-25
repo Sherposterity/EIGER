@@ -15,7 +15,7 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 - Arrow link (to /verification): Take a look at our process →
 - Primary button: Get the app
 - Secondary button: See how it works
-- Availability line: Free on the App Store and Google Play.
+- Availability line: October 1 on the App Store and Google Play. [PROPOSED, 2026-09-25; was "Free on the App Store and Google Play."]
 
 ### A look inside our app (walkthrough)
 - Heading: A look inside our app
@@ -48,7 +48,7 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 
 ### Get the app
 - Heading: Available on iOS and Android
-- Line: Free to download. Out now.
+- Line: Launching on October 1st. (founder, 2026-09-25)
 - Store badges: official App Store and Google Play badges (URLs pending from Muad); no beta links.
 
 ### Email capture
@@ -62,7 +62,7 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 - Heading [PROPOSED]: Questions
 - Q1: How exactly is gear verified? / A: We have a team of experts meticulously verifying fine-tuned SOTA agents. See our verification process for more info. (link to /verification)
 - Q2: What does Pro offer? / A: You are not only able to see your overall gear readiness, but your mountain specific compatibility for every single mountain in our database.
-- Q3: Is this available to both Apple and Android? / A: Yes! Available on Android and iOS today!
+- Q3: Is this available to both Apple and Android? / A: Yes! Launching on both on October 1st. [PROPOSED, 2026-09-25]
 - Support line: Have more questions? Hit support@eiger014.com and we'll answer.
 
 ## About

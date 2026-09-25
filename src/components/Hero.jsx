@@ -305,7 +305,7 @@ const Hero = () => {
                         {...stage(0.2)}
                         className="mt-5 font-mono text-small text-fg-subtle"
                     >
-                        Free on the App Store and Google Play.
+                        October 1 on the App Store and Google Play.
                     </motion.p>
                 </div>
 

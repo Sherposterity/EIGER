@@ -35,7 +35,7 @@ const QUESTIONS = [
   {
     id: 'platforms',
     q: 'Is this available to both Apple and Android?',
-    a: 'Yes! Available on Android and iOS today!',
+    a: 'Yes! Launching on both on October 1st.',
   },
 ];
 

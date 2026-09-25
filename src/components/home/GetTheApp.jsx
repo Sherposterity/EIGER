@@ -93,7 +93,7 @@ const GetTheApp = () => {
           </h2>
         </FadeIn>
         <FadeIn delay={0.06}>
-          <p className="mt-5 text-body-lg text-fg-muted">Free to download. Out now.</p>
+          <p className="mt-5 text-body-lg text-fg-muted">Launching on October 1st.</p>
         </FadeIn>
 
         <FadeIn delay={0.12} className="mt-10 flex flex-col items-center gap-2 sm:flex-row sm:gap-6 md:-ml-3">
