@@ -1,0 +1,62 @@
+{
+  "note": "Real changes from the outside mountaineer's review round (September 2026) and the rulings that followed it, one entry per snapshot mountain. Every added / removed / changed line cites the app repo migration that applied it (scripts/migrations in the hike repo). A mountain with fewer than two recorded changes carries a note instead of an invented one.",
+  "mountains": [
+    {
+      "mountain": "mount-rainier",
+      "changes": [
+        { "kind": "added", "text": "Rope, essential (roped glacier travel on the Disappointment Cleaver)", "source": "069_rope_live12_backfill.sql" },
+        { "kind": "changed", "text": "Inflatable sleeping pad: recommended to essential (high camp at -5 to 2 C)", "source": "071_floor_overnight_halfdome_water.sql" }
+      ]
+    },
+    {
+      "mountain": "mount-hood",
+      "changes": [
+        { "kind": "changed", "text": "Summit height: 3,427 m to 3,429 m (USGS/NGS, NAVD88)", "source": "068_summit_height_corrections.sql" },
+        { "kind": "added", "text": "Rope, essential (parties rope through the Hogsback and bergschrund)", "source": "069_rope_live12_backfill.sql" }
+      ]
+    },
+    {
+      "mountain": "longs-peak",
+      "changes": [
+        { "kind": "changed", "text": "Summit height: 4,345 m to 4,346 m (USGS/NGS, NAVD88)", "source": "068_summit_height_corrections.sql" },
+        { "kind": "changed", "text": "Bottom baselayer raised to essential (the always-carry floor)", "source": "071_floor_overnight_halfdome_water.sql" },
+        { "kind": "changed", "text": "Difficulty: Advanced to Intermediate (Keyhole route is Class 3)", "source": "076_label_bands_live29.sql" }
+      ]
+    },
+    {
+      "mountain": "mount-whitney",
+      "changes": [
+        { "kind": "changed", "text": "Bottom baselayer raised to essential (the always-carry floor)", "source": "071_floor_overnight_halfdome_water.sql" },
+        { "kind": "added", "text": "Bear canister, essential (required in the Whitney Zone)", "source": "088_whitney_bear_canister.sql" }
+      ]
+    },
+    {
+      "mountain": "mount-elbert",
+      "changes": [
+        { "kind": "changed", "text": "Bottom baselayer raised to essential (the always-carry floor)", "source": "071_floor_overnight_halfdome_water.sql" },
+        { "kind": "note", "text": "Summit height checked against USGS, 4,401 m confirmed", "source": "068_summit_height_corrections.sql" }
+      ]
+    },
+    {
+      "mountain": "ben-nevis",
+      "changes": [
+        { "kind": "changed", "text": "Bottom baselayer raised to essential (the always-carry floor)", "source": "071_floor_overnight_halfdome_water.sql" },
+        { "kind": "changed", "text": "Avalanche beacon, probe, shovel: essential to recommended (winter-only exposure)", "source": "072_reviewer_rulings_round1.sql" }
+      ]
+    },
+    {
+      "mountain": "mont-blanc",
+      "changes": [
+        { "kind": "changed", "text": "Difficulty: Expert to Advanced (Gouter route, PD+)", "source": "076_label_bands_live29.sql" },
+        { "kind": "note", "text": "Summit height checked, 4,808 m kept", "source": "068_summit_height_corrections.sql" }
+      ]
+    },
+    {
+      "mountain": "matterhorn",
+      "changes": [
+        { "kind": "changed", "text": "Difficulty: Expert to Advanced (Hornli ridge, AD)", "source": "076_label_bands_live29.sql" },
+        { "kind": "note", "text": "Reviewed; no other changes recorded in migrations", "source": "" }
+      ]
+    }
+  ]
+}

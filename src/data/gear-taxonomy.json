@@ -1,0 +1,87 @@
+{
+  "note": "Built from src/data/gear-snapshot.json: every distinct {item, group} pair across the 8 snapshot mountains, items sorted A to Z within each category_group. Regenerate when the snapshot changes (tests/verification.test.js checks it still matches).",
+  "source": "src/data/gear-snapshot.json",
+  "clusters": [
+    {
+      "group": "Clothing",
+      "items": [
+        "Bottom Baselayer",
+        "Down Jacket",
+        "Fleece",
+        "Hard Shell Pants",
+        "Hardshell Jacket",
+        "Insulated Gloves",
+        "Liner Gloves",
+        "Neck Gaiter / Buff",
+        "Softshell Jacket",
+        "Softshell Pants",
+        "Sun Hat",
+        "Sun Hoodie",
+        "Upper Baselayer",
+        "Warm Hat / Beanie",
+        "Waterproof Mittens"
+      ]
+    },
+    {
+      "group": "Footwear",
+      "items": [
+        "Camp Booties",
+        "Gaiters",
+        "Mountaineering Boots",
+        "Socks"
+      ]
+    },
+    {
+      "group": "Technical Hardware",
+      "items": [
+        "Avalanche Beacon",
+        "Avalanche Probe",
+        "Avalanche Shovel",
+        "Belay / Rappel Device",
+        "Climbing Harness",
+        "Climbing Helmet",
+        "Crampons",
+        "Ice Axe",
+        "Locking Carabiners",
+        "Microspikes",
+        "Non-Locking Carabiners",
+        "Prusik Cords",
+        "Rope",
+        "Sling",
+        "Trekking Poles"
+      ]
+    },
+    {
+      "group": "Camp & Sleep",
+      "items": [
+        "Bear Canister",
+        "Foam Sleeping Pad",
+        "Hut Sleeping Liner",
+        "Inflatable Sleeping Pad",
+        "Pot & Utensils",
+        "Sleeping Bag",
+        "Stove",
+        "Tent"
+      ]
+    },
+    {
+      "group": "Essentials & Accessories",
+      "items": [
+        "Backpack",
+        "First Aid Kit",
+        "Hand Warmers",
+        "Headlamp",
+        "Insulated Bottle Sleeve",
+        "Lighter & Matches",
+        "Multi-Tool / Knife",
+        "Navigation",
+        "Ski Goggles",
+        "Sunglasses",
+        "Sunscreen & Lip Balm",
+        "Trash Bags",
+        "Water Bottles",
+        "Water Treatment"
+      ]
+    }
+  ]
+}
