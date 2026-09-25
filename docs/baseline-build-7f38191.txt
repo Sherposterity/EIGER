@@ -1,0 +1,36 @@
+dist/index.html                                2.33 kB │ gzip:   0.89 kB
+dist/assets/rishav-sdTgWHXJ.jpg               54.83 kB
+dist/assets/muad-BhqANVfE.jpg                138.13 kB
+dist/assets/E_GearVault-C4x1e3VD.png         182.11 kB
+dist/assets/EigerLogo-BmBggSX1.png           196.67 kB
+dist/assets/cody-DnOZLPC-.jpg                214.65 kB
+dist/assets/E_MissionControl-CyBdEmGz.png    980.80 kB
+dist/assets/E_SummitIntel-Dx-B63Ce.png     1,192.34 kB
+dist/assets/index-Byf30Rbl.css                61.22 kB │ gzip:  10.27 kB
+dist/assets/useMouseParallax-C3NHYDm9.js       1.07 kB │ gzip:   0.59 kB
+dist/assets/giveaway-CjqCgdIn.js               2.30 kB │ gzip:   1.15 kB
+dist/assets/GiveawayPage-J3GivBqh.js           8.40 kB │ gzip:   3.23 kB
+dist/assets/GiveawayRulesPage-N7k-XHQA.js     10.36 kB │ gzip:   4.08 kB
+dist/assets/MissionPage-CWPDBD36.js           12.84 kB │ gzip:   4.27 kB
+dist/assets/AboutPage-C1x0jEZb.js             13.35 kB │ gzip:   4.23 kB
+dist/assets/index-XJlwOyTN.js                447.12 kB │ gzip: 132.14 kB
+✓ built in 1.36s
+103M	dist
+ 
+544 .
+640 ..
+13347 AboutPage-C1x0jEZb.js
+182107 E_GearVault-C4x1e3VD.png
+980802 E_MissionControl-CyBdEmGz.png
+1192335 E_SummitIntel-Dx-B63Ce.png
+196671 EigerLogo-BmBggSX1.png
+8399 GiveawayPage-J3GivBqh.js
+10356 GiveawayRulesPage-N7k-XHQA.js
+12838 MissionPage-CWPDBD36.js
+214653 cody-DnOZLPC-.jpg
+2303 giveaway-CjqCgdIn.js
+61223 index-Byf30Rbl.css
+447115 index-XJlwOyTN.js
+138125 muad-BhqANVfE.jpg
+54828 rishav-sdTgWHXJ.jpg
+1066 useMouseParallax-C3NHYDm9.js
