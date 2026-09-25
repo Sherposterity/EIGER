@@ -8,4 +8,4 @@ export const ROUTE_PATHS = ['/', '/mission', '/about', '/giveaway', '/giveaway/r
 // TODO(mission merge): the Mission and About pages are being merged. Until the
 // merge lands both pages render at their own paths. Flip this to true when it
 // does, and /mission will redirect to /about (query string kept).
-export const MISSION_REDIRECT = false;
+export const MISSION_REDIRECT = true;
