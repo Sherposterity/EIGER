@@ -178,7 +178,7 @@ export function announce(stage, { name, total, changes }) {
 // ---------------------------------------------------------------------------
 
 export const SPLIT_MIN = 560; // at or above this canvas width, ring left and list right
-export const THUMB = 0.42; // stacked mode: the ring shrinks to this scale in stages 3 to 6
+export const THUMB = 0.38; // stacked mode: the ring shrinks to this scale in stages 4 to 6
 
 // Sunflower packing: loose, even, and the same every render.
 export function sunflower(count, spacing) {
@@ -233,7 +233,7 @@ export function diagramLayout({ width, height, stage, taxonomy }) {
   const model = { x: cx, y: cy, r: modelR };
 
   // Where the ring sits: in place, or shrunk into the top left corner.
-  const thumb = !split && stage >= 3;
+  const thumb = !split && stage >= 4;
   const ring = { scale: thumb ? THUMB : 1 };
   const place = (p) => (thumb ? { x: p.x * THUMB, y: p.y * THUMB } : { x: p.x, y: p.y });
 
@@ -242,28 +242,32 @@ export function diagramLayout({ width, height, stage, taxonomy }) {
   let reviews;
   let phone;
   let reports;
-  let cardCompact = false;
+  let cardCompact;
   if (split) {
     const colX = ringW;
     const colW = width - ringW;
     const cardW = Math.min(240, colW - 12);
     const cardX = colX + (colW - cardW) / 2;
-    card = { x: cardX, y: 8, w: cardW };
-    const cardH = 176;
-    expert = { x: colX + colW / 2, y: card.y + cardH + 46, r: 22 };
-    reviews = { x: cardX - 4, y: expert.y + expert.r + 24, w: cardW + 8 };
-    phone = { x: colX + colW * 0.3, y: height - 44 };
-    reports = { x: colX + colW * 0.76, y: height - 44, r: 20 };
+    // The list is full size while it forms (stage 3) and compact once it is
+    // handed on, which is what leaves room for the mountaineer below it.
+    cardCompact = stage >= 4;
+    card = { x: cardX, y: 8, w: cardW, h: cardCompact ? 96 : 176 };
+    expert = { x: colX + colW / 2, y: card.y + 96 + 46, r: 22 };
+    reviews = { x: cardX - 4, y: expert.y + expert.r + 34, w: cardW + 8 };
+    phone = { x: colX + 34, y: height - 40 };
+    reports = { x: colX + colW - 28, y: Math.round((expert.y + phone.y) / 2) + 16, r: 20 };
   } else {
     const thumbW = width * THUMB;
     const thumbH = height * THUMB;
-    cardCompact = stage >= 4;
+    cardCompact = true;
     const cardX = Math.round(thumbW + 6);
-    card = { x: cardX, y: 4, w: width - cardX - 2 };
-    expert = { x: thumbW / 2, y: thumbH + 30, r: 18 };
-    reviews = { x: 4, y: expert.y + expert.r + 22, w: width - 8 };
-    phone = { x: width * 0.62, y: expert.y + 70 };
-    reports = { x: width * 0.62, y: expert.y, r: 17 };
+    card = { x: cardX, y: 4, w: width - cardX - 2, h: 100 };
+    expert = { x: thumbW / 2, y: thumbH + 24, r: 18 };
+    reviews = { x: 4, y: expert.y + expert.r + 28, w: width - 8 };
+    // Stages 5 and 6 on phones: the phone low in the middle, user reports in
+    // the top right corner the list card has just left.
+    phone = { x: Math.round(width * 0.5), y: height - 36 };
+    reports = { x: width - 36, y: 64, r: 17 };
   }
 
   return {
@@ -276,6 +280,7 @@ export function diagramLayout({ width, height, stage, taxonomy }) {
     model,
     clusters,
     ring,
+    thumb,
     place,
     card,
     cardCompact,
