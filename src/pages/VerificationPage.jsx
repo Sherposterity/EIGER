@@ -15,8 +15,8 @@ import { DRIFT_CSS } from '@/components/home/tryit/glyphs';
 import PipelinePanel from '@/components/verification/PipelinePanel';
 import { RUN_SCHEDULE, STAGES, announce, phrasesFor } from '@/components/verification/pipeline';
 
-// Verification process (/verification). The founder writes the step copy;
-// until then every step carries a "[copy pending]" tag. The diagram shows
+// Verification process (/verification). Step copy is the founder's (docs/COPY.md).
+// The diagram shows
 // the pipeline for one snapshot mountain and follows whichever step block
 // is nearest the middle of the reading area; "Run" plays all six stages in
 // about ten seconds without scrolling.
@@ -28,8 +28,14 @@ const DEFAULT_INDEX = MOUNTAINS.findIndex((m) => m.slug === DEFAULT_SLUG);
 const REVIEWS = Object.fromEntries(reviewFile.mountains.map((r) => [r.mountain, r]));
 
 const STEP_ICON = [Search, Layers, GitMerge, UserCheck, Smartphone, RefreshCw];
-const PENDING = '[copy pending]';
-const pendingTag = 'inline-block rounded-sm border border-line-strong px-2 py-1 font-mono text-eyebrow text-fg-subtle';
+const STEP_COPY = [
+  'At the start of every scraping task, the model is given handwritten expert documentation on general rules it should follow when choosing which gear to map to what conditions (e.g. at 6,000+ meter altitudes, crampons are required).',
+  'The fine tuned model then searches for retail gear that fits those conditions.',
+  'Automatic flags are thrown for missing spec sheets, duplications and a host of other errors that are handed to a human reviewer.',
+  'At this point, Timoteo and our team tediously go through each gear item slot to mountain mapping and decide whether a slot in our taxonomy is missing, or if a recommendation is unnecessary.',
+  'Approved gear is promoted into our marketplace and catalogue.',
+  'The expert documentation is updated for errors and exceptional cases while users concurrently give reviews on the mountain lists. The system gets safer.',
+];
 const FOCUS_RING =
   'outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-bg';
 
@@ -181,9 +187,6 @@ export default function VerificationPage() {
           <section className="pb-10 pt-32 lg:pb-section-sm lg:pt-40">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <h1 className="text-display-lg">Verification process</h1>
-              <p className="mt-6">
-                <span className={pendingTag}>{PENDING}</span>
-              </p>
             </div>
           </section>
 
@@ -253,9 +256,7 @@ export default function VerificationPage() {
                         >
                           {s.title}
                         </h2>
-                        <p className="mt-4">
-                          <span className={pendingTag}>{PENDING}</span>
-                        </p>
+                        <p className="mt-4 max-w-prose text-body-lg text-fg-muted">{STEP_COPY[s.id - 1]}</p>
                       </li>
                     );
                   })}

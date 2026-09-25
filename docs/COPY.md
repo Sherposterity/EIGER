@@ -100,3 +100,13 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 ## Verification process (/verification; replaces the blog)
 - Nav label: Verification process
 - Copy: Muad to write against the outline provided in chat (pipeline: agents scrape under mountain-specific guidelines → staging and de-duplication → the mountaineer's review → promotion into the app → what users see). Motion graphics show the pipeline; text is his.
+
+## Verification process: step copy (Muad, 2026-09-25; typo fixes applied)
+1. At the start of every scraping task, the model is given handwritten expert documentation on general rules it should follow when choosing which gear to map to what conditions (e.g. at 6,000+ meter altitudes, crampons are required).
+2. The fine tuned model then searches for retail gear that fits those conditions.
+3. Automatic flags are thrown for missing spec sheets, duplications and a host of other errors that are handed to a human reviewer.
+4. At this point, Timoteo and our team tediously go through each gear item slot to mountain mapping and decide whether a slot in our taxonomy is missing, or if a recommendation is unnecessary.
+5. Approved gear is promoted into our marketplace and catalogue.
+6. The expert documentation is updated for errors and exceptional cases while users concurrently give reviews on the mountain lists. The system gets safer.
+Thinking phrases: Determining optimal gear · Analyzing terrain conditions · Synthesizing gear-mountain connections · Think-maxxing · Jestering · High-on-my-potenusing.
+Page intro paragraph under the H1: none for now (slot open).
