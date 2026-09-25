@@ -163,14 +163,6 @@
   }
 }
 
-/* Glassmorphism card, still used by the giveaway page */
-@utility glass-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-}
-
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
