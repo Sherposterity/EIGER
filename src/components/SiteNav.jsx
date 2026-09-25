@@ -21,9 +21,10 @@ const scrollToHomeSection = (id) => {
   return true;
 };
 
-// `section` marks an anchor on the home page; the rest are routes.
+// `section` marks an anchor on the home page; the rest are routes. "How it
+// works" left the nav on 2026-09-25 (founder); the hero button and
+// /?section=how-it-works still reach it.
 const NAV_LINKS = [
-  { to: '/?section=how-it-works', section: 'how-it-works', label: 'How it works' },
   { to: '/about', label: 'About' },
   { to: '/verification', label: 'Verification process' },
   { to: '/giveaway', label: 'Giveaway' },
@@ -40,7 +41,8 @@ const ctaClass = `h-10 rounded-pill px-5 text-eyebrow font-semibold uppercase ${
 
 // Fixed top navigation: wordmark left, links and the store CTA right. Transparent
 // over the hero video, gains a blurred backdrop once the page scrolls so the
-// links stay readable. Below lg (four links no longer fit) the links move into a sheet from the right.
+// links stay readable. From lg (1024 px) all five items fit on one row (checked
+// 2026-09-25, over 150 px to spare at 1024); below lg they move into a sheet.
 const SiteNav = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);

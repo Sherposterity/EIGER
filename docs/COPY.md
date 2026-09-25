@@ -3,7 +3,7 @@
 Source of truth for every string on the redesigned site. Muad's words, with the agreed fixes applied (iOS casing, typos, "headlamps", "4,400 m", launch wording instead of beta, one informal word softened). Items marked [PROPOSED] are mine and need Muad's yes; everything else is his as written or as ruled. No em or en dashes anywhere. EIGER in marketing text; "Eiger LLC" only in legal and sponsor lines.
 
 ## Global
-- Nav (in order): How it works (anchor to the walkthrough) · About · Verification process · Giveaway · Kickstarter · button "Get the app"
+- Nav (in order): About · Verification process · Giveaway · Kickstarter · button "Get the app" ("How it works" removed from nav and footer, founder 2026-09-25; the hero's "See how it works" button keeps the anchor)
 - Launch banner (home, under the nav, until 2026-10-01 16:00 UTC, dismissible) [PROPOSED, founder to veto]: "October 1: the app launches, the giveaway opens, and our Kickstarter goes live." + countdown "in N days" / "today" + links "Giveaway", "Kickstarter"
 - Footer tagline: Reduce your prep time from hours to minutes.
 - Support address: support@eiger014.com

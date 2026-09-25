@@ -13,7 +13,6 @@ const linkClass = `rounded-sm text-small text-fg-muted transition-colors duratio
 const legalLinkClass = `rounded-sm text-small text-fg-subtle transition-colors duration-300 hover:text-fg ${focusRing}`;
 
 const SITE_LINKS = [
-  { to: '/?section=how-it-works', label: 'How it works' },
   { to: '/about', label: 'About' },
   { to: '/verification', label: 'Verification process' },
   { to: '/giveaway', label: 'Giveaway' },
