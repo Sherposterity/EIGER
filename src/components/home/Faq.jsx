@@ -18,7 +18,7 @@ const QUESTIONS = [
     q: 'How exactly is gear verified?',
     a: (
       <>
-        We have a team of experts meticulously verifying fine-tuned SOTA agents.{' '}
+        We have a team of experts meticulously verifying our fine-tuned SOTA algorithm.{' '}
         See our{' '}
         <Link to="/verification" className={inlineLink}>
           verification process

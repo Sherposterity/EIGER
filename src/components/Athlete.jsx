@@ -108,7 +108,7 @@ const Athlete = () => {
 
                     <p className="mt-6 text-body-lg text-fg-muted">
                         Timoteo is the mountaineer that leads a team of human experts by tediously verifying the
-                        gear lists provided by our fine tuned agents for every hike. Whenever he gets the chance,
+                        gear lists provided by our fine tuned algorithm for every hike. Whenever he gets the chance,
                         you can bet he&apos;s climbing.
                     </p>
 

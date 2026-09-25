@@ -4,7 +4,7 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 
 ## Global
 - Nav (in order): About · Verification process · Giveaway · Kickstarter · button "Get the app" ("How it works" removed from nav and footer, founder 2026-09-25; the hero's "See how it works" button keeps the anchor)
-- Launch banner (home, under the nav, until 2026-10-01 16:00 UTC, dismissible) [PROPOSED, founder to veto]: "October 1: the app launches, the giveaway opens, and our Kickstarter goes live." + countdown "in N days" / "today" + links "Giveaway", "Kickstarter"
+- Launch banner (home, under the nav, until 2026-10-01 16:00 UTC, dismissible) [APPROVED 2026-09-25]: "October 1: the app launches, the giveaway opens, and our Kickstarter goes live." + countdown "in N days" / "today" + links "Giveaway", "Kickstarter"
 - Footer tagline: Reduce your prep time from hours to minutes.
 - Support address: support@eiger014.com
 
@@ -16,7 +16,7 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 - Arrow link (to /verification): Take a look at our process →
 - Primary button: Get the app
 - Secondary button: See how it works
-- Availability line: October 1 on the App Store and Google Play. [PROPOSED, 2026-09-25; was "Free on the App Store and Google Play."]
+- Availability line: October 1 on the App Store and Google Play. [APPROVED 2026-09-25]
 
 ### A look inside our app (walkthrough)
 - Heading: A look inside our app
@@ -31,7 +31,7 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 - Controls: Mountain (dropdown) · Season (Summer / Winter)
 - Ten gear tiles; dragging or tapping a tile into the kit raises the compatibility bar by that item's weight for that mountain (essential 3, recommended 2, optional 1, from the catalogue; an item the mountain does not require adds nothing and says so).
 - Note: Not to be used for an actual objective. Use App compatibility logic for a more accurate result.
-- Closing line [PROPOSED]: Your real kit, scored against every mountain, is in the app.
+- Closing line [APPROVED 2026-09-25]: Your real kit, scored against every mountain, is in the app.
 
 ### Why not just use AllTrails?
 - Heading: Why not just use AllTrails?
@@ -43,7 +43,7 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 ### Brand Athlete
 - Eyebrow: Brand Athlete
 - Name: Timoteo Desantos
-- Text: Timoteo is the mountaineer that leads a team of human experts by tediously verifying the gear lists provided by our fine tuned agents for every hike. Whenever he gets the chance, you can bet he's climbing.
+- Text: Timoteo is the mountaineer that leads a team of human experts by tediously verifying the gear lists provided by our fine tuned algorithm for every hike. Whenever he gets the chance, you can bet he's climbing.
 - Button: tomatosummit4 (TikTok)
 - Media: the existing embedded looping clip, lazy loaded (ruling: keep)
 
@@ -60,10 +60,10 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 - Success: You're on the list!
 
 ### FAQ
-- Heading [PROPOSED]: Questions
-- Q1: How exactly is gear verified? / A: We have a team of experts meticulously verifying fine-tuned SOTA agents. See our verification process for more info. (link to /verification)
+- Heading [APPROVED 2026-09-25]: Questions
+- Q1: How exactly is gear verified? / A: We have a team of experts meticulously verifying our fine-tuned SOTA algorithm. See our verification process for more info. (link to /verification)
 - Q2: What does Pro offer? / A: You are not only able to see your overall gear readiness, but your mountain specific compatibility for every single mountain in our database.
-- Q3: Is this available to both Apple and Android? / A: Yes! Launching on both on October 1st. [PROPOSED, 2026-09-25]
+- Q3: Is this available to both Apple and Android? / A: Yes! Launching on both on October 1st. [APPROVED 2026-09-25]
 - Support line: Have more questions? Hit support@eiger014.com and we'll answer.
 
 ## About
@@ -121,3 +121,5 @@ Page intro paragraph under the H1: none for now (slot open).
 - Button: Back us on Kickstarter (disabled until the URL is in src/data/store-links.json); note while disabled: Link coming October 1
 - Section: What backing gets you, three items, each [copy pending]
 - Link: The launch giveaway opens the same day (to /giveaway)
+
+Wording rule (Muad, 2026-09-25): say "algorithm", not "AI agent" or "agents", when describing the verification process. Applied to the athlete text, FAQ Q1, and the pipeline step 2 title ("The algorithm scrapes").

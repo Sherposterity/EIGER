@@ -116,7 +116,7 @@ export function dedupTags(taxonomy, mountain) {
 
 export const STAGES = [
   { id: 1, title: 'The guidelines' },
-  { id: 2, title: 'The agents scrape' },
+  { id: 2, title: 'The algorithm scrapes' },
   { id: 3, title: 'De-duplication and checks' },
   { id: 4, title: "The mountaineer's review" },
   { id: 5, title: 'Into the app' },
@@ -161,7 +161,7 @@ export function announce(stage, { name, total, changes }) {
     case 1:
       return `Stage 1 of 6, the guidelines: the model reads the terrain of ${name}.`;
     case 2:
-      return `Stage 2 of 6, the agents scrape the gear categories for ${name}.`;
+      return `Stage 2 of 6, the algorithm scrapes the gear categories for ${name}.`;
     case 3:
       return `Stage 3 of 6, duplicates merged and gaps flagged: an unverified list of ${total} items.`;
     case 4:
