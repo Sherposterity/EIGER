@@ -4,7 +4,7 @@ import SiteNav from '../components/SiteNav';
 import Footer from '../components/Footer';
 import { GIVEAWAY, TASKS } from '../lib/giveaway';
 
-// Official rules for the launch giveaway. Drafted 2026-09-22 from the legal
+// Official rules for the thank you giveaway (renamed 2026-09-26, founder). Drafted 2026-09-22 from the legal
 // review (US sweepstakes law, Canada skill-testing question, UK CAP code,
 // France post-2014, Swiss sales-promotion games, GDPR consent, platform
 // releases). To be read by counsel before the page goes live. No dashes.
@@ -39,7 +39,7 @@ export default function GiveawayRulesPage() {
       <SiteNav />
       <main className="mx-auto max-w-prose px-4 pb-section-sm pt-36 sm:px-gutter lg:pt-44">
         <p className="font-mono text-eyebrow font-semibold uppercase text-fg-subtle">Official rules</p>
-        <h1 className="mt-5 text-display-md">Eiger Launch Giveaway</h1>
+        <h1 className="mt-5 text-display-md">Eiger Thank You Giveaway</h1>
         <p className="mt-6 text-body text-fg">
           NO PURCHASE, PAYMENT, OR PLEDGE OF ANY KIND IS NECESSARY TO ENTER OR WIN. A purchase, payment, or pledge will not increase your chances of winning. The prize is funded by the Sponsor from its own funds. The Giveaway is not funded by, conditioned on, or otherwise part of the Sponsor's Kickstarter campaign, and backing that campaign is neither required to enter or win nor rewarded with additional tickets beyond the honor-based bonus for visiting the campaign page, which is available to everyone. Void where prohibited.
         </p>
@@ -51,7 +51,7 @@ export default function GiveawayRulesPage() {
 
         <div className="mt-10">
           <Section n={1} title="Sponsor">
-            <p>The Eiger Launch Giveaway (the "Giveaway") is sponsored by {s.name}, {s.place} (the "Sponsor"). Contact: {s.email}.</p>
+            <p>The Eiger Thank You Giveaway (the "Giveaway") is sponsored by {s.name}, {s.place} (the "Sponsor"). Contact: {s.email}.</p>
             <p>This promotion is in no way sponsored, endorsed, administered by, or associated with TikTok, Instagram, Meta Platforms, Apple, Google, or Kickstarter. Any questions, comments, or complaints regarding the Giveaway must be directed to the Sponsor, not to those companies. By entering, you release each of them from any liability connected with the Giveaway.</p>
           </Section>
 
