@@ -436,7 +436,7 @@ export default function GiveawayPage() {
           <PrizeValue value={GIVEAWAY.prize.valueUsd} revealed={realPhase !== 'upcoming'} />
           <h1 className="mt-10 text-balance text-display-md">Win the piece of gear you have been putting off.</h1>
           <p className="mx-auto mt-6 max-w-2xl text-body-lg text-fg-muted">
-            Whatever happens with our Kickstarter, this giveaway is for everyone. It opens November 15 as our thank you for showing up, and there is nothing to buy or back to enter.
+            Whatever happens with our Kickstarter, this giveaway is for everyone. It opens November 15 as our thank you for showing up, and there is nothing to buy or back to enter. The prize comes out of our own pockets: it is not funded by the Kickstarter, and you do not need to take part in the campaign to enter.
           </p>
           <p className="mx-auto mt-4 max-w-2xl text-body-lg text-fg-muted">
             {realPhase === 'upcoming' ? GIVEAWAY.prize.teaser : GIVEAWAY.prize.line} Free to enter. Up to {GIVEAWAY.maxTickets} tickets from easy tasks, and every ticket is one more name in the hat.
@@ -469,6 +469,7 @@ export default function GiveawayPage() {
             <ul className="mt-6 space-y-3 text-fg-muted">
               <li>One winner, drawn at random from every ticket.</li>
               <li>You choose the item. We buy it from a retailer in your country and ship it to you.</li>
+              <li>Paid for by Eiger LLC directly. Not funded by or tied to the Kickstarter, and backing the campaign is not needed to enter or win.</li>
               <li>Open worldwide where lawful. United States, Canada, the United Kingdom, France, and Switzerland are all in.</li>
             </ul>
           </div>

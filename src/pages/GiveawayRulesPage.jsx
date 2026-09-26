@@ -41,7 +41,7 @@ export default function GiveawayRulesPage() {
         <p className="font-mono text-eyebrow font-semibold uppercase text-fg-subtle">Official rules</p>
         <h1 className="mt-5 text-display-md">Eiger Launch Giveaway</h1>
         <p className="mt-6 text-body text-fg">
-          NO PURCHASE, PAYMENT, OR PLEDGE OF ANY KIND IS NECESSARY TO ENTER OR WIN. A purchase, payment, or pledge will not increase your chances of winning. Void where prohibited.
+          NO PURCHASE, PAYMENT, OR PLEDGE OF ANY KIND IS NECESSARY TO ENTER OR WIN. A purchase, payment, or pledge will not increase your chances of winning. The prize is funded by the Sponsor from its own funds. The Giveaway is not funded by, conditioned on, or otherwise part of the Sponsor's Kickstarter campaign, and backing that campaign is neither required to enter or win nor rewarded with additional tickets beyond the honor-based bonus for visiting the campaign page, which is available to everyone. Void where prohibited.
         </p>
         <p className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-small text-fg-muted">
           <Link to={backTo} className={link}>Back to the giveaway</Link>
