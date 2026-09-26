@@ -20,12 +20,41 @@ export const STOP_WORDS = new Set([
   'della', 'di', 'da', 'el', 'and', 'des', 'den', 'der', 'al',
 ]);
 
+// Letters that NFD does not decompose, mapped to the plain spelling people
+// type: Galdhøpiggen -> galdhopiggen, Große Zinne -> grosse zinne.
+const TRANSLITERATE = { ø: 'o', æ: 'ae', œ: 'oe', ß: 'ss', ł: 'l', đ: 'd', ð: 'd', þ: 'th', ı: 'i' };
 export const normalize = (s) =>
   String(s ?? '')
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
+    .replace(/[øæœßłđðþı]/g, (c) => TRANSLITERATE[c])
     .trim();
+
+// Reviewed query aliases: a well known name that is not the catalogue label.
+// The alias is searched as the label it stands for (both spellings work).
+export const QUERY_ALIASES = {
+  fujisan: 'mount fuji',
+  'fuji san': 'mount fuji',
+  sagarmatha: 'mount everest',
+  chomolungma: 'mount everest',
+  qomolangma: 'mount everest',
+  'monte bianco': 'mont blanc',
+  cervino: 'matterhorn',
+  'monte cervino': 'matterhorn',
+  'pico de orizaba': 'citlaltepetl',
+  orizaba: 'citlaltepetl',
+  'tre cime di lavaredo': 'grosse zinne',
+  'cima grande': 'grosse zinne',
+  'mount mckinley': 'denali',
+  mckinley: 'denali',
+  chogori: 'k2',
+  'mount cook': 'aoraki',
+};
+export const resolveQuery = (query) => {
+  const q = normalize(query);
+  return QUERY_ALIASES[q] ?? q;
+};
 
 export const words = (normalized) => normalized.split(/[^a-z0-9]+/).filter(Boolean);
 
@@ -41,7 +70,7 @@ export const chunkKeysFor = (name) => {
 
 // The one chunk a query needs, or null when the query is too short.
 export const queryKey = (query) => {
-  const ws = words(normalize(query));
+  const ws = words(resolveQuery(query));
   const meaningful = ws.filter((w) => !STOP_WORDS.has(w));
   const first = meaningful[0] ?? ws[0];
   if (!first || normalize(query).length < 2) return null;
@@ -58,7 +87,7 @@ export const rowToPeak = (row, countries) => ({
 });
 
 export const searchPeaks = (peaks, query, limit = 8) => {
-  const q = normalize(query);
+  const q = resolveQuery(query);
   if (q.length < 2) return [];
   const qw = words(q);
   const meaningful = qw.filter((w) => !STOP_WORDS.has(w));

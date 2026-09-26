@@ -131,10 +131,10 @@ Wording rule (Muad, 2026-09-25): say "algorithm", not "AI agent" or "agents", wh
 
 ## Mountain requests (home section + /request, 2026-09-26)
 - Eyebrow "Mountain requests", heading "Which mountain next?"
-- Intro: "Pick from 46,000 named peaks above 1,000 m, anywhere on Earth. The most requested mountains go to the front of our verification queue, and you will see them land in the app."
+- Intro: "Pick from over 48,000 named peaks above 1,000 m, anywhere on Earth. Your requests decide which mountains we verify next."
 - Search label "Search a mountain", placeholder "Matterhorn, Denali, Aconcagua"; empty state "Search for a peak, or tap one on the list below, then ask for it."; no match "No peak by that name in our list. Try the local spelling."
 - Button "Request this mountain" / "Requested"; already in the app: "In the app, being verified" (or "expert verified") + "<name> is already in Eiger with gear, route and weather windows, and our mountaineer is verifying it. No request needed."
 - Notices: "<name> is on the list. You are the first to ask." / "<n> connections want it."; list outage "The list is unavailable right now. Requests still count."
 - Globe caption: "<97> in the app, tap one. White dots are the most requested. Drag to turn." Reset view button.
 - Footer link "Request a mountain"; banner links "Kickstarter", "Request a mountain".
-- Privacy line (standalone page): "One request per mountain per connection. We keep a count per peak and a hashed connection address to stop repeats, nothing else."
+- Privacy line (standalone page): "One request per mountain per connection. We store your mountain request, a hashed connection address and the request time, to count requests and limit repeats."

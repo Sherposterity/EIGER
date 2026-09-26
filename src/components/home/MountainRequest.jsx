@@ -4,9 +4,9 @@ import { ArrowRight, Check, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { FadeIn } from './motion';
 import { focusRing } from './utils';
-import { formatElevation, loadChunk, queryKey, searchPeaks } from '../../lib/peaks';
+import { formatElevation, loadChunk, normalize, queryKey, searchPeaks } from '../../lib/peaks';
 import { backend, requestedIds } from '../../lib/mountainRequests';
-import { APP_MOUNTAINS, appMountainFor, nearbyAppMountain, selectionFromApp } from '../../lib/appMountains';
+import { APP_MOUNTAINS, appMountainFor, nearbyAppMountain, searchAppMountains, selectionFromApp } from '../../lib/appMountains';
 
 // "Which mountain next?" Visitors search any named peak on Earth, see it on
 // a monochrome globe, and ask for it to be added to the app. The most
@@ -14,8 +14,8 @@ import { APP_MOUNTAINS, appMountainFor, nearbyAppMountain, selectionFromApp } fr
 // home page and, standalone, at /request.
 //
 // Bundle: the globe (WebGL) loads when the section scrolls in; the peaks
-// dataset is split per letter and a chunk loads on the first letter typed, so
-// the landing bundle is unchanged.
+// dataset is split per letter and a chunk loads on the first letter typed.
+// Only the 97 app mountains (about 10 KB) ride in the home bundle.
 // Copy here is user-facing: no dashes.
 
 const Globe = lazy(() => import('../Globe'));
@@ -114,7 +114,13 @@ export default function MountainRequest({ standalone = false }) {
 
   const key = queryKey(query);
   const chunk = key ? chunks[key] : null;
-  const results = chunk ? searchPeaks(chunk, query) : [];
+  const catalogueResults = chunk ? searchPeaks(chunk, query) : [];
+  // App mountains join the results (keyboard and no-WebGL path to every green
+  // dot); ones already present through their catalogue peak are not repeated.
+  const results = [
+    ...catalogueResults,
+    ...searchAppMountains(query, normalize, new Set(catalogueResults.map((p) => p.id))),
+  ];
 
   const choose = (peak) => {
     setSelected(peak);
@@ -241,7 +247,7 @@ export default function MountainRequest({ standalone = false }) {
           </FadeIn>
           <FadeIn delay={0.06}>
             <p className="mt-5 max-w-xl text-body-lg text-fg-muted">
-              Pick from 46,000 named peaks above 1,000 m, anywhere on Earth. The most requested mountains go to the front of our verification queue, and you will see them land in the app.
+              Pick from over 48,000 named peaks above 1,000 m, anywhere on Earth. Your requests decide which mountains we verify next.
             </p>
           </FadeIn>
 
@@ -265,6 +271,7 @@ export default function MountainRequest({ standalone = false }) {
                 onKeyDown={onKeyDown}
                 role="combobox"
                 aria-expanded={results.length > 0}
+                aria-autocomplete="list"
                 aria-controls={`${listId}-results`}
                 aria-activedescendant={active >= 0 ? `${listId}-opt-${active}` : undefined}
                 className="h-12 rounded-md border-line-strong bg-surface-1 pl-10 text-base"
@@ -377,7 +384,7 @@ export default function MountainRequest({ standalone = false }) {
             )}
           </FadeIn>
           {standalone ? (
-            <p className="mt-8 text-small text-fg-subtle">One request per mountain per connection. We keep a count per peak and a hashed connection address to stop repeats, nothing else.</p>
+            <p className="mt-8 text-small text-fg-subtle">One request per mountain per connection. We store your mountain request, a hashed connection address and the request time, to count requests and limit repeats.</p>
           ) : null}
         </div>
       </div>

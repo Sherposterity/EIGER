@@ -41,6 +41,23 @@ test('reviewed aliases resolve and a tapped dot selects its own mountain', () =>
   assert.ok(sel.id.startsWith('app:') || /^Q/.test(sel.id));
 });
 
+test('a shared word within 3 km is not an identity: Dents du Midi is not Cime de l\'Est', () => {
+  const dents = byName('Dents du Midi (Haute Cime)');
+  assert.ok(dents, 'app mountain present');
+  assert.notEqual(dents.peakId, 'Q22504027', 'Cime de l\'Est is a different summit');
+  assert.equal(index.appMountainFor({ id: 'Q22504027', lat: 46.173, lon: 6.948 }), null);
+});
+
+test('app mountains are searchable by name, including the unmapped ones, without duplicates', () => {
+  const normalize = (s) => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  const adams = index.searchAppMountains('mount adams', normalize);
+  assert.equal(adams[0]?.name, 'Mount Adams');
+  assert.equal(index.appMountainFor(adams[0])?.name, 'Mount Adams');
+  assert.ok(adams[0].id.startsWith('app:'), 'no catalogue id, so the synthetic id is never a valid request');
+  const montBlanc = byName('Mont Blanc');
+  assert.deepEqual(index.searchAppMountains('mont blanc', normalize, new Set([montBlanc.peakId])), [], 'present through its peak: not repeated');
+});
+
 test('nearbyAppMountain is a hint for neighbours and null for the mountain itself', () => {
   const near = index.nearbyAppMountain({ id: 'Q30441', lat: 45.8272, lon: 6.8757 });
   assert.equal(near?.name, 'Mont Blanc');

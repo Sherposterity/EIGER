@@ -44,9 +44,25 @@ test('queryKey picks the chunk for the first meaningful word', () => {
   assert.equal(queryKey('peak'), 'p', 'an all-stopword query falls back to its first word');
 });
 
-test('normalize strips diacritics and case', () => {
+test('normalize strips diacritics and case and transliterates ø æ ß', () => {
   assert.equal(normalize('Mönch'), 'monch');
   assert.equal(normalize('  Aiguille du Midi '), 'aiguille du midi');
+  assert.equal(normalize('Galdhøpiggen'), 'galdhopiggen');
+  assert.equal(normalize('Große Zinne'), 'grosse zinne');
+});
+
+test('common spellings and aliases find their peak', () => {
+  for (const [q, name] of [
+    ['galdhopiggen', 'Galdhøpiggen'],
+    ['fujisan', 'Mount Fuji'],
+    ['sagarmatha', 'Mount Everest'],
+    ['grosse zinne', 'Große Zinne'],
+    ['pico de orizaba', 'Citlaltepetl'],
+  ]) {
+    const key = queryKey(q);
+    const r = searchPeaks(chunks[key] ?? [], q);
+    assert.ok(r.some((p) => p.name === name), `${q} -> ${name} (chunk ${key}: ${r.map((p) => p.name).join(', ')})`);
+  }
 });
 
 test('search ranks a starts-with match first and the higher peak on ties', () => {
@@ -76,7 +92,8 @@ test('launch mountains resolve by name through their chunk', () => {
 test('the browser sends only the peak id when requesting a mountain', () => {
   const src = readFileSync(new URL('../src/lib/mountainRequests.js', import.meta.url), 'utf8');
   assert.match(src, /const toPayload = \(peak\) => \(\{ id: peak\.id \}\);/);
-  const fn = readFileSync(new URL('../../hike/supabase/functions/mountain-request/index.ts', import.meta.url), 'utf8');
+  // The function's copy in this repo (mirrored from hike/supabase/functions).
+  const fn = readFileSync(new URL('../supabase/functions/mountain-request/index.ts', import.meta.url), 'utf8');
   assert.match(fn, /rpc\("mountain_request_add", \{ p_peak_id: peakId, p_ip_hash: ipHash \}\)/);
   assert.doesNotMatch(fn, /p_name|p_country|p_lat/);
 });

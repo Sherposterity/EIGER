@@ -81,8 +81,12 @@ STOP_WORDS = {
 # Mirror of src/lib/peaks.js (normalize, words, chunkKeysFor); tests/peaks.test.js checks they agree.
 import re, unicodedata
 
+TRANSLITERATE = {"ø": "o", "æ": "ae", "œ": "oe", "ß": "ss", "ł": "l", "đ": "d", "ð": "d", "þ": "th", "ı": "i"}
+
+
 def normalize(s):
-    return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn").lower().strip()
+    s = "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn").lower()
+    return "".join(TRANSLITERATE.get(c, c) for c in s).strip()
 
 def chunk_keys(name):
     ws = [w for w in re.split(r"[^a-z0-9]+", normalize(name)) if w]

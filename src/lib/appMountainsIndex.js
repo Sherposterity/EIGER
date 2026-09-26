@@ -40,8 +40,25 @@ export const createAppIndex = (mountains) => {
     return best;
   };
 
-  // A selection built from a tapped green dot.
+  // A selection built from a tapped green dot or an app search row.
   const selectionFromApp = (m) => ({ id: m.peakId ?? `app:${m.id}`, appId: m.id, name: m.name, country: '', elevation: m.elevation, lat: m.lat, lon: m.lon });
 
-  return { mountains, appMountainFor, nearbyAppMountain, selectionFromApp };
+  // App mountains whose name matches the query, as selections, so every green
+  // dot is reachable from the keyboard and without WebGL. `normalize` is the
+  // search normaliser; results whose peak already appears in `present` (by
+  // peak id) are left out to avoid duplicates.
+  const searchAppMountains = (query, normalize, present = new Set(), limit = 3) => {
+    const q = normalize(query);
+    if (q.length < 2) return [];
+    const out = [];
+    for (const m of mountains) {
+      if (m.peakId && present.has(m.peakId)) continue;
+      const n = normalize(m.name);
+      if (n.startsWith(q) || n.includes(' ' + q) || n.includes('(' + q)) out.push(selectionFromApp(m));
+      if (out.length >= limit) break;
+    }
+    return out;
+  };
+
+  return { mountains, appMountainFor, nearbyAppMountain, selectionFromApp, searchAppMountains };
 };

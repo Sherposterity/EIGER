@@ -7,4 +7,4 @@ import { createAppIndex } from './appMountainsIndex';
 const index = createAppIndex(data.mountains);
 
 export const APP_MOUNTAINS = index.mountains;
-export const { appMountainFor, nearbyAppMountain, selectionFromApp } = index;
+export const { appMountainFor, nearbyAppMountain, selectionFromApp, searchAppMountains } = index;
