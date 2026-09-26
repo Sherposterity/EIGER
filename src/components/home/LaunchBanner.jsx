@@ -102,10 +102,9 @@ const LaunchBanner = () => {
           <span className="text-fg">October 1: the app launches and our Kickstarter goes live.</span>{' '}
           <span className="whitespace-nowrap tabular-nums">{countdownLabel(now)}</span>{' '}
           {/* No left margin on phones: the links wrap to their own line there. */}
+          {/* Kickstarter only (founder 2026-09-26): a giveaway link here read as
+              though it opened with the campaign. The hero pill covers it. */}
           <span className="inline-flex gap-3 whitespace-nowrap sm:ml-2">
-            <Link to="/giveaway" className={linkClass}>
-              Giveaway
-            </Link>
             <Link to="/kickstarter" className={linkClass}>
               Kickstarter
             </Link>
