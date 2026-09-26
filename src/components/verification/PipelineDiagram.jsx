@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { BrainCircuit, Check, MessageSquareText, Smartphone, UserCheck } from 'lucide-react';
+import { BrainCircuit, Check, FileText, MessageSquareText, Smartphone, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { driftFor } from '@/components/home/tryit/glyphs';
 import { GROUP_LABEL, VERIFIED_GREEN, groupColour } from './pipeline';
@@ -223,6 +223,79 @@ function Phone({ geo, levels, visible, reduce }) {
   );
 }
 
+
+// Stage 1: the handwritten expert guidelines arrive as a small document that
+// drifts into the model node and is absorbed (the node flashes once). Replays
+// every time stage 1 is entered. Reduced motion: the document sits docked
+// beside the node with a short connector and nothing moves.
+function GuidelinesDoc({ model, thumb, reduce, playKey }) {
+  const dx = thumb ? -96 : -196;
+  const dy = thumb ? -96 : -172;
+  const start = { x: model.x + dx, y: model.y + dy };
+  const w = thumb ? 56 : 92;
+  const h = thumb ? 68 : 110;
+  const line = `M ${start.x + w / 2} ${start.y + h / 2} L ${model.x} ${model.y}`;
+  if (reduce) {
+    return (
+      <>
+        <svg className="pointer-events-none absolute inset-0 overflow-visible">
+          <path d={line} stroke="var(--color-line-strong)" strokeWidth="1" fill="none" />
+        </svg>
+        <DocCard x={start.x} y={start.y} w={w} h={h} thumb={thumb} />
+      </>
+    );
+  }
+  return (
+    <>
+      <motion.div
+        key={`doc-${playKey}`}
+        className="pointer-events-none absolute left-0 top-0 z-20 origin-center"
+        style={{ width: w, height: h }}
+        initial={{ x: start.x - 36, y: start.y - 24, opacity: 0, scale: 1 }}
+        animate={{
+          x: [start.x - 36, start.x, start.x, model.x - w / 2],
+          y: [start.y - 24, start.y, start.y, model.y - h / 2],
+          opacity: [0, 1, 1, 0],
+          scale: [1, 1, 1, 0.12],
+        }}
+        transition={{ duration: 2.4, times: [0, 0.18, 0.55, 1], ease: ['easeOut', 'linear', 'easeIn'] }}
+      >
+        <DocCard x={0} y={0} w={w} h={h} thumb={thumb} relative />
+      </motion.div>
+      <motion.div
+        key={`absorb-${playKey}`}
+        className="pointer-events-none absolute rounded-full border border-fg"
+        style={{ left: model.x - model.r, top: model.y - model.r, width: model.r * 2, height: model.r * 2 }}
+        initial={{ opacity: 0, scale: 1 }}
+        animate={{ opacity: [0, 0.7, 0], scale: [1, 1.55, 1.7] }}
+        transition={{ duration: 0.9, delay: 2.25, ease: 'easeOut' }}
+      />
+    </>
+  );
+}
+
+function DocCard({ x, y, w, h, thumb, relative }) {
+  const lines = thumb ? 3 : 5;
+  return (
+    <div
+      className={cn(
+        'flex flex-col gap-1.5 rounded-[6px] border border-line-strong bg-surface-1 p-2.5 shadow-[0_8px_24px_rgb(0_0_0/0.4)]',
+        relative ? 'relative' : 'absolute',
+      )}
+      style={relative ? { width: w, height: h } : { left: x, top: y, width: w, height: h }}
+      aria-hidden="true"
+    >
+      <div className="flex items-center gap-1.5 text-fg">
+        <FileText className={thumb ? 'size-3' : 'size-3.5'} />
+        {!thumb && <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-fg-subtle">Guidelines</span>}
+      </div>
+      {Array.from({ length: lines }).map((_, i) => (
+        <span key={i} className="block h-[3px] rounded-full bg-line-strong" style={{ width: `${88 - (i % 3) * 22}%` }} />
+      ))}
+    </div>
+  );
+}
+
 export default function PipelineDiagram({
   geo,
   stage,
@@ -378,6 +451,8 @@ export default function PipelineDiagram({
             </div>
           );
         })}
+
+        {stage === 1 && <GuidelinesDoc key={mountain?.slug} model={model} thumb={geo.thumb} reduce={reduce} playKey={mountain?.slug ?? 'doc'} />}
 
         <Node
           at={model}
