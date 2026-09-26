@@ -202,7 +202,7 @@ export default function KickstarterPage() {
               to="/giveaway"
               className={`group mt-12 inline-flex items-center gap-2 rounded-sm text-body font-medium text-fg underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-fg ${focusRing}`}
             >
-              The launch giveaway opens the same day
+              Our thank you giveaway opens November 15
               <ArrowRight
                 aria-hidden="true"
                 className="size-4 transition-transform duration-300 group-hover:translate-x-0.5"

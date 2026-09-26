@@ -4,7 +4,7 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 
 ## Global
 - Nav (in order): About · Verification process · Giveaway · Kickstarter · button "Get the app" ("How it works" removed from nav and footer, founder 2026-09-25; the hero's "See how it works" button keeps the anchor)
-- Launch banner (home, under the nav, until 2026-10-01 16:00 UTC, dismissible) [APPROVED 2026-09-25]: "October 1: the app launches, the giveaway opens, and our Kickstarter goes live." + countdown "in N days" / "today" + links "Giveaway", "Kickstarter"
+- Launch banner (home, under the nav, until 2026-10-01 16:00 UTC, dismissible) [APPROVED 2026-09-25]: "October 1: the app launches and our Kickstarter goes live." (2026-09-26 ruling: banner names only the launch and the Kickstarter; the giveaway opens Nov 15 as a thank you, closes Dec 31 (ruled), and the home pill says only "Giveaway, Coming soon" until then) + countdown "in N days" / "today" + links "Giveaway", "Kickstarter"
 - Footer tagline: Reduce your prep time from hours to minutes.
 - Support address: support@eiger014.com
 
@@ -120,7 +120,7 @@ Page intro paragraph under the H1: none for now (slot open).
 - Intro: [copy pending]
 - Button: Back us on Kickstarter (disabled until the URL is in src/data/store-links.json); note while disabled: Link coming October 1
 - Section: What backing gets you, three items, each [copy pending]
-- Link: The launch giveaway opens the same day (to /giveaway)
+- Link: Our thank you giveaway opens November 15 (to /giveaway)
 
 Wording rule (Muad, 2026-09-25): say "algorithm", not "AI agent" or "agents", when describing the verification process. Applied to the athlete text, FAQ Q1, and the pipeline step 2 title ("The algorithm scrapes").
 

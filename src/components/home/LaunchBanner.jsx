@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'motion/react';
 import { Calendar, X } from 'lucide-react';
-import { GIVEAWAY_OPENS_AT } from '../../lib/giveawayWindow';
+import { LAUNCH_AT } from '../../lib/giveawayWindow';
 import { EASE_OUT_EXPO, focusRing } from './utils';
 
 // Launch strip on the home page, just under the fixed nav and over the top of
@@ -12,7 +12,7 @@ import { EASE_OUT_EXPO, focusRing } from './utils';
 // Copy is [PROPOSED] (docs/COPY.md); no dashes.
 
 const DISMISS_KEY = 'eiger_launch_banner_dismissed';
-const LAUNCH_MS = Date.parse(GIVEAWAY_OPENS_AT);
+const LAUNCH_MS = Date.parse(LAUNCH_AT);
 const DAY_MS = 86400000;
 
 const readDismissed = () => {
@@ -99,13 +99,12 @@ const LaunchBanner = () => {
       <div className="mx-auto flex max-w-7xl items-start gap-3 px-4 py-2.5 sm:items-center sm:px-6 lg:px-8">
         <Calendar aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-fg-muted sm:mt-0" strokeWidth={1.75} />
         <p className="min-w-0 flex-1 font-mono text-xs leading-relaxed text-fg-muted sm:text-small">
-          <span className="text-fg">October 1: the app launches, the giveaway opens, and our Kickstarter goes live.</span>{' '}
+          <span className="text-fg">October 1: the app launches and our Kickstarter goes live.</span>{' '}
           <span className="whitespace-nowrap tabular-nums">{countdownLabel(now)}</span>{' '}
           {/* No left margin on phones: the links wrap to their own line there. */}
+          {/* Kickstarter only (founder 2026-09-26): a giveaway link here read as
+              though it opened with the campaign. The hero pill covers it. */}
           <span className="inline-flex gap-3 whitespace-nowrap sm:ml-2">
-            <Link to="/giveaway" className={linkClass}>
-              Giveaway
-            </Link>
             <Link to="/kickstarter" className={linkClass}>
               Kickstarter
             </Link>

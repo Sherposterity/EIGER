@@ -81,6 +81,74 @@
   }
 }
 
+/* Giveaway prize value: declassified on load. The censor bar peels off to the
+   right while each digit rolls down a column of blocks before settling. Both
+   run once (no loop) and reduced motion collapses them to the final frame. */
+@keyframes redact-bar {
+  0%,
+  30% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+@keyframes redact-roll {
+  0%,
+  25% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-5em);
+  }
+}
+.redact-bar {
+  animation: redact-bar 1.2s var(--ease-out-expo) both;
+}
+.redact-digit {
+  animation: redact-roll 1.4s var(--ease-out-expo) both;
+}
+/* Before the giveaway opens the value stays hidden: each digit is a solid
+   block that breathes, scaling its height and fading a little, out of phase
+   with its neighbours. Smooth ease-in-out, motion-safe only; reduced motion
+   holds a full block. */
+@keyframes redact-breathe {
+  0%,
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  35% {
+    transform: scaleY(0.38);
+    opacity: 0.55;
+  }
+  70% {
+    transform: scaleY(0.72);
+    opacity: 0.85;
+  }
+}
+.redact-breathe {
+  transform-origin: center;
+  animation: redact-breathe 3.6s ease-in-out infinite;
+}
+/* Reduced motion: the global rule collapses durations but not the per-digit
+   delays, so pin the final frame explicitly (six-row strip, last row = -5em). */
+@media (prefers-reduced-motion: reduce) {
+  .redact-digit {
+    animation: none !important;
+    transform: translateY(-5em);
+  }
+  .redact-bar {
+    animation: none !important;
+    display: none;
+  }
+  .redact-breathe {
+    animation: none !important;
+    transform: none;
+    opacity: 1;
+  }
+}
+
 /* Motion durations for JS (motion) and hand written CSS */
 :root {
   --motion-fast: 150ms;

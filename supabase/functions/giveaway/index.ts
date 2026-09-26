@@ -31,8 +31,8 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 // Window. The env overrides exist for pre-launch testing only; unset them in production.
-const OPENS_AT = Date.parse(Deno.env.get("GIVEAWAY_OPENS_AT") ?? "2026-10-01T16:00:00Z");
-const CLOSES_AT = Date.parse(Deno.env.get("GIVEAWAY_CLOSES_AT") ?? "2026-11-10T16:00:00Z");
+const OPENS_AT = Date.parse(Deno.env.get("GIVEAWAY_OPENS_AT") ?? "2026-11-15T16:00:00Z");
+const CLOSES_AT = Date.parse(Deno.env.get("GIVEAWAY_CLOSES_AT") ?? "2026-12-31T16:00:00Z");
 const SITE_URL = Deno.env.get("GIVEAWAY_SITE_URL") ?? "https://eiger014.com";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const FROM = Deno.env.get("GIVEAWAY_FROM") ?? "Eiger <giveaway@support.eiger014.com>";
@@ -236,7 +236,7 @@ Deno.serve(async (req) => {
   }
 
   if (action === "enter") {
-    if (now < OPENS_AT) return json({ error: "The giveaway opens on October 1. Come back then." }, 400);
+    if (now < OPENS_AT) return json({ error: "The giveaway opens on November 15. Come back then." }, 400);
     if (now >= CLOSES_AT) return json({ error: "Entries are closed." }, 400);
     // Honeypot: a filled hidden field means a bot. Answer like a success and store nothing.
     if (String(body.website ?? "").trim()) return json({ token: randomCode(32), entrant: null, emailed: true });
@@ -292,7 +292,7 @@ Deno.serve(async (req) => {
   }
 
   if (action === "complete") {
-    if (!isOpen(now)) return json({ error: now < OPENS_AT ? "The giveaway opens on October 1." : "Entries are closed." }, 400);
+    if (!isOpen(now)) return json({ error: now < OPENS_AT ? "The giveaway opens on November 15." : "Entries are closed." }, 400);
     const token = String(body.token ?? "");
     if (!token) return json({ error: "Enter the giveaway first." }, 401);
     const task = String(body.task ?? "");

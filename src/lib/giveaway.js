@@ -29,6 +29,8 @@ export const GIVEAWAY = {
     title: 'A piece of mountaineering gear of your choice',
     valueUsd: 500,
     line: 'Ice axe, boots, a shell, a harness. You pick it, up to USD 500 retail, and we buy it from a retailer in your country and ship it to your door.',
+    // Shown while the giveaway is upcoming: the value stays redacted until it opens.
+    teaser: 'Ice axe, boots, a shell, a harness. You pick it, and we buy it from a retailer in your country and ship it to your door. The budget is revealed when the giveaway opens.',
   },
   maxTickets: 20,
   links: {
