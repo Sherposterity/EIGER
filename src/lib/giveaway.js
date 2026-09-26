@@ -15,6 +15,9 @@
 
 import { supabase } from './supabase';
 import { GIVEAWAY_CLOSES_AT, GIVEAWAY_OPENS_AT, phaseFor } from './giveawayWindow';
+// Store and Kickstarter URLs live in one file shared with GetTheApp and the
+// Kickstarter page; each is null until it exists (launch is October 1).
+import storeLinks from '../data/store-links.json';
 
 export { phaseFor };
 
@@ -31,10 +34,11 @@ export const GIVEAWAY = {
   links: {
     tiktok: 'https://www.tiktok.com/@eiger_tech',
     instagram: 'https://www.instagram.com/eiger014',
-    appStore: 'https://testflight.apple.com/join/j6h2Wxqq',
-    playStore: 'https://play.google.com/apps/testing/com.eiger014.eiger',
-    // Set when the Kickstarter page exists; until then the task shows as coming soon.
-    kickstarter: null,
+    appStore: storeLinks.ios,
+    playStore: storeLinks.android,
+    // Set in src/data/store-links.json when the Kickstarter page exists; until
+    // then the task points at /kickstarter.
+    kickstarter: storeLinks.kickstarter,
   },
   sponsor: { name: 'Eiger LLC', place: 'Texas, USA', email: 'business@eiger014.com' },
   excludedRegions: 'Italy, Spain, Belgium, Sweden, Brazil, Australia, Quebec, mainland China, Russia, and any country subject to United States sanctions',
@@ -61,8 +65,9 @@ export const ticketsFor = (progress) =>
     }, 0)
   );
 
-// HashRouter site: the route lives after the hash, and react-router reads the query from inside it.
-export const referralLink = (code) => `${window.location.origin}/#/giveaway?ref=${code}`;
+// Path URL (BrowserRouter). Links shared before the move used /#/giveaway?ref=
+// and still work: src/lib/hashRedirect.js rewrites them on load.
+export const referralLink = (code) => `${window.location.origin}/giveaway?ref=${code}`;
 
 // A referral code survives pre-entry navigation (reading the rules and coming
 // back drops the query). Policy: the most recently opened link wins; the

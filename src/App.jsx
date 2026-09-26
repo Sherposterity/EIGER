@@ -1,14 +1,18 @@
 import { Suspense, lazy, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import Hero from './components/Hero';
 import SiteNav from './components/SiteNav';
-import Features from './components/Features';
+import LaunchBanner from './components/home/LaunchBanner';
+import Walkthrough from './components/home/Walkthrough';
+import TryIt from './components/home/TryIt';
+import WhyEiger from './components/home/WhyEiger';
 import Athlete from './components/Athlete';
-import MissionBanner from './components/MissionBanner';
-import Platforms from './components/Platforms';
-import BetaToast from './components/BetaToast';
-import Waitlist from './components/Waitlist';
+import GetTheApp from './components/home/GetTheApp';
+import EmailCapture from './components/home/EmailCapture';
+import Faq from './components/home/Faq';
 import Footer from './components/Footer';
+import AscentLine from './components/AscentLine';
+import { MISSION_REDIRECT } from './lib/routes';
 
 // Mission and About are split out of the home bundle so the landing page
 // ships less JavaScript; they load on first navigation.
@@ -16,12 +20,21 @@ const MissionPage = lazy(() => import('./pages/MissionPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const GiveawayPage = lazy(() => import('./pages/GiveawayPage'));
 const GiveawayRulesPage = lazy(() => import('./pages/GiveawayRulesPage'));
+const VerificationPage = lazy(() => import('./pages/VerificationPage'));
+const KickstarterPage = lazy(() => import('./pages/KickstarterPage'));
+
+// Old home anchors that may still be linked from outside (bios, emails).
+const LEGACY_SECTIONS = { platforms: 'get-the-app', waitlist: 'updates' };
 
 function Home() {
   const location = useLocation();
 
   useEffect(() => {
-    const targetSection = new URLSearchParams(location.search).get('section');
+    // /?section=get-the-app (from other routes) or a plain /#get-the-app link.
+    const requested =
+      new URLSearchParams(location.search).get('section') ||
+      decodeURIComponent(location.hash.replace(/^#/, ''));
+    const targetSection = LEGACY_SECTIONS[requested] || requested;
 
     if (!targetSection) {
       return;
@@ -35,9 +48,12 @@ function Home() {
     const scrollToSection = () => {
       const node = document.getElementById(targetSection);
       if (!node) return;
-      const offset = node.getBoundingClientRect().top;
+      // Sections set scroll-margin-top to clear the fixed nav; measure against it.
+      const margin = parseFloat(getComputedStyle(node).scrollMarginTop) || 0;
+      const offset = node.getBoundingClientRect().top - margin;
       if (first || Math.abs(offset) > 40) {
-        node.scrollIntoView({ behavior: first ? 'smooth' : 'auto', block: 'start' });
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        node.scrollIntoView({ behavior: first && !reduce ? 'smooth' : 'auto', block: 'start' });
       }
       first = false;
     };
@@ -49,21 +65,45 @@ function Home() {
       cancelAnimationFrame(raf);
       timers.forEach(clearTimeout);
     };
-  }, [location.search]);
+  }, [location.search, location.hash]);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="relative min-h-screen bg-bg text-fg">
       <SiteNav />
-      <Hero />
-      <Features />
-      <Athlete />
-      <MissionBanner />
-      <Waitlist />
-      <Platforms />
+      <LaunchBanner />
+      {/* Signature motif: the Rainier DC route profile as the page's scroll progress. Home only, desktop only. */}
+      <AscentLine />
+      <main>
+        <Hero />
+        <Walkthrough />
+        <TryIt />
+        <WhyEiger />
+        <Athlete />
+        <GetTheApp />
+        <EmailCapture />
+        <Faq />
+      </main>
       <Footer />
-      <BetaToast />
     </div>
   );
+}
+
+// Unknown paths get a real not-found page instead of silently showing Home.
+// Placeholder copy; the founder will replace it.
+function NotFound() {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#0A0A0A] px-6 text-center text-white">
+      <h1 className="text-3xl font-bold">Page not found</h1>
+      <p className="text-white/60">This page does not exist.</p>
+      <Link to="/" className="underline underline-offset-4 hover:text-white/60">Go to the home page</Link>
+    </div>
+  );
+}
+
+// Used only when MISSION_REDIRECT is flipped on: keeps the query string.
+function MissionRedirect() {
+  const { search } = useLocation();
+  return <Navigate to={{ pathname: '/about', search }} replace />;
 }
 
 function App() {
@@ -71,11 +111,13 @@ function App() {
     <Suspense fallback={<div className="min-h-screen bg-[#0A0A0A]" />}>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/mission" element={<MissionPage />} />
+        <Route path="/mission" element={MISSION_REDIRECT ? <MissionRedirect /> : <MissionPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/verification" element={<VerificationPage />} />
         <Route path="/giveaway" element={<GiveawayPage />} />
         <Route path="/giveaway/rules" element={<GiveawayRulesPage />} />
-        <Route path="*" element={<Home />} />
+        <Route path="/kickstarter" element={<KickstarterPage />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
   );

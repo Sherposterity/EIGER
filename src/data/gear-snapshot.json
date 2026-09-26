@@ -1,0 +1,2062 @@
+{
+ "note": "Example snapshot for the website demo. The app reads live data. Season is a user choice in the app (summer or winter), not derived from a date.",
+ "source": "Supabase project pebwnpcnawdrytqlzjmb, tables trails + trail_gear_profile (status = approved) + gear_item_types; public fields only",
+ "mountains": [
+  {
+   "gear": [
+    {
+     "item": "Upper Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Bottom Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Fleece",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Hardshell Jacket",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Down Jacket",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Hard Shell Pants",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Liner Gloves",
+     "group": "Clothing",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Insulated Gloves",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Waterproof Mittens",
+     "group": "Clothing",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Warm Hat / Beanie",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Neck Gaiter / Buff",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Mountaineering Boots",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Socks",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Gaiters",
+     "group": "Footwear",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Crampons",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Ice Axe",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Trekking Poles",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Backpack",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Headlamp",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Sunglasses",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Ski Goggles",
+     "group": "Essentials & Accessories",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "First Aid Kit",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Water Bottles",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Navigation",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Sunscreen & Lip Balm",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Microspikes",
+     "group": "Technical Hardware",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Beacon",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Avalanche Probe",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Avalanche Shovel",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 2
+    }
+   ],
+   "name": "Ben Nevis",
+   "slug": "ben-nevis",
+   "image": {
+    "url": "https://pebwnpcnawdrytqlzjmb.supabase.co/storage/v1/object/public/mountain-images/ben-nevis.jpg",
+    "credit": "Corrie camper",
+    "source": "https://commons.wikimedia.org/wiki/File:North_face_of_Ben_Nevis.jpg",
+    "license": "CC BY-SA 4.0"
+   },
+   "glaciated": false,
+   "technical": false,
+   "altitude_m": 1345,
+   "difficulty": "Easy",
+   "duration_days": 1,
+   "goretex_required": {
+    "boots": null,
+    "gloves": null,
+    "outer_shell": null
+   },
+   "avalanche_terrain": true,
+   "winter_essentials": [
+    "Insulated boots",
+    "Winter shell",
+    "Gloves",
+    "Headlamp"
+   ],
+   "typical_temp_max_c": null,
+   "typical_temp_min_c": null,
+   "summer_insulation_gsm": 55,
+   "winter_insulation_gsm": 175
+  },
+  {
+   "gear": [
+    {
+     "item": "Upper Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Bottom Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Sun Hoodie",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Fleece",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Softshell Jacket",
+     "group": "Clothing",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Hardshell Jacket",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Down Jacket",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Hard Shell Pants",
+     "group": "Clothing",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Liner Gloves",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Insulated Gloves",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Warm Hat / Beanie",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Neck Gaiter / Buff",
+     "group": "Clothing",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Sun Hat",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Mountaineering Boots",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Socks",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Gaiters",
+     "group": "Footwear",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Climbing Helmet",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Trekking Poles",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Backpack",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Headlamp",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Sunglasses",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "First Aid Kit",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Water Bottles",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Navigation",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Sunscreen & Lip Balm",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Multi-Tool / Knife",
+     "group": "Essentials & Accessories",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Microspikes",
+     "group": "Technical Hardware",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Beacon",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Probe",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Shovel",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    }
+   ],
+   "name": "Longs Peak",
+   "slug": "longs-peak",
+   "image": {
+    "url": "https://pebwnpcnawdrytqlzjmb.supabase.co/storage/v1/object/public/mountain-images/longs-peak.jpg",
+    "credit": "G. Lamar",
+    "source": "https://commons.wikimedia.org/wiki/File:Longs_Peak_(50398574791).jpg",
+    "license": "CC BY 2.0"
+   },
+   "glaciated": false,
+   "technical": true,
+   "altitude_m": 4346,
+   "difficulty": "Intermediate",
+   "duration_days": 1,
+   "goretex_required": {
+    "boots": null,
+    "gloves": null,
+    "outer_shell": null
+   },
+   "avalanche_terrain": true,
+   "winter_essentials": [
+    "Insulated alpine boots",
+    "Helmet",
+    "Steel crampons",
+    "Ice axe",
+    "Winter shell"
+   ],
+   "typical_temp_max_c": 13,
+   "typical_temp_min_c": 5,
+   "summer_insulation_gsm": 150,
+   "winter_insulation_gsm": 300
+  },
+  {
+   "gear": [
+    {
+     "item": "Upper Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Bottom Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Sun Hoodie",
+     "group": "Clothing",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Fleece",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Softshell Jacket",
+     "group": "Clothing",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Hardshell Jacket",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Down Jacket",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Hard Shell Pants",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Softshell Pants",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Liner Gloves",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Insulated Gloves",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Warm Hat / Beanie",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Neck Gaiter / Buff",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Mountaineering Boots",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Socks",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Gaiters",
+     "group": "Footwear",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Climbing Helmet",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Climbing Harness",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Crampons",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Ice Axe",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Trekking Poles",
+     "group": "Technical Hardware",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Locking Carabiners",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Non-Locking Carabiners",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Belay / Rappel Device",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Prusik Cords",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Sling",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Backpack",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Headlamp",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Sunglasses",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Ski Goggles",
+     "group": "Essentials & Accessories",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "First Aid Kit",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Water Bottles",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Navigation",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Sunscreen & Lip Balm",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Rope",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Beacon",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Probe",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Shovel",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Hut Sleeping Liner",
+     "group": "Camp & Sleep",
+     "level": "essential",
+     "min_items": 1
+    }
+   ],
+   "name": "Matterhorn",
+   "slug": "matterhorn",
+   "image": {
+    "url": "https://pebwnpcnawdrytqlzjmb.supabase.co/storage/v1/object/public/mountain-images/matterhorn.jpg",
+    "credit": "Jean Schmitt",
+    "source": "https://commons.wikimedia.org/wiki/File:Sunrise_on_the_Matterhorn.jpg",
+    "license": "CC BY-SA 4.0"
+   },
+   "glaciated": true,
+   "technical": true,
+   "altitude_m": 4478,
+   "difficulty": "Advanced",
+   "duration_days": 2,
+   "goretex_required": {
+    "boots": null,
+    "gloves": null,
+    "outer_shell": null
+   },
+   "avalanche_terrain": true,
+   "winter_essentials": [
+    "Expedition boots",
+    "Helmet",
+    "Steel crampons",
+    "Technical ice tools",
+    "Harness",
+    "Storm shell"
+   ],
+   "typical_temp_max_c": null,
+   "typical_temp_min_c": null,
+   "summer_insulation_gsm": 180,
+   "winter_insulation_gsm": 330
+  },
+  {
+   "gear": [
+    {
+     "item": "Upper Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Bottom Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Sun Hoodie",
+     "group": "Clothing",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Fleece",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Hardshell Jacket",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Down Jacket",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Hard Shell Pants",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Softshell Pants",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Liner Gloves",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Insulated Gloves",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Waterproof Mittens",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Warm Hat / Beanie",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Neck Gaiter / Buff",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Mountaineering Boots",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Socks",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Gaiters",
+     "group": "Footwear",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Climbing Helmet",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Climbing Harness",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Crampons",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Ice Axe",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Trekking Poles",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Locking Carabiners",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Non-Locking Carabiners",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Belay / Rappel Device",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Prusik Cords",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Sling",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Backpack",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Headlamp",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Sunglasses",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Ski Goggles",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "First Aid Kit",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Water Bottles",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Navigation",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Sunscreen & Lip Balm",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Insulated Bottle Sleeve",
+     "group": "Essentials & Accessories",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Hand Warmers",
+     "group": "Essentials & Accessories",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Rope",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Beacon",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Probe",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Shovel",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Hut Sleeping Liner",
+     "group": "Camp & Sleep",
+     "level": "essential",
+     "min_items": 1
+    }
+   ],
+   "name": "Mont Blanc",
+   "slug": "mont-blanc",
+   "image": {
+    "url": "https://pebwnpcnawdrytqlzjmb.supabase.co/storage/v1/object/public/mountain-images/mont-blanc.jpg",
+    "credit": "Christian David",
+    "source": "https://commons.wikimedia.org/wiki/File:Mont_Blanc_et_Aiguille_du_Goûter_depuis_Merlet.jpg",
+    "license": "CC BY-SA 4.0"
+   },
+   "glaciated": true,
+   "technical": true,
+   "altitude_m": 4808,
+   "difficulty": "Advanced",
+   "duration_days": 3,
+   "goretex_required": {
+    "boots": null,
+    "gloves": null,
+    "outer_shell": null
+   },
+   "avalanche_terrain": true,
+   "winter_essentials": [
+    "Expedition boots",
+    "Helmet",
+    "Steel crampons",
+    "Technical ice tools",
+    "Harness",
+    "Storm shell"
+   ],
+   "typical_temp_max_c": null,
+   "typical_temp_min_c": null,
+   "summer_insulation_gsm": 180,
+   "winter_insulation_gsm": 330
+  },
+  {
+   "gear": [
+    {
+     "item": "Upper Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Bottom Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Sun Hoodie",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Fleece",
+     "group": "Clothing",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Hardshell Jacket",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Down Jacket",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Hard Shell Pants",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Liner Gloves",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Insulated Gloves",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Warm Hat / Beanie",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Sun Hat",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Mountaineering Boots",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Socks",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Gaiters",
+     "group": "Footwear",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Trekking Poles",
+     "group": "Technical Hardware",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Backpack",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Headlamp",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Sunglasses",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "First Aid Kit",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Water Bottles",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Navigation",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Sunscreen & Lip Balm",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Microspikes",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Beacon",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Probe",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Shovel",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    }
+   ],
+   "name": "Mount Elbert",
+   "slug": "mount-elbert",
+   "image": {
+    "url": "https://pebwnpcnawdrytqlzjmb.supabase.co/storage/v1/object/public/mountain-images/mount-elbert.jpg",
+    "credit": "David Herrera",
+    "source": "https://commons.wikimedia.org/wiki/File:Mount_Elbert_from_Twin_Lakes.jpg",
+    "license": "CC BY 2.0"
+   },
+   "glaciated": false,
+   "technical": false,
+   "altitude_m": 4401,
+   "difficulty": "Intermediate",
+   "duration_days": 1,
+   "goretex_required": {
+    "boots": null,
+    "gloves": null,
+    "outer_shell": null
+   },
+   "avalanche_terrain": true,
+   "winter_essentials": [
+    "Insulated boots",
+    "Winter shell",
+    "Gloves",
+    "Microspikes",
+    "Headlamp"
+   ],
+   "typical_temp_max_c": 13,
+   "typical_temp_min_c": 4,
+   "summer_insulation_gsm": 120,
+   "winter_insulation_gsm": 270
+  },
+  {
+   "gear": [
+    {
+     "item": "Upper Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Bottom Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Sun Hoodie",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Fleece",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Softshell Jacket",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Hardshell Jacket",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Down Jacket",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Hard Shell Pants",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Softshell Pants",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Liner Gloves",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Insulated Gloves",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Warm Hat / Beanie",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Neck Gaiter / Buff",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Mountaineering Boots",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Socks",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Gaiters",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Climbing Helmet",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Climbing Harness",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Crampons",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Ice Axe",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Trekking Poles",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Locking Carabiners",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Non-Locking Carabiners",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Belay / Rappel Device",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Prusik Cords",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Sling",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Stove",
+     "group": "Camp & Sleep",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Backpack",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Headlamp",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Sunglasses",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Ski Goggles",
+     "group": "Essentials & Accessories",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "First Aid Kit",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Water Bottles",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Navigation",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Lighter & Matches",
+     "group": "Essentials & Accessories",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Sunscreen & Lip Balm",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Multi-Tool / Knife",
+     "group": "Essentials & Accessories",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Trash Bags",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Rope",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Avalanche Beacon",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Probe",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Shovel",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    }
+   ],
+   "name": "Mount Hood",
+   "slug": "mount-hood",
+   "image": {
+    "url": "https://pebwnpcnawdrytqlzjmb.supabase.co/storage/v1/object/public/mountain-images/mount-hood.jpg",
+    "credit": "AlexAH",
+    "source": "https://commons.wikimedia.org/wiki/File:Mount_Hood_in_Trillium_Lake.jpg",
+    "license": "CC BY 3.0"
+   },
+   "glaciated": true,
+   "technical": true,
+   "altitude_m": 3429,
+   "difficulty": "Intermediate",
+   "duration_days": 1,
+   "goretex_required": {
+    "boots": null,
+    "gloves": null,
+    "outer_shell": null
+   },
+   "avalanche_terrain": true,
+   "winter_essentials": [
+    "Insulated boots",
+    "Winter shell",
+    "Gloves",
+    "Microspikes",
+    "Headlamp"
+   ],
+   "typical_temp_max_c": 9,
+   "typical_temp_min_c": 3,
+   "summer_insulation_gsm": 95,
+   "winter_insulation_gsm": 215
+  },
+  {
+   "gear": [
+    {
+     "item": "Upper Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Bottom Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Sun Hoodie",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Fleece",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Softshell Jacket",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Hardshell Jacket",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Down Jacket",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Hard Shell Pants",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Softshell Pants",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Liner Gloves",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Insulated Gloves",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Waterproof Mittens",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Warm Hat / Beanie",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Neck Gaiter / Buff",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Mountaineering Boots",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Socks",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Gaiters",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Camp Booties",
+     "group": "Footwear",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Climbing Helmet",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Climbing Harness",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Crampons",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Ice Axe",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Trekking Poles",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Locking Carabiners",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Non-Locking Carabiners",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Belay / Rappel Device",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Prusik Cords",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Sling",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Tent",
+     "group": "Camp & Sleep",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Sleeping Bag",
+     "group": "Camp & Sleep",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Inflatable Sleeping Pad",
+     "group": "Camp & Sleep",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Foam Sleeping Pad",
+     "group": "Camp & Sleep",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Stove",
+     "group": "Camp & Sleep",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Pot & Utensils",
+     "group": "Camp & Sleep",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Backpack",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Headlamp",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Sunglasses",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Ski Goggles",
+     "group": "Essentials & Accessories",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "First Aid Kit",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Water Bottles",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Water Treatment",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Navigation",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Lighter & Matches",
+     "group": "Essentials & Accessories",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Sunscreen & Lip Balm",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Multi-Tool / Knife",
+     "group": "Essentials & Accessories",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Trash Bags",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Insulated Bottle Sleeve",
+     "group": "Essentials & Accessories",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Hand Warmers",
+     "group": "Essentials & Accessories",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Rope",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Avalanche Beacon",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Probe",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Shovel",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 1
+    }
+   ],
+   "name": "Mount Rainier",
+   "slug": "mount-rainier",
+   "image": {
+    "url": "https://pebwnpcnawdrytqlzjmb.supabase.co/storage/v1/object/public/mountain-images/mount-rainier.jpg",
+    "credit": "Caleb Riston",
+    "source": "https://commons.wikimedia.org/wiki/File:Rainier20200906.jpg",
+    "license": "CC0"
+   },
+   "glaciated": true,
+   "technical": true,
+   "altitude_m": 4392,
+   "difficulty": "Advanced",
+   "duration_days": 2,
+   "goretex_required": {
+    "boots": null,
+    "gloves": null,
+    "outer_shell": null
+   },
+   "avalanche_terrain": true,
+   "winter_essentials": [
+    "Insulated alpine boots",
+    "Helmet",
+    "Steel crampons",
+    "Ice axe",
+    "Winter shell"
+   ],
+   "typical_temp_max_c": 2,
+   "typical_temp_min_c": -5,
+   "summer_insulation_gsm": 150,
+   "winter_insulation_gsm": 300
+  },
+  {
+   "gear": [
+    {
+     "item": "Upper Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Bottom Baselayer",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Sun Hoodie",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Fleece",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Hardshell Jacket",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Down Jacket",
+     "group": "Clothing",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Hard Shell Pants",
+     "group": "Clothing",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Liner Gloves",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Insulated Gloves",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Warm Hat / Beanie",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Neck Gaiter / Buff",
+     "group": "Clothing",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Sun Hat",
+     "group": "Clothing",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Mountaineering Boots",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Socks",
+     "group": "Footwear",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Gaiters",
+     "group": "Footwear",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Crampons",
+     "group": "Technical Hardware",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Trekking Poles",
+     "group": "Technical Hardware",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Tent",
+     "group": "Camp & Sleep",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Sleeping Bag",
+     "group": "Camp & Sleep",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Inflatable Sleeping Pad",
+     "group": "Camp & Sleep",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Foam Sleeping Pad",
+     "group": "Camp & Sleep",
+     "level": "optional",
+     "min_items": 1
+    },
+    {
+     "item": "Stove",
+     "group": "Camp & Sleep",
+     "level": "recommended",
+     "min_items": 2
+    },
+    {
+     "item": "Pot & Utensils",
+     "group": "Camp & Sleep",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Backpack",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Headlamp",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Sunglasses",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "First Aid Kit",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Water Bottles",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Water Treatment",
+     "group": "Essentials & Accessories",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Navigation",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Lighter & Matches",
+     "group": "Essentials & Accessories",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Sunscreen & Lip Balm",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 3
+    },
+    {
+     "item": "Trash Bags",
+     "group": "Essentials & Accessories",
+     "level": "essential",
+     "min_items": 1
+    },
+    {
+     "item": "Microspikes",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Beacon",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Probe",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Avalanche Shovel",
+     "group": "Technical Hardware",
+     "level": "recommended",
+     "min_items": 1
+    },
+    {
+     "item": "Bear Canister",
+     "group": "Camp & Sleep",
+     "level": "essential",
+     "min_items": 1
+    }
+   ],
+   "name": "Mount Whitney",
+   "slug": "mount-whitney",
+   "image": {
+    "url": "https://pebwnpcnawdrytqlzjmb.supabase.co/storage/v1/object/public/mountain-images/mount-whitney.jpg",
+    "credit": "Mark and Jan Rice",
+    "source": "https://commons.wikimedia.org/wiki/File:Mount_Whitney,_east_face,_from_Trail_Camp,_Sept._17,_2014_-_panoramio.jpg",
+    "license": "CC BY-SA 3.0"
+   },
+   "glaciated": false,
+   "technical": false,
+   "altitude_m": 4421,
+   "difficulty": "Intermediate",
+   "duration_days": 1,
+   "goretex_required": {
+    "boots": null,
+    "gloves": null,
+    "outer_shell": null
+   },
+   "avalanche_terrain": true,
+   "winter_essentials": [
+    "Insulated boots",
+    "Winter shell",
+    "Gloves",
+    "Microspikes",
+    "Headlamp"
+   ],
+   "typical_temp_max_c": 10,
+   "typical_temp_min_c": 4,
+   "summer_insulation_gsm": 120,
+   "winter_insulation_gsm": 270
+  }
+ ],
+ "generated_at": "2026-09-25"
+}
