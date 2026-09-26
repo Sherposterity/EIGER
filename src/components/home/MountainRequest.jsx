@@ -6,7 +6,7 @@ import { FadeIn } from './motion';
 import { focusRing } from './utils';
 import { formatElevation, loadChunk, queryKey, searchPeaks } from '../../lib/peaks';
 import { backend, requestedIds } from '../../lib/mountainRequests';
-import appMountains from '../../data/app-mountains.json';
+import { APP_MOUNTAINS, appMountainFor, nearbyAppMountain, selectionFromApp } from '../../lib/appMountains';
 
 // "Which mountain next?" Visitors search any named peak on Earth, see it on
 // a monochrome globe, and ask for it to be added to the app. The most
@@ -20,37 +20,11 @@ import appMountains from '../../data/app-mountains.json';
 
 const Globe = lazy(() => import('../Globe'));
 
-// Mountains already in the app (src/data/app-mountains.json, exported from
-// the trails table by eiger-ops/scripts/export_app_mountains.py). They show
-// as small emerald dots (the site's "live" colour) and a tap on one, or a
-// search hit that matches one, says so instead of taking a request.
-const APP_MOUNTAINS = appMountains.mountains;
-const APP_BY_PEAK = new Map(APP_MOUNTAINS.filter((m) => m.peakId).map((m) => [m.peakId, m]));
+// Mountains already in the app show as small emerald dots (the site's
+// "live" colour); a tap on one, or a search hit whose id maps to one, says
+// so instead of taking a request. Identity is by id only (appMountains.js).
 const LIVE_RGB = [0.06, 0.73, 0.5];
 const APP_MARKERS = APP_MOUNTAINS.map((m) => ({ ...m, size: 0.028, color: LIVE_RGB }));
-const kmBetween = (a, b) => {
-  const p = Math.PI / 180;
-  const x = 0.5 - Math.cos((b.lat - a.lat) * p) / 2 + (Math.cos(a.lat * p) * Math.cos(b.lat * p) * (1 - Math.cos((b.lon - a.lon) * p))) / 2;
-  return 12742 * Math.asin(Math.sqrt(x));
-};
-// The app mountain a dataset peak corresponds to: by matched id, else the
-// nearest app mountain within 2 km (same summit, different label).
-const appMountainFor = (peak) => {
-  if (!peak) return null;
-  if (peak.appId) return APP_MOUNTAINS.find((m) => m.id === peak.appId) ?? null;
-  const byId = APP_BY_PEAK.get(peak.id);
-  if (byId) return byId;
-  let best = null;
-  let bestKm = 2;
-  for (const m of APP_MOUNTAINS) {
-    const d = kmBetween(peak, m);
-    if (d < bestKm) {
-      bestKm = d;
-      best = m;
-    }
-  }
-  return best;
-};
 
 const EYEBROW = 'font-mono text-eyebrow font-semibold uppercase text-fg-subtle';
 const surface = 'rounded-lg border border-line bg-surface-1';
@@ -150,7 +124,7 @@ export default function MountainRequest({ standalone = false }) {
     setError('');
   };
   // A tap on a green dot: show that mountain as the selection.
-  const pickApp = (m) => choose({ id: m.peakId ?? `app:${m.id}`, appId: m.id, name: m.name, country: '', elevation: m.elevation, lat: m.lat, lon: m.lon });
+  const pickApp = (m) => choose(selectionFromApp(m));
   const clear = () => {
     setSelected(null);
     setNotice('');
@@ -206,6 +180,7 @@ export default function MountainRequest({ standalone = false }) {
   };
 
   const inApp = appMountainFor(selected);
+  const nearApp = nearbyAppMountain(selected);
   const markers = [
     ...APP_MARKERS,
     ...top.map((p, i) => ({ lat: p.lat, lon: p.lon, size: markerSize(i) })),
@@ -359,6 +334,9 @@ export default function MountainRequest({ standalone = false }) {
                 <p className="mt-3 text-small text-fg-muted">
                   {inApp.name} is already in Eiger with gear, route and weather windows{inApp.verified ? ', signed off by our mountaineer' : ', and our mountaineer is verifying it'}. No request needed.
                 </p>
+              ) : null}
+              {nearApp ? (
+                <p className="mt-3 text-small text-fg-subtle">Near {nearApp.name}, which is already in the app. This is a different summit, so your request still counts.</p>
               ) : null}
               {disabled && !inApp ? <p className="mt-3 text-small text-fg-subtle">Mountain requests are not open on this site yet.</p> : null}
               {notice ? <p className="mt-3 text-small text-fg-muted">{notice}</p> : null}

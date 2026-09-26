@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import createGlobe from 'cobe';
+import { MARKER_ELEVATION, anglesFor, pickMarker, validPoint, wrapAngle as wrap } from '../lib/globeMath';
 
 // Monochrome WebGL globe (cobe 2, about 5 KB, no three.js). Dots are the
 // site's markers: the most requested peaks plus the one the visitor is
@@ -23,9 +24,9 @@ import createGlobe from 'cobe';
 //
 // cobe angles: phi turns the globe around its axis, theta tilts it. A place
 // maps to [phi, theta] with the formula from the cobe examples, so the chosen
-// peak faces the camera. Markers take [latitude, longitude].
-const anglesFor = (lat, lon) => [Math.PI - ((lon * Math.PI) / 180 - Math.PI / 2), (lat * Math.PI) / 180];
-const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+// peak faces the camera. Markers take [latitude, longitude]. Tap-to-select
+// replicates cobe's marker projection in src/lib/globeMath.js (same
+// markerElevation as passed below), tested in tests/globeMath.test.js.
 const IDLE_SPEED = 0.22; // radians per second, about 30 s per turn
 const HOME_THETA = 0.28;
 
@@ -38,32 +39,8 @@ const webglAvailable = () => {
   }
 };
 
-const validPoint = (m) => Number.isFinite(m.lat) && Number.isFinite(m.lon) && m.lat >= -90 && m.lat <= 90 && m.lon >= -180 && m.lon <= 180;
 const toMarkers = (markers) =>
   markers.filter(validPoint).map((m) => ({ location: [m.lat, m.lon], size: m.size ?? 0.04, ...(m.color ? { color: m.color } : {}) }));
-
-// cobe's own lat/lon to unit vector and marker projection (mirrors U() and
-// O() in cobe/dist/index.esm.js), so a tap can find the dot under it: the
-// canvas is square with scale 1 and no offset, which reduces the projection
-// to x = (cx + 1) / 2, y = (1 - sy) / 2 in canvas fractions; a point is
-// hidden when it faces away or lies outside the sphere disc.
-const toVector = (lat, lon) => {
-  const r = (lat * Math.PI) / 180;
-  const a = (lon * Math.PI) / 180 - Math.PI;
-  const o = Math.cos(r);
-  return [-o * Math.cos(a), Math.sin(r), o * Math.sin(a)];
-};
-const project = (v, phi, theta) => {
-  const r = Math.cos(theta);
-  const a = Math.cos(phi);
-  const o = Math.sin(theta);
-  const i = Math.sin(phi);
-  const cx = a * v[0] + i * v[2];
-  const sy = i * o * v[0] + r * v[1] - a * o * v[2];
-  const hidden = -i * r * v[0] + o * v[1] + a * r * v[2] >= 0 || cx * cx + sy * sy >= 0.64;
-  return [(cx + 1) / 2, (1 - sy) / 2, hidden];
-};
-const PICK_RADIUS_PX = 16;
 
 const Fallback = ({ className }) => (
   <div className={`relative aspect-square w-full ${className}`}>
@@ -133,6 +110,7 @@ export default function Globe({ markers = [], pickable = [], onPick = null, focu
         markerColor: [1, 1, 1],
         glowColor: [0.04, 0.04, 0.04],
         scale: 1,
+        markerElevation: MARKER_ELEVATION,
         markers: toMarkers(markersRef.current.list),
       });
       s.seenMarkers = markersRef.current.version;
@@ -220,24 +198,7 @@ export default function Globe({ markers = [], pickable = [], onPick = null, focu
       const { list } = pickRef.current;
       if (!list.length || !size) return null;
       const rect = canvas.getBoundingClientRect();
-      const px = clientX - rect.left;
-      const py = clientY - rect.top;
-      let best = null;
-      let bestD = PICK_RADIUS_PX * PICK_RADIUS_PX;
-      for (const m of list) {
-        if (!validPoint(m)) continue;
-        const v = m._v ?? (m._v = toVector(m.lat, m.lon));
-        const [fx, fy, hidden] = project(v, s.phi, s.theta);
-        if (hidden) continue;
-        const dx = fx * rect.width - px;
-        const dy = fy * rect.height - py;
-        const d = dx * dx + dy * dy;
-        if (d < bestD) {
-          bestD = d;
-          best = m;
-        }
-      }
-      return best;
+      return pickMarker(list, clientX - rect.left, clientY - rect.top, rect.width, s.phi, s.theta);
     };
 
     const onPointerDown = (e) => {
@@ -276,6 +237,16 @@ export default function Globe({ markers = [], pickable = [], onPick = null, focu
       }
       kick();
     };
+    // A cancelled gesture (the browser took over a touch) ends the drag and
+    // never selects.
+    const onPointerCancel = (e) => {
+      if (!s.dragging) return;
+      s.dragging = false;
+      s.velocity = 0;
+      canvas.style.cursor = 'grab';
+      canvas.releasePointerCapture?.(e.pointerId);
+      kick();
+    };
     const onHover = (e) => {
       if (s.dragging || !pickRef.current.onPick) return;
       canvas.style.cursor = dotAt(e.clientX, e.clientY) ? 'pointer' : 'grab';
@@ -288,7 +259,7 @@ export default function Globe({ markers = [], pickable = [], onPick = null, focu
     canvas.addEventListener('pointerdown', onPointerDown);
     canvas.addEventListener('pointermove', onPointerMove);
     canvas.addEventListener('pointerup', onPointerUp);
-    canvas.addEventListener('pointercancel', onPointerUp);
+    canvas.addEventListener('pointercancel', onPointerCancel);
     canvas.addEventListener('webglcontextlost', onContextLost);
 
     const onVisibility = () => kick();
@@ -325,7 +296,7 @@ export default function Globe({ markers = [], pickable = [], onPick = null, focu
       canvas.removeEventListener('pointermove', onPointerMove);
       canvas.removeEventListener('pointermove', onHover);
       canvas.removeEventListener('pointerup', onPointerUp);
-      canvas.removeEventListener('pointercancel', onPointerUp);
+      canvas.removeEventListener('pointercancel', onPointerCancel);
       canvas.removeEventListener('webglcontextlost', onContextLost);
       document.removeEventListener('visibilitychange', onVisibility);
       io?.disconnect();
