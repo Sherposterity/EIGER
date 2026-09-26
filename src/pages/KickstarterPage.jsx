@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import SiteNav from '../components/SiteNav';
@@ -8,6 +8,7 @@ import EmailCapture from '../components/home/EmailCapture';
 // Read from the data file, not lib/giveaway.js, so this page does not pull in
 // the Supabase client. giveaway.js reads the same file.
 import storeLinks from '../data/store-links.json';
+import { fetchKickstarterStats, mergeStats } from '../lib/kickstarterStats';
 
 // Kickstarter (/kickstarter). Copy and tiers are the founder's (docs/COPY.md). The
 // campaign goes live with the app and the giveaway on October 1; until
@@ -23,8 +24,7 @@ const eyebrow = 'font-mono text-eyebrow font-semibold uppercase text-fg-subtle';
 
 const primaryBtn = `inline-flex h-12 items-center justify-center gap-2 rounded-pill bg-fg px-7 text-body font-semibold text-bg transition-opacity duration-300 ${focusRing}`;
 
-const GOAL = storeLinks.kickstarter_goal_usd;
-const PLEDGED = storeLinks.kickstarter_pledged_usd;
+const FALLBACK = { goal: storeLinks.kickstarter_goal_usd, pledged: storeLinks.kickstarter_pledged_usd };
 const usd = (n) => `$${n.toLocaleString('en-US')}`;
 
 // Reward tiers (founder copy, 2026-09-25). "starting at" prices in USD.
@@ -37,8 +37,27 @@ const REWARDS = [
 ];
 
 export default function KickstarterPage() {
+  const [stats, setStats] = useState(() => mergeStats(FALLBACK, null));
+  const GOAL = stats.goal;
+  const PLEDGED = stats.pledged;
+
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  // Live totals from the cache table; any failure keeps the manual values.
+  useEffect(() => {
+    const ctrl = new AbortController();
+    fetchKickstarterStats({
+      url: import.meta.env.VITE_SUPABASE_URL,
+      key: import.meta.env.VITE_SUPABASE_ANON_KEY,
+      signal: ctrl.signal,
+    })
+      .then((row) => {
+        if (row) setStats(mergeStats(FALLBACK, row));
+      })
+      .catch(() => {});
+    return () => ctrl.abort();
   }, []);
 
   return (
@@ -79,7 +98,11 @@ export default function KickstarterPage() {
             <div className="mt-8 max-w-2xl" role="group" aria-labelledby="kickstarter-goal-label">
               <div className="flex items-baseline justify-between font-mono text-small text-fg-subtle">
                 <span id="kickstarter-goal-label">Goal {usd(GOAL)}</span>
-                <span>{PLEDGED > 0 ? `${usd(PLEDGED)} pledged` : 'Opens October 1'}</span>
+                <span>
+                  {PLEDGED > 0
+                    ? `${usd(PLEDGED)} pledged${stats.backers ? ` by ${stats.backers.toLocaleString('en-US')} backers` : ''}`
+                    : 'Opens October 1'}
+                </span>
               </div>
               <div
                 className="mt-2 h-2 w-full overflow-hidden rounded-pill bg-line"
