@@ -23,6 +23,17 @@ const GiveawayRulesPage = lazy(() => import('./pages/GiveawayRulesPage'));
 const VerificationPage = lazy(() => import('./pages/VerificationPage'));
 const KickstarterPage = lazy(() => import('./pages/KickstarterPage'));
 
+// Client-side navigation keeps the previous scroll position; every route change
+// starts at the top unless the URL asks for a section or an in-page anchor.
+function ScrollToTop() {
+  const { pathname, search, hash } = useLocation();
+  useEffect(() => {
+    if (hash || new URLSearchParams(search).has('section')) return;
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname, search, hash]);
+  return null;
+}
+
 // Old home anchors that may still be linked from outside (bios, emails).
 const LEGACY_SECTIONS = { platforms: 'get-the-app', waitlist: 'updates' };
 
@@ -109,6 +120,7 @@ function MissionRedirect() {
 function App() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-[#0A0A0A]" />}>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/mission" element={MISSION_REDIRECT ? <MissionRedirect /> : <MissionPage />} />

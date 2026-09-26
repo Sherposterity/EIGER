@@ -283,7 +283,7 @@ export default function AboutPage() {
         {/* Community Partner */}
         <section className="pb-section-sm" aria-labelledby="about-partner">
           <Rise className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col gap-8 rounded-lg border border-line bg-surface-1 p-6 sm:p-10 md:flex-row md:items-end md:justify-between">
+            <div className="flex flex-col items-center gap-8 rounded-lg border border-line bg-surface-1 p-6 text-center sm:p-10">
               <div className="max-w-2xl">
                 <h2 id="about-partner" className={eyebrow}>
                   Community Partner
