@@ -248,7 +248,7 @@ const Hero = () => {
 
             <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pt-[calc(7rem+var(--launch-banner-h,0px))] pb-8 sm:px-6 md:pb-16 lg:px-8">
                 <div className="mx-auto flex max-w-3xl flex-col items-center text-center md:mx-0 md:items-start md:text-left">
-                    <motion.div {...stage(0.25)} className="mb-6">
+                    <motion.div {...stage(0.25)} className="mb-6 max-w-full">
                         <GiveawayPill />
                     </motion.div>
 

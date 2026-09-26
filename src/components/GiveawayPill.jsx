@@ -19,7 +19,7 @@ const GiveawayPill = () => {
       <span className="hidden font-mono tracking-normal whitespace-nowrap text-fg-subtle normal-case sm:inline">
         {phase === 'upcoming' ? 'Opens Oct 1' : 'Ends Nov 10'}
       </span>
-      <span className="hidden whitespace-nowrap text-fg-muted min-[400px]:inline">Win gear up to $500</span>
+      <span className="hidden whitespace-nowrap text-fg-muted min-[480px]:inline">Win gear up to $500</span>
       <ArrowRight
         aria-hidden="true"
         className="size-3.5 shrink-0 text-fg-subtle transition-transform duration-300 group-hover:translate-x-0.5"

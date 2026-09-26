@@ -131,6 +131,8 @@ const Footer = () => {
             ))}
           </ul>
         </div>
+
+        <p className="mt-8 text-center font-mono text-eyebrow text-fg-subtle">Property of Eiger LLC</p>
       </div>
     </footer>
   );

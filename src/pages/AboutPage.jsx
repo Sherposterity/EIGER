@@ -8,6 +8,7 @@ import EmailCapture from '../components/home/EmailCapture';
 import RishavPhoto from '../assets/founders/rishav.jpg';
 import MuadPhoto from '../assets/founders/muad.jpg';
 import CodyPhoto from '../assets/founders/cody.jpg';
+import AthletePhoto from '../assets/TimEiger.jpg';
 
 // About (merged with the old Mission page). Every string on this page is from
 // docs/COPY.md, section About (all three bios are the founders' own words,
@@ -16,7 +17,6 @@ import CodyPhoto from '../assets/founders/cody.jpg';
 
 const HERO_STILL = '/images/about-alpine.jpg';
 const STORY_STILL = '/videos/hero-poster.jpg';
-const ATHLETE_STILL = '/videos/athlete-timoteo-poster.jpg';
 const TIKTOK_URL = 'https://www.tiktok.com/@tomatosummit4';
 const DISCORD_URL = 'https://discord.gg/x3Dfj32dAK';
 
@@ -187,14 +187,14 @@ export default function AboutPage() {
         <section className="border-t border-line py-section-sm" aria-labelledby="about-believe">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <Rise>
-              <h2 id="about-believe" className="text-display-md">
+              <h2 id="about-believe" className="text-center text-display-md">
                 What we believe
               </h2>
             </Rise>
-            <div className="mt-12 grid gap-10 md:grid-cols-2 md:gap-16">
+            <div className="mx-auto mt-12 grid max-w-5xl gap-10 text-center md:grid-cols-2 md:gap-16">
               {beliefs.map((belief, i) => (
                 <Rise key={belief.body} delay={i * 0.1}>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center gap-4">
                     <span className="flex size-11 items-center justify-center rounded-md border border-line-strong text-fg">
                       <belief.icon className="size-5" strokeWidth={1.5} aria-hidden="true" />
                     </span>
@@ -207,7 +207,7 @@ export default function AboutPage() {
               ))}
             </div>
             <Rise>
-              <p className="mt-12 max-w-3xl border-t border-line pt-8 text-body-lg text-fg-muted">
+              <p className="mx-auto mt-12 max-w-3xl border-t border-line pt-8 text-center text-body-lg text-fg-muted">
                 Both of these tenets are indisputably correlated and so we must find a balance between the two. With
                 more users on our app, fine-tuning and the safety process will only get safer.
               </p>
@@ -249,21 +249,26 @@ export default function AboutPage() {
 
         {/* Athlete, short version: still + TikTok, no video here */}
         <section className="border-t border-line py-section-sm" aria-labelledby="about-athlete">
-          <Rise className="mx-auto grid max-w-7xl px-4 sm:px-6 lg:px-8 items-center gap-8 sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-12">
-            <div className="aspect-[4/5] w-full max-w-56 overflow-hidden rounded-lg border border-line bg-surface-2">
+          {/* Photo left, words right at every width. Phones: a small photo beside
+              the name, with the bio and button running full width underneath.
+              sm and up: a larger photo spanning both rows, text centred beside it. */}
+          <Rise className="mx-auto grid max-w-5xl grid-cols-[7rem_minmax(0,1fr)] gap-x-5 gap-y-6 px-4 sm:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] sm:gap-x-14 sm:gap-y-0 sm:px-6 lg:px-8">
+            <div className="group col-start-1 row-start-1 aspect-[4/5] w-full self-center overflow-hidden rounded-lg border border-line bg-surface-2 sm:row-span-2">
               <img
-                src={ATHLETE_STILL}
-                alt="Timoteo climbing a frozen waterfall at night, ice tools in both hands"
+                src={AthletePhoto}
+                alt="Timoteo on a snowy summit ridge, arms spread wide, skis and poles at his feet"
                 loading="lazy"
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover object-[50%_38%] transition-transform duration-700 ease-out-expo group-hover:scale-[1.03]"
               />
             </div>
-            <div>
+            <div className="col-start-2 row-start-1 self-center sm:self-end">
               <p className={eyebrow}>Brand Athlete</p>
-              <h2 id="about-athlete" className="mt-4 text-display-md">
+              <h2 id="about-athlete" className="mt-3 text-display-md sm:mt-4">
                 Timoteo Desantos
               </h2>
-              <p className="mt-6 max-w-2xl text-body-lg text-fg-muted">
+            </div>
+            <div className="col-span-2 row-start-2 sm:col-span-1 sm:col-start-2 sm:self-start">
+              <p className="max-w-xl border-l border-line-strong pl-5 text-body-lg text-fg-muted sm:mt-6">
                 With several years of climbing already under his belt, it is an understatement to say Timoteo is a
                 seasoned climber. Every safety concerning feature is passed by him before implementation.
               </p>
