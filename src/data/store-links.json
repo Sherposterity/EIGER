@@ -1,5 +1,7 @@
 {
   "ios": null,
   "android": null,
-  "kickstarter": null
+  "kickstarter": null,
+  "kickstarter_goal_usd": 2000,
+  "kickstarter_pledged_usd": 0
 }
