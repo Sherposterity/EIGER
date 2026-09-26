@@ -4,7 +4,7 @@
 // in sync with src/lib/routes.js.
 import { mkdirSync, copyFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-const routes = ['about', 'mission', 'verification', 'giveaway', 'giveaway/rules', 'kickstarter'];
+const routes = ['about', 'mission', 'verification', 'giveaway', 'giveaway/rules', 'kickstarter', 'request'];
 const dist = 'dist';
 if (!existsSync(join(dist, 'index.html'))) { console.error('copy-routes: dist/index.html missing'); process.exit(1); }
 for (const r of routes) {

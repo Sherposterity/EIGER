@@ -4,7 +4,7 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 
 ## Global
 - Nav (in order): About · Verification process · Giveaway · Kickstarter · button "Get the app" ("How it works" removed from nav and footer, founder 2026-09-25; the hero's "See how it works" button keeps the anchor)
-- Launch banner (home, under the nav, until 2026-10-01 16:00 UTC, dismissible) [APPROVED 2026-09-25]: "October 1: the app launches and our Kickstarter goes live." (2026-09-26 ruling: banner names only the launch and the Kickstarter; the giveaway opens Nov 15 as a thank you, closes Dec 31 (ruled), and the home pill says only "Giveaway, Coming soon" until then) + countdown "in N days" / "today" + links "Giveaway", "Kickstarter"
+- Launch banner (home, under the nav, until 2026-10-01 16:00 UTC, dismissible) [APPROVED 2026-09-25]: "October 1: the app launches and our Kickstarter goes live." + links "Kickstarter", "Request a mountain" (2026-09-26 ruling: banner names only the launch and the Kickstarter; the giveaway opens Nov 15 as a thank you, closes Dec 31 (ruled), and the home pill says only "Giveaway, Coming soon" until then) + countdown "in N days" / "today" + links "Giveaway", "Kickstarter"
 - Footer tagline: Reduce your prep time from hours to minutes.
 - Support address: support@eiger014.com
 
@@ -128,3 +128,13 @@ Wording rule (Muad, 2026-09-25): say "algorithm", not "AI agent" or "agents", wh
 - Intro (first sentence bold): With app development, marketing, scaling and implementing rigorous safety measures comes a hefty price that three university students don't really have the resources to pay for. All current expenses have come out of pocket for us because we really believe in this app (and more importantly, the mission behind it) but unfortunately, it's unsustainable for us. / This is why we're asking for your help. Whether it's one dollar or ten, please give us a hand to make the EIGER experience safer and more enjoyable. This will also help expedite app development and research such that we can put out published versions at a reasonable pace.
 - Goal: $2,000, plain white bar (pledged amount in src/data/store-links.json, updated by hand until a feed exists).
 - Tiers (starting at, USD): Base Camp Pack $5 (one month of EIGER Pro) · Waypoint Pack $15 (+ 4 x stickers) · Ascent Pack $50 (+ stickers + t-shirt) · Ridgeline Pack $80 (+ stickers + sweatshirt) · Summit Pack $180 (one month Pro + stickers + sweatset; items listed Pro, stickers, apparel on every tier). "Eiger Pro" written as "EIGER Pro" per the casing rule.
+
+## Mountain requests (home section + /request, 2026-09-26)
+- Eyebrow "Mountain requests", heading "Which mountain next?"
+- Intro: "Pick from over 48,000 named peaks above 1,000 m, anywhere on Earth. Your requests decide which mountains we verify next."
+- Search label "Search a mountain", placeholder "Matterhorn, Denali, Aconcagua"; empty state "Search for a peak, or tap one on the list below, then ask for it."; no match "No peak by that name in our list. Try the local spelling."
+- Button "Request this mountain" / "Requested"; already in the app: "In the app, being verified" (or "expert verified") + "<name> is already in Eiger with gear, route and weather windows, and our mountaineer is verifying it. No request needed."
+- Notices: "<name> is on the list. You are the first to ask." / "<n> connections want it."; list outage "The list is unavailable right now. Requests still count."
+- Globe caption: "<97> in the app, tap one. White dots are the most requested. Drag to turn." Reset view button.
+- Footer link "Request a mountain"; banner links "Kickstarter", "Request a mountain".
+- Privacy line (standalone page): "One request per mountain per connection. We store your mountain request, a hashed connection address and the request time, to count requests and limit repeats."

@@ -77,7 +77,17 @@ async function sha256(text: string) {
   return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-const clientIp = (req: Request) => req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "";
+// Client address for rate limiting and dedupe. The functions sit behind
+// Cloudflare (Server: cloudflare, CF-Ray on every response), which sets
+// cf-connecting-ip itself and cannot be spoofed by the caller; the first
+// x-forwarded-for entry can be. Fall back to the LAST forwarded entry (the
+// one the edge appended), never the first.
+const clientIp = (req: Request) => {
+  const cf = req.headers.get("cf-connecting-ip")?.trim();
+  if (cf) return cf;
+  const xff = req.headers.get("x-forwarded-for")?.split(",").map((s) => s.trim()).filter(Boolean) ?? [];
+  return xff.length ? xff[xff.length - 1] : "";
+};
 
 async function rateOk(ipHash: string, kind: string, max: number, windowSeconds: number) {
   if (!ipHash) return true;

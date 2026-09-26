@@ -6,6 +6,7 @@ import LaunchBanner from './components/home/LaunchBanner';
 import Walkthrough from './components/home/Walkthrough';
 import TryIt from './components/home/TryIt';
 import WhyEiger from './components/home/WhyEiger';
+import MountainRequest from './components/home/MountainRequest';
 import Athlete from './components/Athlete';
 import GetTheApp from './components/home/GetTheApp';
 import EmailCapture from './components/home/EmailCapture';
@@ -22,6 +23,7 @@ const GiveawayPage = lazy(() => import('./pages/GiveawayPage'));
 const GiveawayRulesPage = lazy(() => import('./pages/GiveawayRulesPage'));
 const VerificationPage = lazy(() => import('./pages/VerificationPage'));
 const KickstarterPage = lazy(() => import('./pages/KickstarterPage'));
+const RequestPage = lazy(() => import('./pages/RequestPage'));
 
 // Client-side navigation keeps the previous scroll position; every route change
 // starts at the top unless the URL asks for a section or an in-page anchor.
@@ -89,6 +91,7 @@ function Home() {
         <Walkthrough />
         <TryIt />
         <WhyEiger />
+        <MountainRequest />
         <Athlete />
         <GetTheApp />
         <EmailCapture />
@@ -129,6 +132,7 @@ function App() {
         <Route path="/giveaway" element={<GiveawayPage />} />
         <Route path="/giveaway/rules" element={<GiveawayRulesPage />} />
         <Route path="/kickstarter" element={<KickstarterPage />} />
+        <Route path="/request" element={<RequestPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

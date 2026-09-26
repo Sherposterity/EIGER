@@ -17,6 +17,7 @@ const SITE_LINKS = [
   { to: '/verification', label: 'Verification process' },
   { to: '/giveaway', label: 'Giveaway' },
   { to: '/kickstarter', label: 'Kickstarter' },
+  { to: '/request', label: 'Request a mountain' },
 ];
 
 const LEGAL_LINKS = [

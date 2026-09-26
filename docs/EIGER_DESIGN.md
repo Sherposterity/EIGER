@@ -101,3 +101,15 @@ our custom type, radius and spacing tokens. `vite.config.js` aliases the bare
 `cn` import that `shadcn add` writes to that file, so new components pick it
 up automatically. When a new `--text-*`, `--radius-*` or `--spacing-*` token is
 added, add its name there too, or `cn()` may drop a class it thinks conflicts.
+
+## Globe (mountain requests, 2026-09-26)
+
+The founder asked for a globe on the home page, which expands the earlier
+"no three.js" rule: the globe is `cobe` (about 5 KB of WebGL, no three.js),
+wrapped in `src/components/Globe.jsx` and loaded on demand. It is drawn in
+the monochrome tokens: base grey `0.3`, white markers, and the glow colour
+set to the page background so there is no halo. Emerald marks mountains that
+are already in the app (the live meaning again). Idle rotation, drag momentum
+and camera easing all stop under `prefers-reduced-motion` (live, not just at
+load). No WebGL, or a lost context, shows a bordered circle with one line of
+text; the search and the list remain the primary interface.
