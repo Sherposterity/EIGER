@@ -37,7 +37,7 @@ const founders = [
     name: 'Cody Luc',
     role: 'Chief Technology Officer',
     photo: CodyPhoto,
-    body: 'My name is Cody Luc and I currently have experience at several S&P 500 companies as a software intern. I study computer science at the University of Houston and apply that knowledge to the main infrastructure of the app as the technical cofounder.',
+    body: 'My name is Cody Luc and I currently have experience at several S&P 500 companies as a software intern. I study computer science at the University of Houston and apply that knowledge to the main infrastructure of the app as the technical cofounder. Climbing and hiking introduce new challenges every time I head out, and I love these activities because they get my brain running, the same way solving a hard problem in code does.',
   },
 ];
 

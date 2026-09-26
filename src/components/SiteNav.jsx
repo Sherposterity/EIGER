@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import mark from '../assets/logo/mark.svg';
+import wordmark from '../assets/logo/wordmark.svg';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -87,9 +88,9 @@ const SiteNav = () => {
         className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8"
       >
         <Link to="/" aria-label="EIGER home" className={`flex items-center gap-2.5 rounded-sm ${focusRing}`}>
-          {/* Mark (currentColor SVG, inverted to white as an <img> like the footer) beside the wordmark. */}
+          {/* Mark and the traced logo wordmark (the logo's own lettering), both currentColor SVGs inverted to white. */}
           <img src={mark} alt="" width="20" height="36" className="h-9 w-auto invert" />
-          <span className="font-display text-2xl leading-none font-bold tracking-[0.08em] text-fg">EIGER</span>
+          <img src={wordmark} alt="" width="79" height="20" className="h-5 w-auto invert" />
         </Link>
 
         {/* Desktop */}

@@ -149,6 +149,17 @@ const EmailCapture = () => {
                 <FieldDescription id={`${inputId}-privacy`} className="text-small text-fg-subtle">
                   You will never be subject to spam. Updates on the App only.
                 </FieldDescription>
+                <p className="text-small text-fg-subtle">
+                  By signing up, you agree to our{' '}
+                  <a href="/terms.html" className={`rounded-sm underline underline-offset-4 hover:text-fg ${focusRing}`}>
+                    Terms of Use
+                  </a>{' '}
+                  and{' '}
+                  <a href="/privacy.html" className={`rounded-sm underline underline-offset-4 hover:text-fg ${focusRing}`}>
+                    Privacy Policy
+                  </a>
+                  .
+                </p>
               </Field>
             </form>
           )}
