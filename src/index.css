@@ -67,6 +67,18 @@
 
   /* Motion easing: ease-out-expo */
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Scroll cue: a slow 5px bob under the Explore label (motion-safe only) */
+  --animate-cue: cue 1.8s ease-in-out infinite;
+  @keyframes cue {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(5px);
+    }
+  }
 }
 
 /* Motion durations for JS (motion) and hand written CSS */

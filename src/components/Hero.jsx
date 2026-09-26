@@ -246,9 +246,9 @@ const Hero = () => {
                 <div className="absolute inset-0 hidden bg-[radial-gradient(ellipse_80%_75%_at_0%_100%,rgb(0_0_0/0.65),transparent_70%)] md:block" />
             </div>
 
-            <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pt-[calc(7rem+var(--launch-banner-h,0px))] pb-8 sm:px-6 md:pb-16 lg:px-8">
+            <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pt-[calc(6rem+var(--launch-banner-h,0px))] pb-5 sm:px-6 md:pb-12 lg:px-8">
                 <div className="mx-auto flex max-w-3xl flex-col items-center text-center md:mx-0 md:items-start md:text-left">
-                    <motion.div {...stage(0.25)} className="mb-6 max-w-full">
+                    <motion.div {...stage(0.25)} className="mb-4 max-w-full md:mb-6">
                         <GiveawayPill />
                     </motion.div>
 
@@ -261,7 +261,7 @@ const Hero = () => {
 
                     <motion.p
                         {...stage(0.08)}
-                        className="mt-6 max-w-2xl text-body-lg text-pretty text-fg-muted"
+                        className="mt-4 max-w-2xl text-body-lg text-pretty text-fg-muted md:mt-6"
                     >
                         Our mission is to mitigate that with expert verified gear recommendations mapped to every hike in our catalog.
                     </motion.p>
@@ -281,13 +281,13 @@ const Hero = () => {
 
                     <motion.div
                         {...stage(0.16)}
-                        className="mt-8 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center"
+                        className="mt-6 grid w-full grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:flex sm:w-auto sm:items-center md:mt-8"
                     >
                         <Magnetic className="w-full sm:w-auto">
                             <a
                                 href="#get-the-app"
                                 onClick={jump('get-the-app')}
-                                className={`inline-flex h-12 w-full items-center justify-center rounded-pill bg-fg px-7 text-body font-semibold text-bg transition-colors hover:bg-fg/85 sm:w-auto ${focusRing}`}
+                                className={`inline-flex h-12 w-full items-center justify-center rounded-pill bg-fg px-4 text-body font-semibold sm:px-7 text-bg transition-colors hover:bg-fg/85 sm:w-auto ${focusRing}`}
                             >
                                 Get the app
                             </a>
@@ -295,7 +295,7 @@ const Hero = () => {
                         <a
                             href="#how-it-works"
                             onClick={jump('how-it-works')}
-                            className={`inline-flex h-12 w-full items-center justify-center rounded-pill border border-line-strong bg-bg/30 px-7 text-body font-semibold text-fg backdrop-blur-sm transition-colors hover:border-fg/40 hover:bg-bg/50 sm:w-auto ${focusRing}`}
+                            className={`inline-flex h-12 w-full items-center justify-center rounded-pill border border-line-strong bg-bg/30 px-4 text-body font-semibold whitespace-nowrap sm:px-7 text-fg backdrop-blur-sm transition-colors hover:border-fg/40 hover:bg-bg/50 sm:w-auto ${focusRing}`}
                         >
                             See how it works
                         </a>
@@ -303,20 +303,20 @@ const Hero = () => {
 
                     <motion.p
                         {...stage(0.2)}
-                        className="mt-5 font-mono text-small text-fg-subtle"
+                        className="mt-4 font-mono text-small text-fg-subtle md:mt-5"
                     >
                         October 1 on the App Store and Google Play.
                     </motion.p>
                 </div>
 
-                {/* Scroll cue: static, nothing loops. */}
+                {/* Scroll cue: the arrow bobs gently; still under reduced motion. */}
                 <a
                     href="#how-it-works"
                     onClick={jump('how-it-works')}
-                    className={`mt-6 flex flex-col items-center gap-1 self-center rounded-sm text-fg-subtle transition-colors hover:text-fg md:absolute md:right-8 md:bottom-16 md:mt-0 md:gap-2 ${focusRing}`}
+                    className={`mt-4 flex flex-col items-center gap-1 self-center rounded-sm text-fg-subtle transition-colors hover:text-fg md:absolute md:right-8 md:bottom-12 md:mt-0 md:gap-2 ${focusRing}`}
                 >
                     <span className="font-mono text-eyebrow uppercase">Explore</span>
-                    <ArrowDown aria-hidden="true" className="size-4" />
+                    <ArrowDown aria-hidden="true" className="size-4 motion-safe:animate-cue" />
                 </a>
             </div>
         </section>
