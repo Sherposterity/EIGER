@@ -263,7 +263,7 @@ const Hero = () => {
                         {...stage(0.08)}
                         className="mt-6 max-w-2xl text-body-lg text-pretty text-fg-muted"
                     >
-                        Our mission is to mitigate that with expert verified gear recommendations mapped to every conceivable hike.
+                        Our mission is to mitigate that with expert verified gear recommendations mapped to every hike in our catalog.
                     </motion.p>
 
                     <motion.div {...stage(0.12)} className="mt-3">

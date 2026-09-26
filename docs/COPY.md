@@ -12,7 +12,7 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 
 ### Hero
 - H1: You cannot afford a mistake on the mountain.
-- Subline: Our mission is to mitigate that with expert verified gear recommendations mapped to every conceivable hike. [FLAG: "every conceivable hike" vs 97 mountains today; alternative "mapped to every mountain in our catalog"]
+- Subline: Our mission is to mitigate that with expert verified gear recommendations mapped to every hike in our catalog. [RULED 2026-09-25]
 - Arrow link (to /verification): Take a look at our process →
 - Primary button: Get the app
 - Secondary button: See how it works
