@@ -99,7 +99,7 @@ const LaunchBanner = () => {
       <div className="mx-auto flex max-w-7xl items-start gap-3 px-4 py-2.5 sm:items-center sm:px-6 lg:px-8">
         <Calendar aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-fg-muted sm:mt-0" strokeWidth={1.75} />
         <p className="min-w-0 flex-1 font-mono text-xs leading-relaxed text-fg-muted sm:text-small">
-          <span className="text-fg">October 1: the app launches and our Kickstarter goes live. The thank you giveaway opens November 15.</span>{' '}
+          <span className="text-fg">October 1: the app launches and our Kickstarter goes live.</span>{' '}
           <span className="whitespace-nowrap tabular-nums">{countdownLabel(now)}</span>{' '}
           {/* No left margin on phones: the links wrap to their own line there. */}
           <span className="inline-flex gap-3 whitespace-nowrap sm:ml-2">

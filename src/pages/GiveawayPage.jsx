@@ -90,24 +90,14 @@ const Countdown = ({ phase }) => {
 };
 
 // The prize value. Until the giveaway opens it is redacted (founder ruling
-// 2026-09-26): each digit cycles through blocks of different heights and the
-// number is never shown. From the open it arrives declassified: a censor bar
-// sits over the number and peels off while each digit rolls down a column
-// (three blocks, two decoy digits, the real one) and settles. Keyframes live in
-// index.css; the reveal runs once on load and reduced motion shows the number
-// at once. The blocks are drawn with CSS, not block glyphs, so the mono font
-// subset does not matter.
+// 2026-09-26): each digit is a solid block that breathes out of phase with its
+// neighbours and the number is never shown. From the open it arrives
+// declassified: a censor bar sits over the number and peels off while each
+// digit slides down a column (three blocks, two decoy digits, the real one)
+// and eases to a stop. Keyframes live in index.css; the reveal runs once on
+// load and reduced motion shows the number at once. The blocks are drawn with
+// CSS, not block glyphs, so the mono font subset does not matter.
 const REDACT_BLOCKS = ['opacity-100', 'opacity-60', 'opacity-30'];
-// Seven rows, the last repeats the first so the loop is seamless: [height, opacity].
-const REDACT_CYCLE = [
-  ['h-[0.72em]', 'opacity-100'],
-  ['h-[0.3em]', 'opacity-60'],
-  ['h-[0.55em]', 'opacity-80'],
-  ['h-[0.18em]', 'opacity-40'],
-  ['h-[0.72em]', 'opacity-70'],
-  ['h-[0.42em]', 'opacity-50'],
-  ['h-[0.72em]', 'opacity-100'],
-];
 const PrizeValue = ({ value, revealed }) => {
   const digits = String(value).split('');
   if (!revealed) {
@@ -118,18 +108,12 @@ const PrizeValue = ({ value, revealed }) => {
           <span
             role="img"
             aria-label="Prize value redacted until the giveaway opens"
-            className="relative inline-flex font-mono text-7xl font-semibold leading-none tabular-nums sm:text-8xl lg:text-9xl"
+            className="relative inline-flex gap-[0.06em] font-mono text-7xl font-semibold leading-none tabular-nums sm:text-8xl lg:text-9xl"
           >
             {digits.map((d, i) => (
-              <span key={i} aria-hidden="true" className="inline-block h-[1em] overflow-hidden">
-                <span className="redact-cycle flex flex-col" style={{ animationDelay: `${i * -700}ms` }}>
-                  {REDACT_CYCLE.map(([h, o], j) => (
-                    <span key={j} className="flex h-[1em] items-center">
-                      <span className={`block w-full bg-fg ${h} ${o}`}>
-                        <span className="invisible">{d}</span>
-                      </span>
-                    </span>
-                  ))}
+              <span key={i} aria-hidden="true" className="flex h-[1em] items-center">
+                <span className="redact-breathe block h-[0.72em] w-full rounded-[0.04em] bg-fg" style={{ animationDelay: `${i * -1200}ms` }}>
+                  <span className="invisible">{d}</span>
                 </span>
               </span>
             ))}
@@ -452,7 +436,7 @@ export default function GiveawayPage() {
           <PrizeValue value={GIVEAWAY.prize.valueUsd} revealed={realPhase !== 'upcoming'} />
           <h1 className="mt-10 text-balance text-display-md">Win the piece of gear you have been putting off.</h1>
           <p className="mx-auto mt-6 max-w-2xl text-body-lg text-fg-muted">
-            Our Kickstarter goes live October 1. This giveaway opens November 15 as our thank you to everyone who backed it, shared it, or simply showed up for day one. No pledge required.
+            Whatever happens with our Kickstarter, this giveaway is for everyone. It opens November 15 as our thank you for showing up, and there is nothing to buy or back to enter.
           </p>
           <p className="mx-auto mt-4 max-w-2xl text-body-lg text-fg-muted">
             {realPhase === 'upcoming' ? GIVEAWAY.prize.teaser : GIVEAWAY.prize.line} Free to enter. Up to {GIVEAWAY.maxTickets} tickets from easy tasks, and every ticket is one more name in the hat.

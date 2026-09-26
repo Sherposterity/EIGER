@@ -95,7 +95,7 @@
 }
 @keyframes redact-roll {
   0%,
-  20% {
+  25% {
     transform: translateY(0);
   }
   100% {
@@ -103,25 +103,33 @@
   }
 }
 .redact-bar {
-  animation: redact-bar 1.1s var(--ease-out-expo) both;
+  animation: redact-bar 1.2s var(--ease-out-expo) both;
 }
 .redact-digit {
-  animation: redact-roll 1s steps(5, end) both;
+  animation: redact-roll 1.4s var(--ease-out-expo) both;
 }
-/* Before the giveaway opens the value stays hidden: each digit cycles through
-   blocks of different heights (a seven-row strip whose last row repeats the
-   first, so the loop is seamless). Motion-safe only; reduced motion holds the
-   first row, a solid block. */
-@keyframes redact-cycle {
-  from {
-    transform: translateY(0);
+/* Before the giveaway opens the value stays hidden: each digit is a solid
+   block that breathes, scaling its height and fading a little, out of phase
+   with its neighbours. Smooth ease-in-out, motion-safe only; reduced motion
+   holds a full block. */
+@keyframes redact-breathe {
+  0%,
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
   }
-  to {
-    transform: translateY(-6em);
+  35% {
+    transform: scaleY(0.38);
+    opacity: 0.55;
+  }
+  70% {
+    transform: scaleY(0.72);
+    opacity: 0.85;
   }
 }
-.redact-cycle {
-  animation: redact-cycle 2.1s steps(6, end) infinite;
+.redact-breathe {
+  transform-origin: center;
+  animation: redact-breathe 3.6s ease-in-out infinite;
 }
 /* Reduced motion: the global rule collapses durations but not the per-digit
    delays, so pin the final frame explicitly (six-row strip, last row = -5em). */
@@ -134,9 +142,10 @@
     animation: none !important;
     display: none;
   }
-  .redact-cycle {
+  .redact-breathe {
     animation: none !important;
     transform: none;
+    opacity: 1;
   }
 }
 
