@@ -89,14 +89,56 @@ const Countdown = ({ phase }) => {
   );
 };
 
-// The prize value arrives redacted: a censor bar sits over the number and
-// peels off while each digit rolls down a column (three blocks, two decoy
-// digits, the real one) and settles. Keyframes live in index.css; it runs once
-// on load and reduced motion shows the number at once. The blocks are drawn
-// with CSS, not block glyphs, so the mono font subset does not matter.
+// The prize value. Until the giveaway opens it is redacted (founder ruling
+// 2026-09-26): each digit cycles through blocks of different heights and the
+// number is never shown. From the open it arrives declassified: a censor bar
+// sits over the number and peels off while each digit rolls down a column
+// (three blocks, two decoy digits, the real one) and settles. Keyframes live in
+// index.css; the reveal runs once on load and reduced motion shows the number
+// at once. The blocks are drawn with CSS, not block glyphs, so the mono font
+// subset does not matter.
 const REDACT_BLOCKS = ['opacity-100', 'opacity-60', 'opacity-30'];
-const PrizeValue = ({ value }) => {
+// Seven rows, the last repeats the first so the loop is seamless: [height, opacity].
+const REDACT_CYCLE = [
+  ['h-[0.72em]', 'opacity-100'],
+  ['h-[0.3em]', 'opacity-60'],
+  ['h-[0.55em]', 'opacity-80'],
+  ['h-[0.18em]', 'opacity-40'],
+  ['h-[0.72em]', 'opacity-70'],
+  ['h-[0.42em]', 'opacity-50'],
+  ['h-[0.72em]', 'opacity-100'],
+];
+const PrizeValue = ({ value, revealed }) => {
   const digits = String(value).split('');
+  if (!revealed) {
+    return (
+      <div className="mt-8">
+        <div className="flex items-baseline justify-center gap-3">
+          <span className="font-mono text-2xl font-medium text-fg-subtle sm:text-3xl">USD</span>
+          <span
+            role="img"
+            aria-label="Prize value redacted until the giveaway opens"
+            className="relative inline-flex font-mono text-7xl font-semibold leading-none tabular-nums sm:text-8xl lg:text-9xl"
+          >
+            {digits.map((d, i) => (
+              <span key={i} aria-hidden="true" className="inline-block h-[1em] overflow-hidden">
+                <span className="redact-cycle flex flex-col" style={{ animationDelay: `${i * -700}ms` }}>
+                  {REDACT_CYCLE.map(([h, o], j) => (
+                    <span key={j} className="flex h-[1em] items-center">
+                      <span className={`block w-full bg-fg ${h} ${o}`}>
+                        <span className="invisible">{d}</span>
+                      </span>
+                    </span>
+                  ))}
+                </span>
+              </span>
+            ))}
+          </span>
+        </div>
+        <div className="mt-4 font-mono text-eyebrow font-semibold uppercase text-fg-muted">Value revealed November 15. Gear of your choice. One winner.</div>
+      </div>
+    );
+  }
   return (
     <div className="mt-8">
       <div className="flex items-baseline justify-center gap-3">
@@ -407,13 +449,13 @@ export default function GiveawayPage() {
       <section className="px-4 pb-section-sm pt-36 text-center sm:px-gutter lg:pt-44">
         <div className="mx-auto max-w-3xl">
           <Eyebrow>Thank you giveaway</Eyebrow>
-          <PrizeValue value={GIVEAWAY.prize.valueUsd} />
+          <PrizeValue value={GIVEAWAY.prize.valueUsd} revealed={realPhase !== 'upcoming'} />
           <h1 className="mt-10 text-balance text-display-md">Win the piece of gear you have been putting off.</h1>
           <p className="mx-auto mt-6 max-w-2xl text-body-lg text-fg-muted">
             Our Kickstarter goes live October 1. This giveaway opens November 15 as our thank you to everyone who backed it, shared it, or simply showed up for day one. No pledge required.
           </p>
           <p className="mx-auto mt-4 max-w-2xl text-body-lg text-fg-muted">
-            {GIVEAWAY.prize.line} Free to enter. Up to {GIVEAWAY.maxTickets} tickets from easy tasks, and every ticket is one more name in the hat.
+            {realPhase === 'upcoming' ? GIVEAWAY.prize.teaser : GIVEAWAY.prize.line} Free to enter. Up to {GIVEAWAY.maxTickets} tickets from easy tasks, and every ticket is one more name in the hat.
           </p>
           <Countdown phase={realPhase} />
         </div>
@@ -426,9 +468,19 @@ export default function GiveawayPage() {
             <Eyebrow>The prize</Eyebrow>
             <h2 className="mt-5 text-heading">{GIVEAWAY.prize.title}</h2>
             <div className="mt-5 inline-flex flex-wrap items-baseline gap-2 rounded-pill border border-line-strong bg-surface-2 px-4 py-2">
-              <span className="font-mono text-eyebrow uppercase text-fg-subtle">Up to</span>
-              <span className="font-mono text-2xl font-semibold tabular-nums">USD {GIVEAWAY.prize.valueUsd}</span>
-              <span className="font-mono text-eyebrow uppercase text-fg-subtle">retail</span>
+              {realPhase === 'upcoming' ? (
+                <>
+                  <span className="font-mono text-eyebrow uppercase text-fg-subtle">Budget</span>
+                  <span className="font-mono text-2xl font-semibold tabular-nums">USD ???</span>
+                  <span className="font-mono text-eyebrow uppercase text-fg-subtle">revealed Nov 15</span>
+                </>
+              ) : (
+                <>
+                  <span className="font-mono text-eyebrow uppercase text-fg-subtle">Up to</span>
+                  <span className="font-mono text-2xl font-semibold tabular-nums">USD {GIVEAWAY.prize.valueUsd}</span>
+                  <span className="font-mono text-eyebrow uppercase text-fg-subtle">retail</span>
+                </>
+              )}
             </div>
             <ul className="mt-6 space-y-3 text-fg-muted">
               <li>One winner, drawn at random from every ticket.</li>

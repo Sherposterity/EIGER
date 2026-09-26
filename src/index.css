@@ -108,6 +108,21 @@
 .redact-digit {
   animation: redact-roll 1s steps(5, end) both;
 }
+/* Before the giveaway opens the value stays hidden: each digit cycles through
+   blocks of different heights (a seven-row strip whose last row repeats the
+   first, so the loop is seamless). Motion-safe only; reduced motion holds the
+   first row, a solid block. */
+@keyframes redact-cycle {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-6em);
+  }
+}
+.redact-cycle {
+  animation: redact-cycle 2.1s steps(6, end) infinite;
+}
 /* Reduced motion: the global rule collapses durations but not the per-digit
    delays, so pin the final frame explicitly (six-row strip, last row = -5em). */
 @media (prefers-reduced-motion: reduce) {
@@ -118,6 +133,10 @@
   .redact-bar {
     animation: none !important;
     display: none;
+  }
+  .redact-cycle {
+    animation: none !important;
+    transform: none;
   }
 }
 
