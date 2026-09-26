@@ -22,7 +22,7 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 - Heading: A look inside our app
 - Step 1, Your control panel: Access to all app features at a touch.
 - Step 2, Summit Search: In depth info for your summit of interest and its corresponding gear.
-- Step 3, Compatibility Bar: Know how prepared you are, before any and every hike.
+- Step 3, Gear Vault: Store the gear you own in your vault. This feeds directly into our compatibility algorithms. (screens updated 2026-09-25: Mission Control with Mount Elbert winter kit, Mont Blanc summit search, My Gear Profile)
 - Proof line (count up once on entry, values baked at build, dated): 97 Mountains · 3,392 Products · 3,560 Mapped gear slots
 
 ### Try it yourself! (drag-and-drop demo, sits directly under the walkthrough)

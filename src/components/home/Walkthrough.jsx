@@ -30,13 +30,13 @@ const STEPS = [
     title: 'Summit Search',
     text: 'In depth info for your summit of interest and its corresponding gear.',
     image: summitIntel,
-    alt: 'EIGER app, summit details for Mount Whitney with its recommended gear',
+    alt: 'EIGER app, summit details for Mont Blanc with its recommended gear',
   },
   {
-    title: 'Compatibility Bar',
-    text: 'Know how prepared you are, before any and every hike.',
+    title: 'Gear Vault',
+    text: 'Store the gear you own in your vault. This feeds directly into our compatibility algorithms.',
     image: gearVault,
-    alt: 'EIGER app, My Gear Profile screen',
+    alt: 'EIGER app, My Gear Profile screen with a logged fleece',
   },
 ];
 
