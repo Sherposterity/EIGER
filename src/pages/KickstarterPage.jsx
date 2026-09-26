@@ -67,8 +67,9 @@ export default function KickstarterPage() {
       <SiteNav />
 
       <main>
-        {/* Statement hero over the alpine still, black scrim for legibility (as on About) */}
-        <section className="relative isolate flex min-h-[min(80svh,52rem)] items-end overflow-hidden">
+        {/* Statement hero over the alpine still, black scrim for legibility (as on About).
+            Fills the screen like Home's hero, content anchored to the bottom. */}
+        <section className="relative isolate flex min-h-svh items-end overflow-hidden">
           <img
             src={HERO_STILL}
             alt=""
@@ -81,7 +82,7 @@ export default function KickstarterPage() {
             className="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-bg to-transparent"
             aria-hidden="true"
           />
-          <div className="mx-auto w-full max-w-7xl px-4 pt-24 pb-8 sm:px-6 md:pb-16 lg:px-8">
+          <div className="relative mx-auto w-full max-w-7xl px-4 pt-24 pb-8 sm:px-6 md:pb-16 lg:px-8">
             <p className={eyebrow}>Launches October 1</p>
             <h1 className="mt-3 max-w-4xl text-balance text-display-lg sm:mt-4">Kickstarter</h1>
             <div className="mt-5 max-w-2xl space-y-3 text-body text-fg-muted sm:mt-6 sm:space-y-4 sm:text-body-lg">
