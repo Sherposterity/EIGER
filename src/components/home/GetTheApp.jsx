@@ -1,4 +1,11 @@
 import storeLinks from '@/data/store-links.json';
+import { GIVEAWAY_OPENS_AT } from '@/lib/giveawayWindow';
+
+// Store badges stay greyed until the launch instant (2026-10-01T16:00Z, shared
+// with the giveaway), even if a URL is already known: the Play page shows the
+// old beta build until then and the beta is closed.
+const LAUNCHED = Date.now() >= Date.parse(GIVEAWAY_OPENS_AT);
+const linkFor = (key) => (LAUNCHED ? storeLinks[key] : null);
 import { FadeIn } from './motion';
 import { focusRing } from './utils';
 
@@ -28,7 +35,7 @@ const STORES = [
 ];
 
 function StoreBadge({ store }) {
-  const href = storeLinks[store.key];
+  const href = linkFor(store.key);
   const img = (
     <img
       src={store.badge}
@@ -78,7 +85,7 @@ function StoreBadge({ store }) {
 }
 
 const GetTheApp = () => {
-  const anyMissing = STORES.some((s) => !storeLinks[s.key]);
+  const anyMissing = STORES.some((s) => !linkFor(s.key));
 
   return (
     <section
