@@ -6,7 +6,7 @@ each of those is done. Everything below runs with the service role from an
 operator seat (SQL editor or the management API); nothing here is reachable
 from the browser.
 
-## Before opening (by 2026-10-01 16:00 UTC)
+## Before opening (by 2026-11-15 16:00 UTC)
 
 1. Apply `supabase/giveaway.sql` as the next numbered migration in the hike repo.
 2. Deploy `supabase/functions/giveaway` with secrets `RESEND_API_KEY`, `GIVEAWAY_FROM`
@@ -45,7 +45,7 @@ and use "Already entered? Email me my dashboard link" to get the same dashboard.
 An entry is pending until its emailed activation link is opened (`activated_at`). Pending entries are not in the draw, the totals or the marketing audience, and cannot complete tasks or earn a referrer credit. Activation only happens before the close; a pending link opened afterwards is told the entry is not in the draw. The first activation also rotates the session token, so a browser that merely typed the address is signed out. If someone writes in that their activation email never arrives, verify the address by replying to it and then activate by hand (before the close only; this also credits any friends who verified while the entry was pending):
 
 ```sql
-select public.giveaway_activate((select magic_token from public.giveaway_entries where email = lower('<email>')), '2026-11-10T16:00:00Z');
+select public.giveaway_activate((select magic_token from public.giveaway_entries where email = lower('<email>')), '2026-12-31T16:00:00Z');
 ```
 
 ## Disqualifying an entry
@@ -60,14 +60,14 @@ Disqualified entries keep their rows for the audit trail but are excluded from
 the draw and can no longer act on the page. Check `giveaway_referral_credits`
 for anything credited from a disqualified entry and reverse it by hand.
 
-## The draw (after 2026-11-10 16:00 UTC, within 7 days)
+## The draw (after 2026-12-31 16:00 UTC, within 7 days)
 
 1. Freeze: confirm `now() > closes_at`; the function refuses new entries and tasks by itself.
 2. Read the totals and publish them on the page before drawing:
    `select * from public.giveaway_ticket_totals;`
 3. Pick a seed nobody could have chosen in advance and publish it too. Convention:
    the closing price of the S&P 500 on the first trading day after the close,
-   as printed by a named public source, e.g. `SPX-2026-11-11-5123.45`.
+   as printed by a named public source, e.g. `SPX-2027-01-04-5123.45`.
 4. Draw: `select * from public.giveaway_draw('<seed>');`
    The function expands every ticket into one row, orders the rows by
    `md5(seed || entry id || ticket number)` and returns the first. Anyone with

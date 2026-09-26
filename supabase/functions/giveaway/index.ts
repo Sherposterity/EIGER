@@ -31,8 +31,8 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 // Window. The env overrides exist for pre-launch testing only; unset them in production.
-const OPENS_AT = Date.parse(Deno.env.get("GIVEAWAY_OPENS_AT") ?? "2026-10-01T16:00:00Z");
-const CLOSES_AT = Date.parse(Deno.env.get("GIVEAWAY_CLOSES_AT") ?? "2026-11-10T16:00:00Z");
+const OPENS_AT = Date.parse(Deno.env.get("GIVEAWAY_OPENS_AT") ?? "2026-11-15T16:00:00Z");
+const CLOSES_AT = Date.parse(Deno.env.get("GIVEAWAY_CLOSES_AT") ?? "2026-12-31T16:00:00Z");
 const SITE_URL = Deno.env.get("GIVEAWAY_SITE_URL") ?? "https://eiger014.com";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const FROM = Deno.env.get("GIVEAWAY_FROM") ?? "Eiger <giveaway@support.eiger014.com>";

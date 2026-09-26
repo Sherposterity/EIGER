@@ -89,16 +89,51 @@ const Countdown = ({ phase }) => {
   );
 };
 
-// The prize value, as a fixed number.
-const PrizeValue = ({ value }) => (
-  <div className="mt-8">
-    <div className="flex items-baseline justify-center gap-3">
-      <span className="font-mono text-2xl font-medium text-fg-subtle sm:text-3xl">USD</span>
-      <span className="font-mono text-7xl font-semibold leading-none tabular-nums sm:text-8xl lg:text-9xl">{value}</span>
+// The prize value arrives redacted: a censor bar sits over the number and
+// peels off while each digit rolls down a column (three blocks, two decoy
+// digits, the real one) and settles. Keyframes live in index.css; it runs once
+// on load and reduced motion shows the number at once. The blocks are drawn
+// with CSS, not block glyphs, so the mono font subset does not matter.
+const REDACT_BLOCKS = ['opacity-100', 'opacity-60', 'opacity-30'];
+const PrizeValue = ({ value }) => {
+  const digits = String(value).split('');
+  return (
+    <div className="mt-8">
+      <div className="flex items-baseline justify-center gap-3">
+        <span className="font-mono text-2xl font-medium text-fg-subtle sm:text-3xl">USD</span>
+        <span
+          role="img"
+          aria-label={String(value)}
+          className="relative inline-flex font-mono text-7xl font-semibold leading-none tabular-nums sm:text-8xl lg:text-9xl"
+        >
+          {digits.map((d, i) => {
+            const n = Number(d);
+            const column = [...REDACT_BLOCKS, String((n + 7) % 10), String((n + 3) % 10), d];
+            return (
+              <span key={i} aria-hidden="true" className="inline-block h-[1em] overflow-hidden">
+                <span className="redact-digit flex flex-col" style={{ animationDelay: `${i * 90}ms` }}>
+                  {column.map((cell, j) => (
+                    <span key={j} className="flex h-[1em] items-center">
+                      {j < REDACT_BLOCKS.length ? (
+                        <span className={`block h-[0.72em] w-full bg-fg ${cell}`}>
+                          <span className="invisible">{d}</span>
+                        </span>
+                      ) : (
+                        cell
+                      )}
+                    </span>
+                  ))}
+                </span>
+              </span>
+            );
+          })}
+          <span aria-hidden="true" className="redact-bar absolute -inset-x-[0.06em] inset-y-[0.08em] rounded-sm bg-fg" />
+        </span>
+      </div>
+      <div className="mt-4 font-mono text-eyebrow font-semibold uppercase text-fg-muted">Retail value. Gear of your choice. One winner.</div>
     </div>
-    <div className="mt-4 font-mono text-eyebrow font-semibold uppercase text-fg-muted">Retail value. Gear of your choice. One winner.</div>
-  </div>
-);
+  );
+};
 
 const TicketMeter = ({ tickets }) => {
   const pct = Math.round((tickets / GIVEAWAY.maxTickets) * 100);
@@ -196,7 +231,7 @@ export default function GiveawayPage() {
   const now = useNow();
   const realPhase = now ? phaseFor(now) : 'open';
   // Review mode (local backend) keeps the window open so the flow can be
-  // walked through before October 1; the countdown still shows the real dates.
+  // walked through before November 15; the countdown still shows the real dates.
   const phase = backend.mode === 'local' ? 'open' : realPhase;
   const [entrant, setEntrant] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -272,7 +307,7 @@ export default function GiveawayPage() {
       consentRef.current?.focus();
       return setError('Please confirm you are 18 or older and agree to the rules.');
     }
-    if (phase !== 'open') return setError(phase === 'upcoming' ? 'The giveaway opens on October 1. Come back then.' : 'Entries are closed.');
+    if (phase !== 'open') return setError(phase === 'upcoming' ? 'The giveaway opens on November 15. Come back then.' : 'Entries are closed.');
     setBusy(true);
     try {
       // The hidden field travels to the server too: a filled one is dropped there.
@@ -331,7 +366,7 @@ export default function GiveawayPage() {
   };
 
   const doTask = async (task) => {
-    if (phase !== 'open' && task.id !== 'referral') return setError(phase === 'upcoming' ? 'Tasks open on October 1.' : 'Entries are closed.');
+    if (phase !== 'open' && task.id !== 'referral') return setError(phase === 'upcoming' ? 'Tasks open on November 15.' : 'Entries are closed.');
     setBusy(true);
     try {
       if (task.id === 'referral') {
@@ -371,10 +406,13 @@ export default function GiveawayPage() {
       {/* Hero */}
       <section className="px-4 pb-section-sm pt-36 text-center sm:px-gutter lg:pt-44">
         <div className="mx-auto max-w-3xl">
-          <Eyebrow>Launch giveaway</Eyebrow>
+          <Eyebrow>Thank you giveaway</Eyebrow>
           <PrizeValue value={GIVEAWAY.prize.valueUsd} />
           <h1 className="mt-10 text-balance text-display-md">Win the piece of gear you have been putting off.</h1>
           <p className="mx-auto mt-6 max-w-2xl text-body-lg text-fg-muted">
+            Our Kickstarter goes live October 1. This giveaway opens November 15 as our thank you to everyone who backed it, shared it, or simply showed up for day one. No pledge required.
+          </p>
+          <p className="mx-auto mt-4 max-w-2xl text-body-lg text-fg-muted">
             {GIVEAWAY.prize.line} Free to enter. Up to {GIVEAWAY.maxTickets} tickets from easy tasks, and every ticket is one more name in the hat.
           </p>
           <Countdown phase={realPhase} />
@@ -514,7 +552,7 @@ export default function GiveawayPage() {
                   </div>
                   {errorRegion}
                   <button type="submit" disabled={busy || phase !== 'open'} className={`${primaryBtn} h-12 w-full px-6 text-small`}>
-                    {phase === 'closed' ? 'Entries closed' : phase === 'upcoming' ? 'Opens October 1' : busy ? 'Entering' : 'Enter the giveaway'}
+                    {phase === 'closed' ? 'Entries closed' : phase === 'upcoming' ? 'Opens November 15' : busy ? 'Entering' : 'Enter the giveaway'}
                   </button>
                   {ref ? <p className="text-center text-small text-fg-muted">Referred by a friend. They get tickets once you create your Eiger account with this email and tap "I signed up" on your dashboard.</p> : null}
                   <p className="text-center text-small text-fg-subtle">No purchase necessary. One entry per person.</p>
