@@ -4,8 +4,10 @@
 // cobe 2 (node_modules/cobe/dist/index.esm.js): U([lat, lon]) turns a place
 // into a unit vector; markers are drawn at that vector scaled by
 // 0.8 + markerElevation (the globe itself has radius 0.8 in view units);
-// O(v) projects a vector with the current phi (turn) and theta (tilt) and
-// says whether it is hidden (facing away, or outside the 0.8 disc). With a
+// O(v) projects a vector with the current phi (turn) and theta (tilt); its
+// third value is VISIBLE (cobe's W() names it so): facing the camera, or
+// outside the 0.8 disc, where an elevated marker peeks past the rim. The
+// marker shader hides a dot only when l.z < 0 && length(l.xy) < .8. With a
 // square canvas, scale 1 and no offset, O reduces to
 //   x = (cx + 1) / 2,  y = (1 - sy) / 2   (fractions of the canvas)
 // which is what project() returns. MARKER_ELEVATION must match the option
@@ -14,6 +16,8 @@
 export const GLOBE_RADIUS = 0.8;
 export const MARKER_ELEVATION = 0.05;
 export const PICK_RADIUS_PX = 16;
+// Fingers land less precisely than a cursor.
+export const TOUCH_PICK_RADIUS_PX = 28;
 
 export const anglesFor = (lat, lon) => [Math.PI - ((lon * Math.PI) / 180 - Math.PI / 2), (lat * Math.PI) / 180];
 
@@ -34,7 +38,8 @@ export const toVector = (lat, lon) => {
 export const markerVector = (lat, lon) => toVector(lat, lon).map((x) => x * (GLOBE_RADIUS + MARKER_ELEVATION));
 
 // cobe's O() for a square canvas, scale 1, no offset: [x, y, hidden] with x
-// and y as canvas fractions (0..1 from the top left).
+// and y as canvas fractions (0..1 from the top left). hidden is the negation
+// of cobe's visible flag (z < 0 and inside the disc), the shader's rule.
 export const project = (v, phi, theta) => {
   const r = Math.cos(theta);
   const a = Math.cos(phi);
@@ -42,7 +47,8 @@ export const project = (v, phi, theta) => {
   const i = Math.sin(phi);
   const cx = a * v[0] + i * v[2];
   const sy = i * o * v[0] + r * v[1] - a * o * v[2];
-  const hidden = -i * r * v[0] + o * v[1] + a * r * v[2] >= 0 || cx * cx + sy * sy >= GLOBE_RADIUS * GLOBE_RADIUS;
+  const z = -i * r * v[0] + o * v[1] + a * r * v[2];
+  const hidden = z < 0 && cx * cx + sy * sy < GLOBE_RADIUS * GLOBE_RADIUS;
   return [(cx + 1) / 2, (1 - sy) / 2, hidden];
 };
 
