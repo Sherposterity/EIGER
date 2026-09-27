@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DRIFT_CSS } from '@/components/home/tryit/glyphs';
 import PipelinePanel from '@/components/verification/PipelinePanel';
 import ApplyToVerify from '@/components/verification/ApplyToVerify';
+import MoreBelowCue from '@/components/verification/MoreBelowCue';
 import { RUN_SCHEDULE, STAGES, announce, phrasesFor } from '@/components/verification/pipeline';
 
 // Verification process (/verification). Step copy is the founder's (docs/COPY.md).
@@ -295,6 +296,7 @@ export default function VerificationPage() {
 
           <ApplyToVerify />
         </main>
+        <MoreBelowCue targetId="apply" label="Mountaineer? Apply to verify" />
       </MotionConfig>
       <Footer />
     </div>
