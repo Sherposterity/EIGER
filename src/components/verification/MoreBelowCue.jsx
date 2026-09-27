@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowDown } from 'lucide-react';
 import { focusRing } from '@/components/home/utils';
+import { scrollToElement } from './scrollToElement';
 
 // Floating "there is more below" cue for the Verification page. The pipeline
 // walkthrough is tall and the sticky panel makes it feel like the whole page,
@@ -28,7 +29,7 @@ export default function MoreBelowCue({ targetId, label }) {
   if (seen) return null;
 
   const go = () => {
-    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    scrollToElement(document.getElementById(targetId));
     setSeen(true);
   };
 
