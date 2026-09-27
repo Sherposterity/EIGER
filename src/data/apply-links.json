@@ -1,0 +1,5 @@
+{
+  "_comment": "Application form for verifying mountaineers (Verification page). Paste the Google Form URL into verifier_form; while it is null the card falls back to email.",
+  "verifier_form": null,
+  "verifier_email": "business@eiger014.com"
+}

@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DRIFT_CSS } from '@/components/home/tryit/glyphs';
 import PipelinePanel from '@/components/verification/PipelinePanel';
+import ApplyToVerify from '@/components/verification/ApplyToVerify';
 import { RUN_SCHEDULE, STAGES, announce, phrasesFor } from '@/components/verification/pipeline';
 
 // Verification process (/verification). Step copy is the founder's (docs/COPY.md).
@@ -291,6 +292,8 @@ export default function VerificationPage() {
               {liveText}
             </div>
           </section>
+
+          <ApplyToVerify />
         </main>
       </MotionConfig>
       <Footer />
