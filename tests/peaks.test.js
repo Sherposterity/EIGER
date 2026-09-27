@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { chunkKeysFor, normalize, queryKey, rowToPeak, searchPeaks } from '../src/lib/peaksSearch.js';
+import { activeIndexFor, chunkKeysFor, normalize, queryKey, resolveQuery, rowToPeak, searchPeaks, stepActiveId } from '../src/lib/peaksSearch.js';
 
 const dir = new URL('../src/data/peaks/', import.meta.url);
 const countries = JSON.parse(readFileSync(new URL('countries.json', dir), 'utf8'));
@@ -96,4 +96,44 @@ test('the browser sends only the peak id when requesting a mountain', () => {
   const fn = readFileSync(new URL('../supabase/functions/mountain-request/index.ts', import.meta.url), 'utf8');
   assert.match(fn, /rpc\("mountain_request_add", \{ p_peak_id: peakId, p_ip_hash: ipHash \}\)/);
   assert.doesNotMatch(fn, /p_name|p_country|p_lat/);
+});
+
+// Codex follow-up 2026-09-26, P3: alias lookup must not consult Object.prototype.
+test('prototype names search like any other text instead of throwing', () => {
+  for (const q of ['constructor', '__proto__', 'hasOwnProperty', 'toString']) {
+    assert.equal(resolveQuery(q), normalize(q));
+    assert.doesNotThrow(() => queryKey(q));
+    assert.doesNotThrow(() => searchPeaks(chunks.c, q));
+  }
+  assert.equal(resolveQuery('Mount Cook'), 'aoraki');
+});
+
+// Codex follow-up 2026-09-26, P2: the catalogue chunk arrives after the immediate
+// app results and is prepended. The highlighted option must follow its id, not
+// its index, or Enter picks a different mountain.
+test('a late catalogue chunk does not move the keyboard highlight onto another mountain', () => {
+  const appRow = { id: 'app:72810564-01db-49c2-ad5f-424259a0101e', name: 'Mount Adams', lat: 46.2024, lon: -121.4909, elevation: 3743, country: 'United States' };
+  const immediate = [appRow];
+  // ArrowDown on the immediate list highlights the app row.
+  let activeId = stepActiveId(immediate, null, 1);
+  assert.equal(activeId, appRow.id);
+  assert.equal(activeIndexFor(immediate, activeId), 0);
+  // The chunk resolves: catalogue matches are prepended.
+  const catalogue = searchPeaks(chunks[queryKey('mount adams')], 'mount adams');
+  assert.ok(catalogue.length >= 2, 'catalogue has Mount Adams candidates');
+  const merged = [...catalogue, ...immediate.filter((r) => !catalogue.some((c) => c.id === r.id))];
+  const i = activeIndexFor(merged, activeId);
+  assert.ok(i > 0, `app row moved from index 0 to ${i}`);
+  assert.equal(merged[i].id, appRow.id, 'Enter still chooses the highlighted mountain');
+  // A highlighted row that disappears clears the highlight; stepping resumes from the top.
+  assert.equal(activeIndexFor(catalogue, appRow.id), -1);
+  assert.equal(stepActiveId(catalogue, appRow.id, 1), catalogue[0].id);
+  assert.equal(stepActiveId([], appRow.id, 1), null);
+  assert.equal(stepActiveId(merged, merged[0].id, -1), merged[merged.length - 1].id);
+});
+
+// Codex follow-up 2026-09-26, P3: migration 118's refusal is a 400, not a 503.
+test('the request function answers 400 for a peak that is already in the app', () => {
+  const fn = readFileSync(new URL('../supabase/functions/mountain-request/index.ts', import.meta.url), 'utf8');
+  assert.match(fn, /\/peak in app\/\.test\(message\)\) return json\(\{ error: "This mountain is already in Eiger\." \}, 400\)/);
 });

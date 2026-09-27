@@ -53,7 +53,9 @@ export const QUERY_ALIASES = {
 };
 export const resolveQuery = (query) => {
   const q = normalize(query);
-  return QUERY_ALIASES[q] ?? q;
+  // Own properties only: 'constructor' or '__proto__' must search like any
+  // other unmatched text instead of returning an inherited function.
+  return Object.hasOwn(QUERY_ALIASES, q) ? QUERY_ALIASES[q] : q;
 };
 
 export const words = (normalized) => normalized.split(/[^a-z0-9]+/).filter(Boolean);
@@ -120,3 +122,17 @@ export const searchPeaks = (peaks, query, limit = 8) => {
 };
 
 export const formatElevation = (m) => (m == null ? '' : `${m.toLocaleString('en-US')} m`);
+
+// Combobox highlight by STABLE id. The catalogue chunk loads asynchronously and
+// is prepended to the immediate app results, so a numeric index would slide
+// onto a different mountain between ArrowDown and Enter (Codex 2026-09-26).
+export const activeIndexFor = (results, activeId) =>
+  activeId === null || activeId === undefined ? -1 : results.findIndex((p) => p.id === activeId);
+
+// Next highlighted id after a keyboard step; null when nothing is highlighted.
+export const stepActiveId = (results, activeId, delta) => {
+  if (!results.length) return null;
+  const i = activeIndexFor(results, activeId);
+  const next = delta > 0 ? (i + 1) % results.length : i <= 0 ? results.length - 1 : i - 1;
+  return results[next].id;
+};

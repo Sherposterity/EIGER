@@ -4,7 +4,7 @@ import { ArrowRight, Check, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { FadeIn } from './motion';
 import { focusRing } from './utils';
-import { formatElevation, loadChunk, normalize, queryKey, searchPeaks } from '../../lib/peaks';
+import { activeIndexFor, formatElevation, loadChunk, normalize, queryKey, searchPeaks, stepActiveId } from '../../lib/peaks';
 import { backend, requestedIds } from '../../lib/mountainRequests';
 import { APP_MOUNTAINS, appMountainFor, nearbyAppMountain, searchAppMountains, selectionFromApp } from '../../lib/appMountains';
 
@@ -56,7 +56,10 @@ export default function MountainRequest({ standalone = false }) {
   const [visible, setVisible] = useState(false);
   const [chunks, setChunks] = useState({});
   const [query, setQuery] = useState('');
-  const [active, setActive] = useState(-1);
+  // Active option by STABLE id, not index: the catalogue chunk arrives
+  // asynchronously and is prepended, which would move a numeric index onto a
+  // different mountain between ArrowDown and Enter (Codex follow-up 2026-09-26).
+  const [activeId, setActiveId] = useState(null);
   const [selected, setSelected] = useState(null);
   const [top, setTop] = useState([]);
   // Leaderboard state on its own: an outage must not read as "no requests".
@@ -121,6 +124,9 @@ export default function MountainRequest({ standalone = false }) {
     ...catalogueResults,
     ...searchAppMountains(query, normalize, new Set(catalogueResults.map((p) => p.id))),
   ];
+  // Derived index; -1 when the highlighted row is no longer in the list.
+  const active = activeIndexFor(results, activeId);
+  const setActive = (i) => setActiveId(i >= 0 && i < results.length ? results[i].id : null);
 
   const choose = (peak) => {
     setSelected(peak);
@@ -141,10 +147,10 @@ export default function MountainRequest({ standalone = false }) {
     if (!results.length) return;
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setActive((i) => (i + 1) % results.length);
+      setActiveId(stepActiveId(results, activeId, 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setActive((i) => (i <= 0 ? results.length - 1 : i - 1));
+      setActiveId(stepActiveId(results, activeId, -1));
     } else if (e.key === 'Enter' && active >= 0) {
       e.preventDefault();
       choose(results[active]);
