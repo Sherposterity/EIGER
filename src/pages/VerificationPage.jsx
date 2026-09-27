@@ -296,7 +296,7 @@ export default function VerificationPage() {
 
           <ApplyToVerify />
         </main>
-        <MoreBelowCue targetId="apply" label="Mountaineer? Apply to verify" />
+        <MoreBelowCue targetId="apply" label="Mountaineer? Apply to verify" onActivate={stopRun} />
       </MotionConfig>
       <Footer />
     </div>
