@@ -81,7 +81,11 @@ Deno.serve(async (req) => {
 
   const { data, error } = await supabase.rpc("mountain_request_add", { p_peak_id: peakId, p_ip_hash: ipHash });
   if (error) {
-    if (/unknown peak|invalid peak/.test(error.message ?? "")) return json({ error: "Pick a mountain from the list." }, 400);
+    const message = error.message ?? "";
+    if (/unknown peak|invalid peak/.test(message)) return json({ error: "Pick a mountain from the list." }, 400);
+    // Migration 118: peaks that are already in the app are refused by the RPC.
+    // Non-retryable, so a 400 with a clear reason instead of the generic 503.
+    if (/peak in app/.test(message)) return json({ error: "This mountain is already in Eiger." }, 400);
     return json({ error: "We could not save that right now. Please try again." }, 503);
   }
   const row = Array.isArray(data) ? data[0] : data;
