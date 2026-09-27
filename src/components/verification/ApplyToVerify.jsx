@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { ArrowUpRight, Check, Copy } from 'lucide-react';
 import applyLinks from '@/data/apply-links.json';
 import { focusRing } from '@/components/home/utils';
+import { scrollToElement } from './scrollToElement';
 
 // "Apply to verify" call to action at the foot of the Verification page.
 // We need more mountaineers reviewing gear lists, so the page that explains
@@ -46,7 +47,8 @@ export default function ApplyToVerify() {
   const sectionRef = useRef(null);
   useEffect(() => {
     if (new URLSearchParams(search).get('section') !== 'apply') return undefined;
-    const t = setTimeout(() => sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    // The page scrolls to the top on mount first; wait a beat, then glide down.
+    const t = setTimeout(() => scrollToElement(sectionRef.current), 120);
     return () => clearTimeout(t);
   }, [search]);
 
