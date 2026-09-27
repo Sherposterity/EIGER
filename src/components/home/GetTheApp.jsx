@@ -1,11 +1,9 @@
 import storeLinks from '@/data/store-links.json';
-import { LAUNCH_AT } from '@/lib/giveawayWindow';
 
-// Store badges stay greyed until the launch instant (2026-10-01T16:00Z, shared
-// with the giveaway), even if a URL is already known: the Play page shows the
-// old beta build until then and the beta is closed.
-const LAUNCHED = Date.now() >= Date.parse(LAUNCH_AT);
-const linkFor = (key) => (LAUNCHED ? storeLinks[key] : null);
+// A badge is live as soon as its store URL exists in store-links.json. Play
+// production 1.4.0 went public on 2026-09-26, so the Android badge no longer
+// waits for the campaign launch instant; iOS stays null until Apple approves.
+const linkFor = (key) => storeLinks[key] || null;
 import { FadeIn } from './motion';
 import { focusRing } from './utils';
 
@@ -100,7 +98,7 @@ const GetTheApp = () => {
           </h2>
         </FadeIn>
         <FadeIn delay={0.06}>
-          <p className="mt-5 text-body-lg text-fg-muted">Launching on October 1st.</p>
+          <p className="mt-5 text-body-lg text-fg-muted">Out now on Android. iOS is on the way.</p>
         </FadeIn>
 
         <FadeIn delay={0.12} className="mt-10 flex flex-col items-center gap-2 sm:flex-row sm:gap-6 md:-ml-3">
@@ -110,7 +108,7 @@ const GetTheApp = () => {
         </FadeIn>
 
         {anyMissing ? (
-          <p className="mt-4 font-mono text-small text-fg-subtle">Store links coming October 1</p>
+          <p className="mt-4 font-mono text-small text-fg-subtle">App Store link coming soon</p>
         ) : null}
       </div>
     </section>
