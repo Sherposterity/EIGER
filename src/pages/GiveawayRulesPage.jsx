@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import SiteNav from '../components/SiteNav';
 import Footer from '../components/Footer';
 import { GIVEAWAY, TASKS } from '../lib/giveaway';
+import { phaseFor } from '../lib/giveawayWindow';
 
 // Official rules for the thank you giveaway (renamed 2026-09-26, founder). Drafted 2026-09-22 from the legal
 // review (US sweepstakes law, Canada skill-testing question, UK CAP code,
@@ -31,6 +32,10 @@ export default function GiveawayRulesPage() {
     window.scrollTo(0, 0);
   }, []);
   const s = GIVEAWAY.sponsor;
+  // Founder ruling 2026-09-26: the prize value stays hidden everywhere on the
+  // site until the giveaway opens (the giveaway page redacts it too). The
+  // rules print the approximate retail value from the open onward.
+  const revealed = phaseFor() !== 'upcoming';
   // Keep a referral code through the rules round trip (the page also remembers it in session storage).
   const ref = new URLSearchParams(useLocation().search).get('ref');
   const backTo = ref ? `/giveaway?ref=${encodeURIComponent(ref)}` : '/giveaway';
@@ -86,7 +91,11 @@ export default function GiveawayRulesPage() {
           </Section>
 
           <Section n={6} title="Prize">
-            <p>One (1) prize: a piece of mountaineering gear of the winner's choice with a retail value of up to five hundred United States dollars (USD 500), purchased by the Sponsor and shipped to the winner. Approximate retail value: USD {GIVEAWAY.prize.valueUsd}. The Sponsor will make reasonable efforts to purchase the item from a retailer in the winner's country. If the chosen item is unavailable, the Sponsor may substitute an item of equal or greater value in consultation with the winner. No cash alternative and no transfer of the prize, except at the Sponsor's sole discretion.</p>
+            <p>
+              {revealed
+                ? `One (1) prize: a piece of mountaineering gear of the winner's choice with a retail value of up to five hundred United States dollars (USD ${GIVEAWAY.prize.valueUsd}), purchased by the Sponsor and shipped to the winner. Approximate retail value: USD ${GIVEAWAY.prize.valueUsd}. `
+                : `One (1) prize: a piece of mountaineering gear of the winner's choice, up to a retail value that the Sponsor will publish in these rules when the Giveaway opens on ${fmt(GIVEAWAY.opensAt)}, purchased by the Sponsor and shipped to the winner. `}
+              The Sponsor will make reasonable efforts to purchase the item from a retailer in the winner's country. If the chosen item is unavailable, the Sponsor may substitute an item of equal or greater value in consultation with the winner. No cash alternative and no transfer of the prize, except at the Sponsor's sole discretion.</p>
             <p>Any customs duties, import fees, or taxes on the prize are the winner's responsibility. The winner is responsible for any income tax due in their country. For winners in the United States, prizes of USD 600 or more in a calendar year are reported on IRS Form 1099.</p>
           </Section>
 
