@@ -202,7 +202,11 @@ export default function MountainRequest({ standalone = false }) {
       aria-labelledby="request-heading"
       className={`scroll-mt-16 border-t border-line bg-bg ${standalone ? 'pt-36 pb-section lg:pt-44' : 'py-section'}`}
     >
-      <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-16 lg:px-8">
+      {/* grid-cols-1 / lg:grid-cols-2 are minmax(0,1fr): an auto track takes
+          the min-content width of the leaderboard's nowrap names (477 px for
+          "Matterhorn Peak (Colorado)") and pushed the section past a phone's
+          width, so the page zoomed out and the globe overflowed. */}
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-8">
         <FadeIn className="order-2 lg:order-1">
           <div className="mx-auto w-full max-w-[520px]">
             {visible ? (

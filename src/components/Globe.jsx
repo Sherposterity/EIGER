@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import createGlobe from 'cobe';
-import { MARKER_ELEVATION, anglesFor, pickMarker, validPoint, wrapAngle as wrap } from '../lib/globeMath';
+import { MARKER_ELEVATION, PICK_RADIUS_PX, TOUCH_PICK_RADIUS_PX, anglesFor, pickMarker, validPoint, wrapAngle as wrap } from '../lib/globeMath';
 
 // Monochrome WebGL globe (cobe 2, about 5 KB, no three.js). Dots are the
 // site's markers: the most requested peaks plus the one the visitor is
@@ -15,7 +15,11 @@ import { MARKER_ELEVATION, anglesFor, pickMarker, validPoint, wrapAngle as wrap 
 // width/height by devicePixelRatio itself, so it gets CSS pixels. When no
 // WebGL context exists it returns no-op methods without throwing, so support
 // is probed on a scratch canvas first, the render canvas is checked again
-// after creation, and context loss switches to the text fallback.
+// after creation, and context loss switches to the text fallback. The
+// constructor also wraps the canvas in a position:relative div (for its CSS
+// anchor feature) that destroy() never removes, so the globe is built once
+// and resized through update({ width, height }); a rebuild per resize would
+// nest a wrapper each time. Cleanup unwraps the canvas.
 //
 // The loop runs only while something moves (idle rotation, easing to a peak,
 // drag momentum) and the globe is on screen in a visible tab. Reduced motion
@@ -87,6 +91,7 @@ export default function Globe({ markers = [], pickable = [], onPick = null, focu
     };
     let globe = null;
     let size = 0;
+    let sizeDirty = false;
     let raf = 0;
     let last = 0;
     let disposed = false;
@@ -95,7 +100,12 @@ export default function Globe({ markers = [], pickable = [], onPick = null, focu
       const w = Math.round(holder.clientWidth);
       if (!w || w === size) return;
       size = w;
-      if (globe) globe.destroy();
+      if (globe) {
+        // The next frame passes the new size to update(); cobe resizes the
+        // backing store from CSS pixels times its own devicePixelRatio.
+        sizeDirty = true;
+        return;
+      }
       globe = createGlobe(canvas, {
         devicePixelRatio: Math.min(2, window.devicePixelRatio || 1),
         width: w,
@@ -168,6 +178,11 @@ export default function Globe({ markers = [], pickable = [], onPick = null, focu
       if (reduce) s.velocity = 0;
 
       const state = { phi: s.phi, theta: s.theta };
+      if (sizeDirty) {
+        sizeDirty = false;
+        state.width = size;
+        state.height = size;
+      }
       if (s.seenMarkers !== markersRef.current.version) {
         s.seenMarkers = markersRef.current.version;
         state.markers = toMarkers(markersRef.current.list);
@@ -193,12 +208,14 @@ export default function Globe({ markers = [], pickable = [], onPick = null, focu
     // Drag to turn: horizontal only, vertical scrolling stays with the page
     // (touch-action pan-y on the canvas). Pointer capture keeps the drag alive
     // when the pointer leaves the canvas.
-    // Nearest pickable dot under a canvas point, or null.
-    const dotAt = (clientX, clientY) => {
+    // Nearest pickable dot under a canvas point, or null. A finger gets a
+    // wider target than a cursor.
+    const dotAt = (clientX, clientY, pointerType = 'mouse') => {
       const { list } = pickRef.current;
       if (!list.length || !size) return null;
       const rect = canvas.getBoundingClientRect();
-      return pickMarker(list, clientX - rect.left, clientY - rect.top, rect.width, s.phi, s.theta);
+      const radius = pointerType === 'mouse' ? PICK_RADIUS_PX : TOUCH_PICK_RADIUS_PX;
+      return pickMarker(list, clientX - rect.left, clientY - rect.top, rect.width, s.phi, s.theta, radius);
     };
 
     const onPointerDown = (e) => {
@@ -232,7 +249,7 @@ export default function Globe({ markers = [], pickable = [], onPick = null, focu
       canvas.releasePointerCapture?.(e.pointerId);
       // A tap (no real movement) on a dot selects it; a drag never does.
       if (s.moved < 6 && pickRef.current.onPick) {
-        const hit = dotAt(e.clientX, e.clientY);
+        const hit = dotAt(e.clientX, e.clientY, e.pointerType);
         if (hit) pickRef.current.onPick(hit);
       }
       kick();
@@ -303,6 +320,13 @@ export default function Globe({ markers = [], pickable = [], onPick = null, focu
       ro?.disconnect();
       if (globe) globe.destroy();
       globe = null;
+      // Undo cobe's wrapper so the holder owns the canvas again (StrictMode
+      // re-runs this effect; a fresh build must not nest wrappers).
+      const wrapper = canvas.parentElement;
+      if (wrapper && wrapper !== holder) {
+        holder.appendChild(canvas);
+        wrapper.remove();
+      }
     };
   }, [supported, lost]);
 
