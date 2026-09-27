@@ -35,7 +35,7 @@ const QUESTIONS = [
   {
     id: 'platforms',
     q: 'Is this available to both Apple and Android?',
-    a: 'Yes! Launching on both on October 1st.',
+    a: 'Yes! Android is out now on Google Play, and the iOS version is in App Store review.',
   },
 ];
 
