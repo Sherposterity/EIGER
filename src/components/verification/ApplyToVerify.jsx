@@ -48,8 +48,15 @@ export default function ApplyToVerify() {
   useEffect(() => {
     if (new URLSearchParams(search).get('section') !== 'apply') return undefined;
     // The page scrolls to the top on mount first; wait a beat, then glide down.
-    const t = setTimeout(() => scrollToElement(sectionRef.current), 120);
-    return () => clearTimeout(t);
+    // Route exit must cancel the glide too, not only the timer.
+    let cancelScroll = () => {};
+    const t = setTimeout(() => {
+      cancelScroll = scrollToElement(sectionRef.current);
+    }, 120);
+    return () => {
+      clearTimeout(t);
+      cancelScroll();
+    };
   }, [search]);
 
   return (
@@ -63,7 +70,7 @@ export default function ApplyToVerify() {
         <div className="grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-12">
           <div>
             <p className="font-mono text-eyebrow uppercase text-fg-subtle">Join the review</p>
-            <h2 id="apply-heading" className="mt-4 text-display-md text-balance text-fg">
+            <h2 id="apply-heading" tabIndex={-1} className="mt-4 text-display-md text-balance text-fg outline-none">
               Are you a mountaineer? Help us verify.
             </h2>
             <p className="mt-5 max-w-prose text-body-lg text-fg-muted">
