@@ -1,4 +1,6 @@
-import { ArrowUpRight, Mail } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { ArrowUpRight, Check, Copy } from 'lucide-react';
 import applyLinks from '@/data/apply-links.json';
 import { focusRing } from '@/components/home/utils';
 
@@ -22,10 +24,35 @@ export default function ApplyToVerify() {
   const body = encodeURIComponent(
     'Name:\nWhere you climb or guide:\nCertifications (if any):\nThree peaks you know best:\nWhy you want to review gear lists:\n',
   );
-  const href = form || `mailto:${email}?subject=${subject}&body=${body}`;
+  const mailto = `mailto:${email}?subject=${subject}&body=${body}`;
+
+  // mailto is dead on desktop webmail, so the address is always visible with a
+  // copy button beside it (same pattern as the footer contact).
+  const [copied, setCopied] = useState(false);
+  const copyTimerRef = useRef(null);
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(email);
+      setCopied(true);
+      clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API unavailable; the address is visible, so manual copy still works.
+    }
+  };
+
+  // /verification?section=apply (linked from the home page) lands on this card.
+  const { search } = useLocation();
+  const sectionRef = useRef(null);
+  useEffect(() => {
+    if (new URLSearchParams(search).get('section') !== 'apply') return undefined;
+    const t = setTimeout(() => sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    return () => clearTimeout(t);
+  }, [search]);
 
   return (
     <section
+      ref={sectionRef}
       id="apply"
       aria-labelledby="apply-heading"
       className="scroll-mt-16 border-t border-line bg-surface-2 py-section"
@@ -59,19 +86,41 @@ export default function ApplyToVerify() {
                 ? 'The application takes about five minutes. We read every one and reply within a week.'
                 : 'Send us a short note about where you climb and which peaks you know best. We reply within a week.'}
             </p>
-            <a
-              href={href}
-              target={form ? '_blank' : undefined}
-              rel={form ? 'noopener noreferrer' : undefined}
-              className={`inline-flex h-12 items-center justify-center gap-2 rounded-pill bg-fg px-7 text-body font-semibold text-bg transition-colors hover:bg-fg/85 ${focusRing}`}
-            >
-              {form ? 'Open the application' : 'Email your application'}
-              {form ? (
+            {form ? (
+              <a
+                href={form}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex h-12 items-center justify-center gap-2 rounded-pill bg-fg px-7 text-body font-semibold text-bg transition-colors hover:bg-fg/85 ${focusRing}`}
+              >
+                Open the application
                 <ArrowUpRight aria-hidden="true" className="size-4" strokeWidth={2} />
-              ) : (
-                <Mail aria-hidden="true" className="size-4" strokeWidth={2} />
-              )}
-            </a>
+              </a>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <p className="text-small font-medium text-fg">Email your application to</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <a
+                    href={mailto}
+                    className={`rounded-sm font-mono text-body text-fg underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-fg ${focusRing}`}
+                  >
+                    {email}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={copyEmail}
+                    aria-label="Copy email address"
+                    className={`inline-flex h-8 items-center gap-1.5 rounded-pill border border-line-strong px-3 font-mono text-small text-fg-muted transition-colors hover:border-fg/40 hover:text-fg ${focusRing}`}
+                  >
+                    {copied ? <Check className="size-3.5" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
+                    {copied ? 'Copied' : 'Copy'}
+                  </button>
+                </div>
+                <span className="sr-only" aria-live="polite">
+                  {copied ? 'Copied' : ''}
+                </span>
+              </div>
+            )}
             <p className="font-mono text-small text-fg-subtle">
               We explain what the work involves in the interview before you commit to anything.
             </p>
