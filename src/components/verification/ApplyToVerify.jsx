@@ -12,7 +12,7 @@ import { focusRing } from '@/components/home/utils';
 const WHO = [
   'Guided, instructed or climbed seriously in the Alps, the Rockies, the Cascades or the Sierra.',
   'Comfortable saying "this list is wrong" and explaining why, in writing.',
-  'A few hours a month. We send you a mountain, you send back corrections.',
+  'A few hours a month, on an ongoing basis. New mountains and new gear keep arriving, so this is continuous work rather than a one off review. We are an early stage startup: reviewing starts as a credited volunteer role, and paid positions open as we grow.',
 ];
 
 export default function ApplyToVerify() {
@@ -73,7 +73,7 @@ export default function ApplyToVerify() {
               )}
             </a>
             <p className="font-mono text-small text-fg-subtle">
-              We explain what the work involves, and how it is credited, in the interview before you commit to anything.
+              We explain what the work involves in the interview before you commit to anything.
             </p>
           </div>
         </div>
