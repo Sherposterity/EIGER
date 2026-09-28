@@ -1,0 +1,28 @@
+# Hourly check that the Kickstarter goal bar on /kickstarter is getting fresh
+# numbers (scripts/kickstarter-watchdog.mjs). A failed run makes GitHub email
+# the person who last edited this schedule. Quiet before launch (Oct 1, 9 AM
+# CT) and after Nov 18; run it by hand from the Actions tab any time.
+name: Kickstarter watchdog
+
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Check the Kickstarter stats cache
+        run: node scripts/kickstarter-watchdog.mjs
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}

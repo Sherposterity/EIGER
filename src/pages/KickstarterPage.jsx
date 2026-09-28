@@ -8,7 +8,7 @@ import EmailCapture from '../components/home/EmailCapture';
 // Read from the data file, not lib/giveaway.js, so this page does not pull in
 // the Supabase client. giveaway.js reads the same file.
 import storeLinks from '../data/store-links.json';
-import { fetchKickstarterStats, mergeStats } from '../lib/kickstarterStats';
+import { campaignPhase, fetchKickstarterStats, mergeStats } from '../lib/kickstarterStats';
 import { scrollToSection } from '../components/home/utils';
 import tierBaseCamp from '../assets/kickstarter/base-camp.jpg';
 import tierWaypoint from '../assets/kickstarter/waypoint.jpg';
@@ -17,7 +17,8 @@ import tierRidgeline from '../assets/kickstarter/ridgeline.jpg';
 import tierSummit from '../assets/kickstarter/summit.jpg';
 
 // Kickstarter (/kickstarter). Copy and tiers are the founder's (docs/COPY.md). The
-// campaign goes live with the app and the giveaway on October 1; until
+// campaign goes live with the app and the giveaway on October 1 (9 AM CT). Before
+// launch the button opens the pre-launch page ("Notify me on launch"); until
 // store-links.json has a "kickstarter" URL the button stays disabled.
 
 const KICKSTARTER_URL = storeLinks.kickstarter;
@@ -32,6 +33,19 @@ const primaryBtn = `inline-flex h-12 items-center justify-center gap-2 rounded-p
 
 const FALLBACK = { goal: storeLinks.kickstarter_goal_usd, pledged: storeLinks.kickstarter_pledged_usd };
 const usd = (n) => `$${n.toLocaleString('en-US')}`;
+
+const PHASE_EYEBROW = {
+  prelaunch: 'Launches October 1',
+  live: 'Live on Kickstarter',
+  funded: 'Funded on Kickstarter',
+  ended: 'Campaign ended',
+};
+const PHASE_BUTTON = {
+  prelaunch: 'Get notified on Kickstarter',
+  live: 'Back us on Kickstarter',
+  funded: 'See the campaign',
+  ended: 'See the campaign',
+};
 
 // Reward tiers (founder copy, 2026-09-25). "starting at" prices in USD.
 // Items always run in the same order: EIGER Pro, stickers, then apparel.
@@ -49,6 +63,7 @@ export default function KickstarterPage() {
   const [stats, setStats] = useState(() => mergeStats(FALLBACK, null));
   const GOAL = stats.goal;
   const PLEDGED = stats.pledged;
+  const phase = campaignPhase({ state: stats.state });
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -90,7 +105,7 @@ export default function KickstarterPage() {
             aria-hidden="true"
           />
           <div className="relative mx-auto w-full max-w-7xl px-4 pt-24 pb-8 sm:px-6 md:pb-16 lg:px-8">
-            <p className={eyebrow}>Launches October 1</p>
+            <p className={eyebrow}>{PHASE_EYEBROW[phase]}</p>
             <h1 className="mt-3 max-w-4xl text-balance text-display-lg sm:mt-4">Kickstarter</h1>
             <div className="mt-5 max-w-2xl space-y-3 text-body text-fg-muted sm:mt-6 sm:space-y-4 sm:text-body-lg">
               <p>
@@ -104,14 +119,17 @@ export default function KickstarterPage() {
               </p>
             </div>
 
-            {/* Goal bar: plain white fill, no colour; pledged is updated by hand until a feed exists. */}
+            {/* Goal bar: plain white fill, no colour. Pledged and backers come from the
+                kickstarter_stats cache (refreshed every 15 minutes from Kickstarter). */}
             <div className="mt-5 max-w-2xl sm:mt-6" role="group" aria-labelledby="kickstarter-goal-label">
               <div className="flex items-baseline justify-between font-mono text-small text-fg-subtle">
                 <span id="kickstarter-goal-label">Goal {usd(GOAL)}</span>
                 <span>
                   {PLEDGED > 0
                     ? `${usd(PLEDGED)} pledged${stats.backers ? ` by ${stats.backers.toLocaleString('en-US')} backers` : ''}`
-                    : 'Opens October 1'}
+                    : phase === 'prelaunch'
+                      ? 'Opens October 1'
+                      : 'Be one of our first backers'}
                 </span>
               </div>
               <div
@@ -136,7 +154,7 @@ export default function KickstarterPage() {
                     rel="noopener noreferrer"
                     className={`${primaryBtn} hover:opacity-85`}
                   >
-                    Back us on Kickstarter
+                    {PHASE_BUTTON[phase]}
                     <ArrowUpRight className="size-4" aria-hidden="true" />
                   </a>
                 ) : (

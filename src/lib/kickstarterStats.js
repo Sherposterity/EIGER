@@ -17,7 +17,21 @@ export function mergeStats(fallback, remote) {
     backers,
     live: Boolean(remote && remote.fetched_at),
     fetchedAt: remote?.fetched_at ?? null,
+    state: typeof remote?.state === 'string' ? remote.state : null,
   };
+}
+
+// Launch: 2026-10-01 9:00 AM Central (CDT, UTC-5). Muad presses launch by hand.
+export const LAUNCH_AT = Date.parse('2026-10-01T14:00:00Z');
+
+// Which stage the campaign is in. Kickstarter's own state wins once the feed
+// has one; before that the launch time decides (the feed answers 404 until
+// the campaign is live).
+export function campaignPhase({ state = null, now = Date.now() } = {}) {
+  if (state === 'successful') return 'funded';
+  if (state === 'failed' || state === 'canceled' || state === 'suspended') return 'ended';
+  if (state === 'live') return 'live';
+  return now >= LAUNCH_AT ? 'live' : 'prelaunch';
 }
 
 export async function fetchKickstarterStats({ url, key, signal } = {}) {
