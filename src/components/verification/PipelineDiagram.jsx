@@ -299,6 +299,7 @@ function DocCard({ x, y, w, h, thumb, relative }) {
 export default function PipelineDiagram({
   geo,
   stage,
+  runId = 0,
   reduce,
   mountain,
   need,
@@ -452,7 +453,18 @@ export default function PipelineDiagram({
           );
         })}
 
-        {stage === 1 && <GuidelinesDoc key={mountain?.slug} model={model} thumb={geo.thumb} reduce={reduce} playKey={mountain?.slug ?? 'doc'} />}
+        {/* The guidelines merging into the model belongs to a run: before
+            Run is pressed the document sits docked beside the model (the
+            same still layout reduced motion uses); each run replays it. */}
+        {stage === 1 && (
+          <GuidelinesDoc
+            key={`${mountain?.slug ?? 'doc'}|${runId}`}
+            model={model}
+            thumb={geo.thumb}
+            reduce={reduce || !runId}
+            playKey={`${mountain?.slug ?? 'doc'}|${runId}`}
+          />
+        )}
 
         <Node
           at={model}
