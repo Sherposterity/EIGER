@@ -25,4 +25,4 @@ and `/about` to the hash route so shared links without the `#` still land.
 ## Static pages
 
 `public/support.html`, `privacy.html`, `terms.html`, `delete-account.html` are plain HTML and
-are linked from the footer. Keep copy free of em and en dashes (founder rule).
+are linked from the footer. Keep copy free of em and en dashes (founder rule). No pulsing, pinging or blinking dots anywhere (founder hard rule, see docs/EIGER_DESIGN.md).

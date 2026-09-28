@@ -78,6 +78,13 @@ hand written CSS.
   at 320, 360 and 390. Phones get every action desktop gets, including "Get
   the app" in the nav sheet. Side gutter on phones is 16px, no horizontal
   scroll.
+- **No pulsing dots. Hard rule (founder, 2026-09-27).** Never add a pulsing,
+  pinging, blinking or breathing dot, green or any other colour
+  (`animate-ping`, `animate-pulse` or anything equivalent), anywhere on the
+  site. Status and calls to action are shown with static marks, text and
+  layout. Two were removed on 2026-09-27 (the home verifier callout and the
+  "Mountaineer? Apply to verify" cue on /verification); do not reintroduce
+  them in any form.
 - **One motion library.** `motion` only. No GSAP, Lenis or three.js. Motion is
   short, eases out, and never blocks reading. `prefers-reduced-motion`
   switches it off globally in `src/index.css`.
