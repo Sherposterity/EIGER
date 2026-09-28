@@ -1,7 +1,7 @@
 {
   "ios": null,
   "android": "https://play.google.com/store/apps/details?id=com.eiger014.eiger",
-  "kickstarter": null,
-  "kickstarter_goal_usd": 2000,
+  "kickstarter": "https://www.kickstarter.com/projects/eiger/eiger-making-hiking-safe-one-foothold-at-a-time",
+  "kickstarter_goal_usd": 5000,
   "kickstarter_pledged_usd": 0
 }
