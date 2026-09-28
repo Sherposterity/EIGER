@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
 // Homepage "Brand Athlete" block (copy from docs/COPY.md, Home): Timoteo's own ice climbing footage as a muted
 // loop, with a short intro and his TikTok. The clip lives in public/videos
@@ -124,6 +125,21 @@ const Athlete = () => {
                         tomatosummit4 (TikTok)
                         <ArrowUpRight className="size-4" aria-hidden="true" />
                     </a>
+
+                    {/* Recruiting more reviewers sits under the mountaineer who leads them:
+                        the people reading about Timoteo are the right audience. Kept light
+                        (no card, nothing animated); the full ask lives on /verification. */}
+                    <div className="mt-10 border-t border-line pt-6">
+                        <p className="font-mono text-eyebrow font-semibold uppercase text-fg-subtle">Are you a mountaineer?</p>
+                        <p className="mt-2 text-body-lg text-fg">Help us verify the next peaks.</p>
+                        <Link
+                            to="/verification?section=apply"
+                            className="group mt-3 inline-flex items-center gap-2 rounded-sm text-body font-medium text-fg underline decoration-line-strong underline-offset-4 outline-none transition-colors hover:decoration-fg focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                        >
+                            Apply to verify
+                            <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden="true" />
+                        </Link>
+                    </div>
                 </div>
             </div>
         </section>

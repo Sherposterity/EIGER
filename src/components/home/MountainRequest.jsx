@@ -393,30 +393,6 @@ export default function MountainRequest({ standalone = false }) {
               </Link>
             )}
           </FadeIn>
-          <FadeIn delay={0.24} className="mt-8">
-            {/* Requested peaks only reach the app after a mountaineer checks the
-                list, so the ask for reviewers sits right under the queue. */}
-            <Link
-              to="/verification?section=apply"
-              className={`group flex items-start gap-4 ${surface} p-5 transition-colors hover:border-fg/40 ${focusRing}`}
-            >
-              <span aria-hidden="true" className="relative mt-1.5 flex size-3 shrink-0 items-center justify-center">
-                <span className="absolute inline-flex size-full rounded-full bg-live opacity-60 motion-safe:animate-ping" />
-                <span className="relative inline-flex size-2 rounded-full bg-live" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className={EYEBROW}>Are you a mountaineer?</span>
-                <span className="mt-2 block text-heading text-fg">Help us verify the next peaks.</span>
-                <span className="mt-2 block text-body text-fg-muted">
-                  A requested mountain only reaches the app after a mountaineer checks its gear list. We need more of them, and we set up a short interview with everyone who applies.
-                </span>
-                <span className="mt-3 inline-flex items-center gap-2 text-body font-medium text-fg underline decoration-line-strong underline-offset-4 transition-colors group-hover:decoration-fg">
-                  Apply to verify
-                  <ArrowRight aria-hidden="true" className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-                </span>
-              </span>
-            </Link>
-          </FadeIn>
           {standalone ? (
             <p className="mt-8 text-small text-fg-subtle">One request per mountain per connection. We store your mountain request, a hashed connection address and the request time, to count requests and limit repeats.</p>
           ) : null}
