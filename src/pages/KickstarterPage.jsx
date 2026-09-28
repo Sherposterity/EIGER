@@ -10,6 +10,11 @@ import EmailCapture from '../components/home/EmailCapture';
 import storeLinks from '../data/store-links.json';
 import { fetchKickstarterStats, mergeStats } from '../lib/kickstarterStats';
 import { scrollToSection } from '../components/home/utils';
+import tierBaseCamp from '../assets/kickstarter/base-camp.jpg';
+import tierWaypoint from '../assets/kickstarter/waypoint.jpg';
+import tierAscent from '../assets/kickstarter/ascent.jpg';
+import tierRidgeline from '../assets/kickstarter/ridgeline.jpg';
+import tierSummit from '../assets/kickstarter/summit.jpg';
 
 // Kickstarter (/kickstarter). Copy and tiers are the founder's (docs/COPY.md). The
 // campaign goes live with the app and the giveaway on October 1; until
@@ -30,12 +35,14 @@ const usd = (n) => `$${n.toLocaleString('en-US')}`;
 
 // Reward tiers (founder copy, 2026-09-25). "starting at" prices in USD.
 // Items always run in the same order: EIGER Pro, stickers, then apparel.
+// Each tier shows what you get (src/assets/kickstarter, rendered in the
+// eiger-video repo: RewardCards.tsx Site-Tier-*). Merch images are mockups.
 const REWARDS = [
-  { name: 'Base Camp Pack', price: 5, items: ['One month of EIGER Pro'] },
-  { name: 'Waypoint Pack', price: 15, items: ['One month of EIGER Pro', '4 x EIGER stickers'] },
-  { name: 'Ascent Pack', price: 50, items: ['One month of EIGER Pro', '4 x EIGER stickers', 'EIGER t-shirt'] },
-  { name: 'Ridgeline Pack', price: 80, items: ['One month of EIGER Pro', '4 x EIGER stickers', 'EIGER sweatshirt'] },
-  { name: 'Summit Pack', price: 180, items: ['One month of EIGER Pro', '4 x EIGER stickers', 'EIGER sweatset'] },
+  { name: 'Base Camp Pack', price: 5, image: tierBaseCamp, alt: 'Two EIGER app screens: Mission Control and a mountain dossier', items: ['One month of EIGER Pro'] },
+  { name: 'Waypoint Pack', price: 15, image: tierWaypoint, alt: 'Four EIGER stickers: the climber mark, the wordmark and Live for the summit', items: ['One month of EIGER Pro', '4 x EIGER stickers'] },
+  { name: 'Ascent Pack', price: 50, image: tierAscent, alt: 'Black EIGER t-shirt, front and back', items: ['One month of EIGER Pro', '4 x EIGER stickers', 'EIGER t-shirt'] },
+  { name: 'Ridgeline Pack', price: 80, image: tierRidgeline, alt: 'Black EIGER sweatshirt with embroidered lettering, front and back', items: ['One month of EIGER Pro', '4 x EIGER stickers', 'EIGER sweatshirt (embroidered)'] },
+  { name: 'Summit Pack', price: 180, image: tierSummit, alt: 'Black EIGER hoodie and pants set with an embroidered chest logo', items: ['One month of EIGER Pro', '4 x EIGER stickers', 'EIGER sweatset (embroidered)'] },
 ];
 
 export default function KickstarterPage() {
@@ -181,6 +188,9 @@ export default function KickstarterPage() {
                     i === REWARDS.length - 1 ? 'border-line-strong sm:col-span-2 lg:col-span-1' : 'border-line'
                   }`}
                 >
+                  <div className="-mx-6 -mt-6 mb-5 aspect-[4/3] overflow-hidden rounded-t-lg border-b border-line lg:-mx-5 lg:-mt-5">
+                    <img src={r.image} alt={r.alt} loading="lazy" className="h-full w-full object-cover" />
+                  </div>
                   <p className="font-mono text-eyebrow uppercase text-fg-subtle">Tier {String(i + 1).padStart(2, '0')}</p>
                   <h3 className="mt-3 text-heading lg:min-h-[2lh]">{r.name}</h3>
                   <p className="mt-4 font-mono text-eyebrow uppercase text-fg-subtle">Starting at</p>
@@ -197,6 +207,8 @@ export default function KickstarterPage() {
                 </article>
               ))}
             </div>
+
+            <p className="mt-6 text-small text-fg-subtle">Merch is shown as mockups. The final products may vary slightly.</p>
 
             <Link
               to="/giveaway"

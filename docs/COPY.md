@@ -126,8 +126,14 @@ Wording rule (Muad, 2026-09-25): say "algorithm", not "AI agent" or "agents", wh
 
 ## Kickstarter page (Muad, 2026-09-25)
 - Intro (first sentence bold): With app development, marketing, scaling and implementing rigorous safety measures comes a hefty price that three university students don't really have the resources to pay for. All current expenses have come out of pocket for us because we really believe in this app (and more importantly, the mission behind it) but unfortunately, it's unsustainable for us. / This is why we're asking for your help. Whether it's one dollar or ten, please give us a hand to make the EIGER experience safer and more enjoyable. This will also help expedite app development and research such that we can put out published versions at a reasonable pace.
-- Goal: $2,000, plain white bar (pledged amount in src/data/store-links.json, updated by hand until a feed exists).
-- Tiers (starting at, USD): Base Camp Pack $5 (one month of EIGER Pro) · Waypoint Pack $15 (+ 4 x stickers) · Ascent Pack $50 (+ stickers + t-shirt) · Ridgeline Pack $80 (+ stickers + sweatshirt) · Summit Pack $180 (one month Pro + stickers + sweatset; items listed Pro, stickers, apparel on every tier). "Eiger Pro" written as "EIGER Pro" per the casing rule.
+- Goal: $5,000 (raised from $2,000 on 2026-09-27 to pay the mountaineer reviewers more), plain white bar; live goal and pledged from public.kickstarter_stats (hike mig 111 + 119), fallback in src/data/store-links.json.
+- Tiers (starting at, USD): Base Camp Pack $5 (one month of EIGER Pro) · Waypoint Pack $15 (+ 4 x stickers) · Ascent Pack $50 (+ stickers + t-shirt) · Ridgeline Pack $80 (+ stickers + sweatshirt (embroidered)) · Summit Pack $180 (one month Pro + stickers + sweatset (embroidered); items listed Pro, stickers, apparel on every tier). "Eiger Pro" written as "EIGER Pro" per the casing rule.
+
+- Tier cards show product images (mockups) with the note: "Merch is shown as mockups. The final products may vary slightly." (2026-09-27)
+
+## Verifier recruiting (2026-09-27, Rishav's session; Muad to rewrite in his voice)
+- Home, under the Brand Athlete text: eyebrow "Are you a mountaineer?", line "Help us verify the next peaks.", link "Apply to verify" (to /verification?section=apply). Moved there from the mountain requests section by Muad 2026-09-27; no pulsing dot.
+- /verification, Apply to verify section: heading "Join the review"; who we want: "Guided, instructed or climbed seriously in the Alps, the Rockies, the Cascades or the Sierra." / "Comfortable saying "this list is wrong" and explaining why, in writing." / "A few hours a month, on an ongoing basis. New mountains and new gear keep arriving, so this is continuous work rather than a one off review. We are an early stage startup, and paid reviewer positions open as we grow." (Muad 2026-09-27: promise paid positions that open as we grow); button "Apply to verify"; "The application takes about five minutes. We read every one and reply within a week."; floating cue "Mountaineer? Apply to verify".
 
 ## Mountain requests (home section + /request, 2026-09-26)
 - Eyebrow "Mountain requests", heading "Which mountain next?"

@@ -15,7 +15,7 @@ import { scrollToElement } from './scrollToElement';
 const WHO = [
   'Guided, instructed or climbed seriously in the Alps, the Rockies, the Cascades or the Sierra.',
   'Comfortable saying "this list is wrong" and explaining why, in writing.',
-  'A few hours a month, on an ongoing basis. New mountains and new gear keep arriving, so this is continuous work rather than a one off review. We are an early stage startup: reviewing starts as a credited volunteer role, and paid positions open as we grow.',
+  'A few hours a month, on an ongoing basis. New mountains and new gear keep arriving, so this is continuous work rather than a one off review. We are an early stage startup, and paid reviewer positions open as we grow.',
 ];
 
 export default function ApplyToVerify() {
