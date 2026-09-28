@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DRIFT_CSS } from '@/components/home/tryit/glyphs';
 import PipelinePanel from '@/components/verification/PipelinePanel';
+import { scrollToElement } from '@/components/verification/scrollToElement';
 import ApplyToVerify from '@/components/verification/ApplyToVerify';
 import MoreBelowCue from '@/components/verification/MoreBelowCue';
 import { RUN_SCHEDULE, STAGES, announce, phrasesFor } from '@/components/verification/pipeline';
@@ -151,9 +152,9 @@ export default function VerificationPage() {
         lastScrollStage.current = best;
         setScrollStage(best);
         setSpoken(true);
-        // A run scrolls the page itself; only the reader scrolling somewhere
-        // else should interrupt it.
-        if (!runRef.current.active || best !== runRef.current.stage) stopRun();
+        // No stopRun here: a run scrolls the page itself, and a glide that
+        // lands a little short used to read as "the reader moved" and freeze
+        // the run (the stall on step 5). Only real input stops a run (below).
       }
     };
     const onScroll = () => {
@@ -170,19 +171,46 @@ export default function VerificationPage() {
   }, [desktop, stopRun]);
 
   // While a run plays, scroll the step text alongside the diagram so both
-  // advance together (founder request). Reduced motion jumps instead of gliding.
+  // advance together (founder request). The glide is frame driven
+  // (scrollToElement), not native smooth scroll: html has scroll-behavior
+  // smooth, and native glides can stop short. Reduced motion jumps.
+  const glideRef = useRef(() => {});
   useEffect(() => {
-    if (!run.active) return;
+    if (!run.active) return undefined;
     const el = stepRefs.current[run.stage - 1];
-    if (!el) return;
+    if (!el) return undefined;
     const vh = window.innerHeight;
     const panelBottom = !desktop && panelRef.current ? panelRef.current.getBoundingClientRect().bottom : 0;
     const ref = desktop ? vh / 2 : (Math.max(0, panelBottom) + vh) / 2;
-    const r = el.getBoundingClientRect();
-    const top = window.scrollY + r.top + r.height / 2 - ref;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    window.scrollTo({ top: Math.max(0, top), behavior: reduce ? 'auto' : 'smooth' });
+    // offset = where the step's top edge should sit so its centre lands on ref
+    glideRef.current = scrollToElement(el, { offset: ref - el.getBoundingClientRect().height / 2, duration: 700 });
+    return () => glideRef.current();
   }, [run.active, run.stage, desktop]);
+
+  // Only the reader's own input stops a run: wheel or trackpad, touch, the
+  // scroll keys, or grabbing the scrollbar. Not the scroll position, which
+  // the run itself moves.
+  useEffect(() => {
+    if (!run.active) return undefined;
+    const keys = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '];
+    const onKey = (e) => {
+      if (keys.includes(e.key)) stopRun();
+    };
+    const onMouseDown = (e) => {
+      // a press on the page's own scrollbar lands on the root element
+      if (e.target === document.documentElement) stopRun();
+    };
+    window.addEventListener('wheel', stopRun, { passive: true });
+    window.addEventListener('touchmove', stopRun, { passive: true });
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('mousedown', onMouseDown);
+    return () => {
+      window.removeEventListener('wheel', stopRun);
+      window.removeEventListener('touchmove', stopRun);
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('mousedown', onMouseDown);
+    };
+  }, [run.active, stopRun]);
 
   const startRun = useCallback(() => {
     timers.current.forEach(clearTimeout);
@@ -241,6 +269,7 @@ export default function VerificationPage() {
                   <PipelinePanel
                     stage={stage}
                     stageKey={stageKey}
+                    runId={run.active ? run.id : 0}
                     reduce={Boolean(reduce)}
                     mountain={mountain}
                     taxonomy={TAXONOMY}

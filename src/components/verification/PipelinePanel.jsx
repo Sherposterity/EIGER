@@ -93,6 +93,7 @@ function Caption({ stage, step, phrases, reduce, mountain, verified }) {
 export default function PipelinePanel({
   stage,
   stageKey,
+  runId = 0,
   reduce,
   mountain,
   taxonomy,
@@ -127,6 +128,7 @@ export default function PipelinePanel({
           <PipelineDiagram
             geo={geo}
             stage={stage}
+            runId={runId}
             reduce={reduce}
             mountain={mountain}
             need={need}
