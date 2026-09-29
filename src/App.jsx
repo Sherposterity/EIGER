@@ -24,6 +24,13 @@ const GiveawayRulesPage = lazy(() => import('./pages/GiveawayRulesPage'));
 const VerificationPage = lazy(() => import('./pages/VerificationPage'));
 const KickstarterPage = lazy(() => import('./pages/KickstarterPage'));
 const RequestPage = lazy(() => import('./pages/RequestPage'));
+// Reviewer portal: hidden (noindex, not linked from nav or footer) except the
+// public application form, which the Verification page links to.
+const ReviewShell = lazy(() => import('./pages/review/ReviewShell'));
+const ReviewBoard = lazy(() => import('./pages/review/ReviewBoard'));
+const ReviewMountain = lazy(() => import('./pages/review/ReviewMountain'));
+const ReviewAdmin = lazy(() => import('./pages/review/ReviewAdmin'));
+const ReviewApply = lazy(() => import('./pages/review/ReviewApply'));
 
 // Client-side navigation keeps the previous scroll position; every route change
 // starts at the top unless the URL asks for a section or an in-page anchor.
@@ -133,6 +140,12 @@ function App() {
         <Route path="/giveaway/rules" element={<GiveawayRulesPage />} />
         <Route path="/kickstarter" element={<KickstarterPage />} />
         <Route path="/request" element={<RequestPage />} />
+        <Route path="/review" element={<ReviewShell />}>
+          <Route index element={<ReviewBoard />} />
+          <Route path="m/:trailId" element={<ReviewMountain />} />
+          <Route path="admin" element={<ReviewAdmin />} />
+          <Route path="apply" element={<ReviewApply />} />
+        </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

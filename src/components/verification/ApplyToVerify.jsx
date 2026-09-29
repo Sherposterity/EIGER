@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { ArrowUpRight, Check, Copy } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { ArrowRight, ArrowUpRight, Check, Copy } from 'lucide-react';
 import applyLinks from '@/data/apply-links.json';
 import { focusRing } from '@/components/home/utils';
 import { scrollToElement } from './scrollToElement';
@@ -8,8 +8,9 @@ import { scrollToElement } from './scrollToElement';
 // "Apply to verify" call to action at the foot of the Verification page.
 // We need more mountaineers reviewing gear lists, so the page that explains
 // the pipeline is also where people volunteer for it. The application itself
-// is a Google Form (URL in src/data/apply-links.json); until that URL exists
-// the button emails business@ instead, so the section is useful from day one.
+// lives at /review/apply (path in src/data/apply-links.json; an external URL
+// there opens in a new tab instead); while it is null the button emails
+// business@ instead.
 // Copy is user-facing: no dashes.
 
 const WHO = [
@@ -95,7 +96,15 @@ export default function ApplyToVerify() {
                 ? 'The application takes about five minutes. We read every one and reply within a week.'
                 : 'Send us a short note about where you climb and which peaks you know best. We reply within a week.'}
             </p>
-            {form ? (
+            {form && form.startsWith('/') ? (
+              <Link
+                to={form}
+                className={`inline-flex h-12 items-center justify-center gap-2 rounded-pill bg-fg px-7 text-body font-semibold text-bg transition-colors hover:bg-fg/85 ${focusRing}`}
+              >
+                Open the application
+                <ArrowRight aria-hidden="true" className="size-4" strokeWidth={2} />
+              </Link>
+            ) : form ? (
               <a
                 href={form}
                 target="_blank"
