@@ -165,3 +165,8 @@ kept but the section renders after the browser's own anchor jump).
 - New route `/verification` (Verification process page), in `routes.js`, `copy-routes.mjs` and the sitemap.
 - Old in-page anchors `#platforms` and `#waitlist` map to `#get-the-app` and `#updates`.
 - The edge function still emits `#/giveaway` links; they keep working through the hash redirect. Switching them is a separate change.
+
+## Update 2026-09-29 (reviewer portal)
+- New routes under `/review` (layout `src/pages/review/ReviewShell.jsx`): `/review` (email code sign in + board), `/review/m/:trailId` (review one mountain), `/review/admin` (admins only), `/review/apply` (public application form).
+- All `/review` routes add `<meta name="robots" content="noindex">` while mounted. They are deliberately NOT in `copy-routes.mjs` or the sitemap and are not linked from the nav or footer; they load through the 404.html hand-off. The only public link is the Verification page's "Open the application" button (`verifier_form` in `src/data/apply-links.json` = `/review/apply`, opened in the same tab).
+- Slot and season logic is pure and tested: `src/lib/reviewSlots.js`, `tests/reviewSlots.test.js`.

@@ -1,5 +1,5 @@
 {
-  "_comment": "Application form for verifying mountaineers (Verification page). Paste the Google Form URL into verifier_form; while it is null the card falls back to email.",
-  "verifier_form": null,
+  "_comment": "Application form for verifying mountaineers (Verification page). verifier_form is either a site path (starts with /, opened in the same tab) or an external URL (new tab); while it is null the card falls back to email.",
+  "verifier_form": "/review/apply",
   "verifier_email": "business@eiger014.com"
 }
