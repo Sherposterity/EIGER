@@ -1,0 +1,42 @@
+{
+  "_comment": "Single source of truth for /pricing. appRows are copied verbatim from the app paywall (hike app/utils/paywallPersonalization.ts PAYWALL_COMPARISON and PAYWALL_COMPARISON_FOOTNOTE); change both together. Savings and the monthly equivalent are computed in src/lib/plans.js, never stored here.",
+  "prices": {
+    "annual": 35.99,
+    "weekly": 5.99,
+    "currency": "USD",
+    "trialDays": 7
+  },
+  "appRows": [
+    { "label": "Gear compatibility score", "free": "Your objective", "pro": "Every mountain", "group": "gear" },
+    { "label": "Change of objective", "free": "1 free change", "pro": "Unlimited", "group": "trips" },
+    { "label": "Group trips", "free": "Join by code", "pro": "Create and join", "group": "trips" },
+    { "label": "Saved mountains", "free": "Objective + 1", "pro": "Unlimited", "group": "trips" },
+    { "label": "Saved kits, scored per objective", "free": "3 kits", "pro": "Unlimited", "group": "gear" },
+    { "label": "Plan and compare kits from the marketplace", "free": "Not included", "pro": "Included", "group": "gear" },
+    { "label": "Offline maps, 3D terrain, forecasts, GPS", "free": "Not included", "pro": "Included", "group": "maps" }
+  ],
+  "footnote": "Gear readiness, the season switch and the full gear list are free for everyone.",
+  "groups": [
+    { "id": "gear", "label": "Gear" },
+    { "id": "trips", "label": "Mountains and trips" },
+    { "id": "maps", "label": "Maps and weather" }
+  ],
+  "freeForEveryone": {
+    "label": "Free for everyone",
+    "rows": [
+      { "label": "Every mountain's gear list, reviewed by mountaineers", "free": "Included", "pro": "Included" },
+      { "label": "Gear readiness view", "free": "Included", "pro": "Included" },
+      { "label": "Summer and winter season switch", "free": "Included", "pro": "Included" },
+      { "label": "Marketplace browsing (3,000+ items)", "free": "Included", "pro": "Included" },
+      { "label": "Weather and conditions basics", "free": "Included", "pro": "Included" }
+    ]
+  },
+  "soon": {
+    "_comment": "Features in progress, shown as Soon on both plans and never counted as included. Remove this group (or a row) when the feature ships or is dropped; nothing else depends on it.",
+    "label": "Coming",
+    "rows": [
+      { "label": "Routes per mountain with summer and winter grades", "free": "soon", "pro": "soon" },
+      { "label": "Winter route variants", "free": "soon", "pro": "soon" }
+    ]
+  }
+}

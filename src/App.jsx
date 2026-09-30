@@ -24,6 +24,7 @@ const GiveawayRulesPage = lazy(() => import('./pages/GiveawayRulesPage'));
 const VerificationPage = lazy(() => import('./pages/VerificationPage'));
 const KickstarterPage = lazy(() => import('./pages/KickstarterPage'));
 const RequestPage = lazy(() => import('./pages/RequestPage'));
+const PricingPage = lazy(() => import('./pages/PricingPage'));
 // Reviewer portal: hidden (noindex, not linked from nav or footer) except the
 // public application form, which the Verification page links to.
 const ReviewShell = lazy(() => import('./pages/review/ReviewShell'));
@@ -135,6 +136,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/mission" element={MISSION_REDIRECT ? <MissionRedirect /> : <MissionPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
         <Route path="/verification" element={<VerificationPage />} />
         <Route path="/giveaway" element={<GiveawayPage />} />
         <Route path="/giveaway/rules" element={<GiveawayRulesPage />} />

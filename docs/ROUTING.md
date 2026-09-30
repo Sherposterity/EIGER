@@ -15,6 +15,7 @@ loaded as before):
 | `/` | Home. `?section=<id>` scrolls to that section after load (unchanged). |
 | `/mission` | MissionPage |
 | `/about` | AboutPage |
+| `/pricing` | PricingPage. Static; plans and the compare table come from `src/data/plans.json` |
 | `/giveaway` | GiveawayPage. Reads `?ref=`, `?entry=`, `?unsubscribed=` |
 | `/giveaway/rules` | GiveawayRulesPage. Reads `?ref=` |
 | `/kickstarter`, `/request` | KickstarterPage (copy pending; button disabled until `kickstarter` is set in `src/data/store-links.json`) |
