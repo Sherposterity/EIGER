@@ -1,19 +1,19 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'motion/react';
-import { Calendar, X } from 'lucide-react';
+import { Rocket, X } from 'lucide-react';
 import { LAUNCH_AT } from '../../lib/giveawayWindow';
 import { EASE_OUT_EXPO, focusRing } from './utils';
 
 // Launch strip on the home page, just under the fixed nav and over the top of
-// the hero. Shown only before the launch instant (the giveaway opening, which
-// is also the app and Kickstarter launch); afterwards it renders nothing and
-// the site reads as launched. Dismissal lasts for the browser session.
-// Copy is [PROPOSED] (docs/COPY.md); no dashes.
+// the hero. Muad pressed launch on the Kickstarter on 2026-09-30 (a day
+// early), so the strip now announces the live campaign for launch week and
+// leaves at BANNER_UNTIL. Dismissal lasts for the browser session. No dashes.
 
 const DISMISS_KEY = 'eiger_launch_banner_dismissed';
 const LAUNCH_MS = Date.parse(LAUNCH_AT);
-const DAY_MS = 86400000;
+// One week of launch strip after the planned launch instant (2026-10-08 16:00 UTC).
+const BANNER_UNTIL = LAUNCH_MS + 7 * 86400000;
 
 const readDismissed = () => {
   try {
@@ -21,17 +21,6 @@ const readDismissed = () => {
   } catch {
     return false;
   }
-};
-
-// Whole calendar days between today and launch day, in the visitor's own time zone.
-const countdownLabel = (now) => {
-  const startOfDay = (ms) => {
-    const d = new Date(ms);
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  };
-  const days = Math.round((startOfDay(LAUNCH_MS) - startOfDay(now)) / DAY_MS);
-  if (days <= 0) return 'today';
-  return `in ${days} ${days === 1 ? 'day' : 'days'}`;
 };
 
 // The hero reads --launch-banner-h to push its content below the strip.
@@ -44,9 +33,9 @@ const LaunchBanner = () => {
   const [now, setNow] = useState(() => Date.now());
   const [dismissed, setDismissed] = useState(readDismissed);
   const ref = useRef(null);
-  const visible = !dismissed && now < LAUNCH_MS;
+  const visible = !dismissed && now < BANNER_UNTIL;
 
-  // Re-check once a minute so the strip leaves at the launch instant and the day count rolls over.
+  // Re-check once a minute so the strip leaves on time.
   useEffect(() => {
     if (!visible) return undefined;
     const id = setInterval(() => setNow(Date.now()), 60000);
@@ -97,10 +86,9 @@ const LaunchBanner = () => {
       {...motionProps}
     >
       <div className="mx-auto flex max-w-7xl items-start gap-3 px-4 py-2.5 sm:items-center sm:px-6 lg:px-8">
-        <Calendar aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-fg-muted sm:mt-0" strokeWidth={1.75} />
+        <Rocket aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-fg-muted sm:mt-0" strokeWidth={1.75} />
         <p className="min-w-0 flex-1 font-mono text-xs leading-relaxed text-fg-muted sm:text-small">
-          <span className="text-fg">The app is out on Android. October 1: our Kickstarter goes live.</span>{' '}
-          <span className="whitespace-nowrap tabular-nums">{countdownLabel(now)}</span>{' '}
+          <span className="text-fg">The app is out on Android and our Kickstarter is live.</span>{' '}
           {/* No left margin on phones: the links wrap to their own line there. */}
           {/* Kickstarter + mountain requests (founder 2026-09-26): no giveaway
               link here, it read as though it opened with the campaign. */}
