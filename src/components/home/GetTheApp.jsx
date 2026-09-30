@@ -2,7 +2,8 @@ import storeLinks from '@/data/store-links.json';
 
 // A badge is live as soon as its store URL exists in store-links.json. Play
 // production 1.4.0 went public on 2026-09-26, so the Android badge no longer
-// waits for the campaign launch instant; iOS stays null until Apple approves.
+// waits for the campaign launch instant; iOS stays null until Apple approves,
+// and ios_beta (the public TestFlight link) fills the gap under the badge.
 const linkFor = (key) => storeLinks[key] || null;
 import { FadeIn } from './motion';
 import { focusRing } from './utils';
@@ -66,6 +67,18 @@ function StoreBadge({ store }) {
             {img}
           </span>
         )}
+        {store.key === 'ios' && !href && linkFor('ios_beta') ? (
+          // App Store listing in Apple's review: the public TestFlight beta
+          // stands in until the badge goes live (Rishav, 2026-10-01).
+          <a
+            href={linkFor('ios_beta')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`text-small font-medium text-fg underline decoration-line underline-offset-4 hover:decoration-fg ${focusRing}`}
+          >
+            iPhone: join the TestFlight beta
+          </a>
+        ) : null}
       </div>
       {href ? (
         <img
@@ -98,7 +111,7 @@ const GetTheApp = () => {
           </h2>
         </FadeIn>
         <FadeIn delay={0.06}>
-          <p className="mt-5 text-body-lg text-fg-muted">Out now on Android. iOS is on the way.</p>
+          <p className="mt-5 text-body-lg text-fg-muted">Out now on Android. The iPhone beta is open while the App Store listing is in review.</p>
         </FadeIn>
 
         <FadeIn delay={0.12} className="mt-10 flex flex-col items-center gap-2 sm:flex-row sm:gap-6 md:-ml-3">
@@ -108,7 +121,7 @@ const GetTheApp = () => {
         </FadeIn>
 
         {anyMissing ? (
-          <p className="mt-4 font-mono text-small text-fg-subtle">App Store link coming soon</p>
+          <p className="mt-4 font-mono text-small text-fg-subtle">App Store listing pending review</p>
         ) : null}
       </div>
     </section>

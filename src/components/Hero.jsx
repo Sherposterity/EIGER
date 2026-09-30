@@ -305,7 +305,7 @@ const Hero = () => {
                         {...stage(0.2)}
                         className="mt-4 font-mono text-small text-fg-subtle md:mt-5"
                     >
-                        Out now on Google Play. App Store coming soon.
+                        Out now on Google Play. App Store pending review, iPhone beta open.
                     </motion.p>
                 </div>
 

@@ -35,7 +35,7 @@ const QUESTIONS = [
   {
     id: 'platforms',
     q: 'Is this available to both Apple and Android?',
-    a: 'Yes! Android is out now on Google Play, and the iOS version is in App Store review.',
+    a: 'Yes! Android is out now on Google Play, and the iOS version is in App Store review. Until Apple approves it, iPhone users can join the public beta from the TestFlight link in the Get the app section.',
   },
 ];
 
