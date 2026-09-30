@@ -34,6 +34,13 @@ export function campaignPhase({ state = null, now = Date.now() } = {}) {
   return now >= LAUNCH_AT ? 'live' : 'prelaunch';
 }
 
+// The running total for the launch banner, or null before the first pledge.
+export function pledgeLine(pledged, goal) {
+  if (!(pledged > 0)) return null;
+  const usd = (n) => `$${Math.round(n).toLocaleString('en-US')}`;
+  return goal > 0 ? `${usd(pledged)} pledged of ${usd(goal)}` : `${usd(pledged)} pledged`;
+}
+
 export async function fetchKickstarterStats({ url, key, signal } = {}) {
   if (!url || !key) return null;
   const endpoint = `${url.replace(/\/+$/, '')}/rest/v1/kickstarter_stats?select=goal_usd,pledged_usd,backers_count,state,fetched_at&id=eq.1`;
