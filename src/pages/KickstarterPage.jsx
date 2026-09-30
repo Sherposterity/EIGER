@@ -17,8 +17,8 @@ import tierRidgeline from '../assets/kickstarter/ridgeline.jpg';
 import tierSummit from '../assets/kickstarter/summit.jpg';
 
 // Kickstarter (/kickstarter). Copy and tiers are the founder's (docs/COPY.md). The
-// campaign goes live with the app and the giveaway on October 1 (9 AM CT). Before
-// launch the button opens the pre-launch page ("Notify me on launch"); until
+// campaign went live on 2026-09-30. The eyebrow, button and goal bar follow the
+// campaign's own state from the kickstarter_stats feed (campaignPhase); until
 // store-links.json has a "kickstarter" URL the button stays disabled.
 
 const KICKSTARTER_URL = storeLinks.kickstarter;
