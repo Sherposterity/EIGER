@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { campaignPhase, LAUNCH_AT, mergeStats } from '../src/lib/kickstarterStats.js';
+import { campaignPhase, LAUNCH_AT, mergeStats, pledgeLine } from '../src/lib/kickstarterStats.js';
 
 const fallback = { goal: 2000, pledged: 0 };
 
@@ -41,4 +41,11 @@ test('campaign phase: Kickstarter state wins', () => {
   assert.equal(campaignPhase({ state: 'live', now: LAUNCH_AT - 1 }), 'live');
   assert.equal(campaignPhase({ state: 'successful' }), 'funded');
   for (const s of ['failed', 'canceled', 'suspended']) assert.equal(campaignPhase({ state: s }), 'ended');
+});
+
+test('pledgeLine: nothing before the first pledge, then pledged of goal', () => {
+  assert.equal(pledgeLine(0, 5000), null);
+  assert.equal(pledgeLine(null, 5000), null);
+  assert.equal(pledgeLine(1240.4, 5000), '$1,240 pledged of $5,000');
+  assert.equal(pledgeLine(75, 0), '$75 pledged');
 });
