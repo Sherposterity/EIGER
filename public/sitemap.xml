@@ -4,6 +4,7 @@
   <url><loc>https://eiger014.com/about</loc>
   </url>
   <url><loc>https://eiger014.com/pricing</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://eiger014.com/compare/alltrails</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://eiger014.com/disclosure</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url>
     <loc>https://eiger014.com/verification</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>

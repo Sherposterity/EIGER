@@ -198,3 +198,11 @@ Every prerendered route has its own title, meta description and canonical URL, i
 
 ## Honesty fixes (2026-09-30)
 No mountain has an applied portal review yet, so: the Pricing intro now reads "Every mountain's gear list is free and stays free." (the "reviewed by mountaineers" clause is gone); the Free for everyone row reads "Every mountain's gear list, built from manufacturer specs and guide sources, with mountaineer review in progress"; the Verified by closing line is updated above.
+
+## AllTrails comparison (/compare/alltrails, 2026-10-01)
+
+- Why: Rishav 2026-10-01, show up when people search for AllTrails and mountaineering. Google Play forbids naming competitors in store metadata, so the comparison lives on our own site.
+- Rules: no AllTrails logo; every AllTrails claim sourced from AllTrails' own help center or press page and dated; describe what each app is built for, never knock theirs; trademark and no-affiliation line at the bottom; prices read from src/data/plans.json.
+- Title "AllTrails vs EIGER for mountaineering | EIGER"; meta "AllTrails finds the trail. EIGER checks your gear against the mountain, reads summit weather and the avalanche outlook, and tells you which day to go."
+- H1 "AllTrails and EIGER for mountaineering"; intro "AllTrails is great at finding a trail. EIGER is built for the moment after that, when the trail ends on a summit and the question becomes: is my gear right, and is this the day?"
+- Table rows: Built for / Maps and routes / Gear / Weather and conditions / Going as a group / Price (text in src/pages/CompareAllTrailsPage.jsx).

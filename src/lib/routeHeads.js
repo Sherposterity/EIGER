@@ -74,6 +74,12 @@ export const STATIC_HEADS = {
     description:
       'How product links on EIGER work: we may earn a commission on some links, and it never changes which products we recommend.',
   },
+  '/compare/alltrails': {
+    path: '/compare/alltrails',
+    title: 'AllTrails vs EIGER for mountaineering | EIGER',
+    description:
+      'AllTrails finds the trail. EIGER checks your gear against the mountain, reads summit weather and the avalanche outlook, and tells you which day to go.',
+  },
 };
 
 export function routeHeads(prices) {
