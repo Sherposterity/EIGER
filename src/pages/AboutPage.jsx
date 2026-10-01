@@ -27,7 +27,7 @@ const founders = [
     name: 'Rishav Akilla',
     role: 'CEO',
     photo: RishavPhoto,
-    body: 'My name is Rishav Akilla and I am currently studying Biochemistry at the University of Houston. I have heavy knowledge within the medical research field as several of my publications are on the National Institute of Health. Mountaineering is my passion and I integrate research capabilities into the development of safety and technical data.',
+    body: 'My name is Rishav Akilla and I am currently studying Biochemistry at the University of Houston. Mountaineering is my passion and I integrate research capabilities into the development of safety and technical data.',
   },
   {
     name: 'Muad Shaikh',
@@ -171,7 +171,7 @@ export default function AboutPage() {
                 Hello Climbers! We are EIGER, a startup led by three university students who want to make hiking and
                 preparation of hiking a safer and less tedious experience. Last year, we took on the challenge of
                 climbing Mount Elbert, a 4,400 m mountain, during the winter. With this came extensive, unorganized and
-                non-coordinated planning around what gear to bring between 8 different people. We can recall multiple
+                non-coordinated planning around what gear to bring among 8 climbers. We can recall multiple
                 tabs open, cross checking between different forums, and being hours deep into a reddit thread. Even
                 so, our hiking group ended up forgetting items as crucial as headlamps and microspikes.
               </p>
