@@ -16,7 +16,7 @@ Source of truth for every string on the redesigned site. Muad's words, with the 
 - Arrow link (to /verification): Take a look at our process →
 - Primary button: Get the app
 - Secondary button: See how it works
-- Availability line: Out now on Google Play. App Store pending review, iPhone beta open. [RULED 2026-10-01: the public TestFlight link shows under the App Store badge until Apple approves; earlier: October 1 on the App Store and Google Play, APPROVED 2026-09-25]
+- Availability line: Download it today on Google Play. iPhone beta open on TestFlight, App Store listing in review. [RULED 2026-10-01: the public TestFlight link shows under the App Store badge until Apple approves; earlier: October 1 on the App Store and Google Play, APPROVED 2026-09-25]
 
 ### A look inside our app (walkthrough)
 - Heading: A look inside our app

@@ -111,7 +111,7 @@ const GetTheApp = () => {
           </h2>
         </FadeIn>
         <FadeIn delay={0.06}>
-          <p className="mt-5 text-body-lg text-fg-muted">Out now on Android. The iPhone beta is open while the App Store listing is in review.</p>
+          <p className="mt-5 text-body-lg text-fg-muted">Download it today on Android. The iPhone beta is open while the App Store listing is in review.</p>
         </FadeIn>
 
         <FadeIn delay={0.12} className="mt-10 flex flex-col items-center gap-2 sm:flex-row sm:gap-6 md:-ml-3">
