@@ -27,7 +27,7 @@ const founders = [
     name: 'Rishav Akilla',
     role: 'CEO',
     photo: RishavPhoto,
-    body: 'My name is Rishav Akilla and I am currently studying Biochemistry at the University of Houston. Mountaineering is my passion and I integrate research capabilities into the development of safety and technical data.',
+    body: 'My name is Rishav Akilla and I am currently studying Biochemistry at the University of Houston. I have knowledge within the medical research field as several of my publications are on the National Institute of Health. Mountaineering is my passion and I integrate research capabilities into the development of safety and technical data.',
   },
   {
     name: 'Muad Shaikh',
