@@ -1,3 +1,4 @@
+# Pages removed 2026-09-30, script kept for future use; its output dir (src/data/mountains/) no longer exists.
 r"""Export public per-mountain gear lists for the website's /mountains pages.
 
 Run from the site repo:

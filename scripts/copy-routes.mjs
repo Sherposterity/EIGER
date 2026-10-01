@@ -5,13 +5,11 @@
 //
 // Each folder gets its own title, meta description, canonical URL and share
 // tags in the static HTML (2026-09-30), so no route carries the home page's
-// canonical. That covers the static routes, /mountains, /disclosure and one
-// folder per mountain in src/data/mountains/index.json. The mountain URLs are
-// also appended to dist/sitemap.xml here, so public/sitemap.xml never lists
-// them by hand.
+// canonical. That covers every route in STATIC_HEADS plus /pricing. The
+// mountain gear pages were removed 2026-09-30; /mountains has no folder, so it
+// goes through 404.html into the app, which redirects it to the home page.
 import { mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { sitemapWithMountains } from '../src/lib/mountains.js';
 import { prerenderPages } from '../src/lib/routeHeads.js';
 
 const dist = 'dist';
@@ -19,15 +17,11 @@ if (!existsSync(join(dist, 'index.html'))) { console.error('copy-routes: dist/in
 
 const shell = readFileSync(join(dist, 'index.html'), 'utf8');
 const { prices } = JSON.parse(readFileSync('src/data/plans.json', 'utf8'));
-const { mountains } = JSON.parse(readFileSync('src/data/mountains/index.json', 'utf8'));
-const pages = prerenderPages(shell, { prices, mountains });
+const pages = prerenderPages(shell, { prices });
 for (const p of pages) {
   const dir = join(dist, ...p.route.split('/').filter(Boolean));
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, 'index.html'), p.html);
 }
 
-const sitemapFile = join(dist, 'sitemap.xml');
-writeFileSync(sitemapFile, sitemapWithMountains(readFileSync(sitemapFile, 'utf8'), mountains.map((m) => m.slug)));
-
-console.log(`copy-routes: ${pages.length} route folders written (${mountains.length} mountains), sitemap updated`);
+console.log(`copy-routes: ${pages.length} route folders written`);

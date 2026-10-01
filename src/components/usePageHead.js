@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { SITE_URL } from '../lib/mountains';
+import { SITE_URL } from '../lib/routeHeads';
 
 // No head manager on this site (see PricingPage): set the title, meta
 // description and canonical URL while a page is mounted, optionally add a

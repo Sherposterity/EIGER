@@ -6,8 +6,8 @@ import { focusRing } from '../components/home/utils';
 import { STATIC_HEADS } from '../lib/routeHeads';
 
 // /disclosure: plain-language affiliate and product-link disclosure. Linked
-// from the footer legal row and under the product lists on every mountain
-// page. Copy logged in docs/COPY.md, "Mountain gear pages (2026-09-30)".
+// from the footer legal row. Copy logged in docs/COPY.md, "Mountain gear pages
+// (2026-09-30)" (the mountain pages themselves were removed the same day).
 
 const inlineLink = `rounded-sm text-fg underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-fg ${focusRing}`;
 
@@ -22,8 +22,8 @@ export default function DisclosurePage() {
         <h1 className="mt-3 text-balance font-display text-display-md">How product links work on EIGER</h1>
         <div className="mt-8 space-y-5 text-body text-fg-muted sm:text-body-lg">
           <p>
-            Our mountain pages and the EIGER app link to products sold by brands and retailers. EIGER may earn a
-            commission when you buy through some of those links. You pay the same price either way.
+            The EIGER app links to products sold by brands and retailers. EIGER may earn a commission when you buy
+            through some of those links. You pay the same price either way.
           </p>
           <p>
             A commission never changes which products we recommend. Recommendations come from each mountain&apos;s gear

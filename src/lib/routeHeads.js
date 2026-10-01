@@ -3,16 +3,28 @@
 // scripts/copy-routes.mjs writes it into each route folder's static HTML, so
 // crawlers never see the home page's canonical on another page. Pure (no JSON
 // imports) so node --test and the build script can load it.
-import {
-  DISCLOSURE_DESCRIPTION,
-  DISCLOSURE_TITLE,
-  INDEX_DESCRIPTION,
-  INDEX_TITLE,
-  htmlWithHead,
-  mountainDescription,
-  mountainPath,
-  mountainTitle,
-} from './mountains.js';
+export const SITE_URL = 'https://eiger014.com';
+
+const escapeHtml = (s) =>
+  String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+// Prerendered route folders get their own title, description, canonical and
+// share tags in the static HTML, so crawlers that do not run JavaScript see
+// the right page. Replaces the tags index.html already carries.
+export function htmlWithHead(html, { title, description, path }) {
+  const t = escapeHtml(title);
+  const d = escapeHtml(description);
+  const url = `${SITE_URL}${path}`;
+  return html
+    .replace(/<title>[^<]*<\/title>/, `<title>${t}</title>`)
+    .replace(/(<meta\s+name="description"\s+content=")[^"]*(")/, `$1${d}$2`)
+    .replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${url}$2`)
+    .replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${url}$2`)
+    .replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${t}$2`)
+    .replace(/(<meta\s+property="og:description"\s+content=")[^"]*(")/, `$1${d}$2`)
+    .replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${t}$2`)
+    .replace(/(<meta\s+name="twitter:description"\s+content=")[^"]*(")/, `$1${d}$2`);
+}
 
 export const pricingDescription = (prices) =>
   `Every mountain's gear list on EIGER is free forever. EIGER Pro is $${prices.annual} a year with a ${prices.trialDays}-day free trial, or $${prices.weekly} a week.`;
@@ -56,8 +68,12 @@ export const STATIC_HEADS = {
     title: 'Request a mountain | EIGER',
     description: 'Pick from over 48,000 named peaks and ask for the mountain you want in EIGER next. Your requests decide which mountains we verify next.',
   },
-  '/mountains': { path: '/mountains', title: INDEX_TITLE, description: INDEX_DESCRIPTION },
-  '/disclosure': { path: '/disclosure', title: DISCLOSURE_TITLE, description: DISCLOSURE_DESCRIPTION },
+  '/disclosure': {
+    path: '/disclosure',
+    title: 'Product link disclosure | EIGER',
+    description:
+      'How product links on EIGER work: we may earn a commission on some links, and it never changes which products we recommend.',
+  },
 };
 
 export function routeHeads(prices) {
@@ -69,12 +85,6 @@ export function routeHeads(prices) {
 
 // Every prerendered folder: [{ route, head, html }]. route is the folder path
 // ('/giveaway/rules'); head.path is the canonical path (differs only for /mission).
-export function prerenderPages(shell, { prices, mountains }) {
-  const heads = routeHeads(prices);
-  const pages = Object.entries(heads).map(([route, head]) => ({ route, head }));
-  for (const m of mountains) {
-    const path = mountainPath(m.slug);
-    pages.push({ route: path, head: { path, title: mountainTitle(m.name), description: mountainDescription(m) } });
-  }
-  return pages.map((p) => ({ ...p, html: htmlWithHead(shell, p.head) }));
+export function prerenderPages(shell, { prices }) {
+  return Object.entries(routeHeads(prices)).map(([route, head]) => ({ route, head, html: htmlWithHead(shell, head) }));
 }

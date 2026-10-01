@@ -173,6 +173,7 @@ kept but the section renders after the browser's own anchor jump).
 - Slot and season logic is pure and tested: `src/lib/reviewSlots.js`, `tests/reviewSlots.test.js`.
 
 ## Update 2026-09-30 (mountain gear pages)
+- REMOVED 2026-09-30 by Rishav's decision: `/mountains` and `/mountains/*` now redirect to `/` (`REMOVED_REDIRECTS` in `routes.js`, `<Navigate to="/" replace />` in `App.jsx`, reached on GitHub Pages through the 404.html hand-off; `tests/removedRoutes.test.js`). `/disclosure` and the per-route heads in `src/lib/routeHeads.js` stay. The entries below are history.
 - New routes `/mountains` (index with search and filters), `/mountains/:slug` (one gear list per app mountain) and `/disclosure` (product link disclosure), in `routes.js` and `App.jsx`.
 - `scripts/copy-routes.mjs` writes a prerendered folder for `/mountains`, `/disclosure` and every slug in `src/data/mountains/index.json`, each with its own `<title>`, meta description, canonical URL and share tags in the static HTML (`htmlWithHead` in `src/lib/mountains.js`). It also appends every `/mountains/<slug>` URL to `dist/sitemap.xml`; `public/sitemap.xml` lists only `/mountains` and `/disclosure` by hand.
 - Data: `python scripts/export-mountain-gear.py` (read only) rewrites `src/data/mountains/`. Each mountain's JSON is its own lazy chunk (`import.meta.glob`). Unknown slugs show an in-page "not in EIGER yet" message.

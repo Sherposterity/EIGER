@@ -15,7 +15,6 @@ const legalLinkClass = `rounded-sm text-small text-fg-subtle transition-colors d
 const SITE_LINKS = [
   { to: '/about', label: 'About' },
   { to: '/pricing', label: 'Pricing' },
-  { to: '/mountains', label: 'Mountains' },
   { to: '/verification', label: 'Verification process' },
   { to: '/giveaway', label: 'Giveaway' },
   { to: '/kickstarter', label: 'Kickstarter' },

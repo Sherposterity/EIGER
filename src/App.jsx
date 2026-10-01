@@ -14,7 +14,7 @@ import EmailCapture from './components/home/EmailCapture';
 import Faq from './components/home/Faq';
 import Footer from './components/Footer';
 import AscentLine from './components/AscentLine';
-import { MISSION_REDIRECT } from './lib/routes';
+import { MISSION_REDIRECT, REMOVED_REDIRECTS } from './lib/routes';
 
 // Mission and About are split out of the home bundle so the landing page
 // ships less JavaScript; they load on first navigation.
@@ -26,8 +26,6 @@ const VerificationPage = lazy(() => import('./pages/VerificationPage'));
 const KickstarterPage = lazy(() => import('./pages/KickstarterPage'));
 const RequestPage = lazy(() => import('./pages/RequestPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
-const MountainsIndexPage = lazy(() => import('./pages/mountains/MountainsIndexPage'));
-const MountainPage = lazy(() => import('./pages/mountains/MountainPage'));
 const DisclosurePage = lazy(() => import('./pages/DisclosurePage'));
 // Reviewer portal: hidden (noindex, not linked from nav or footer) except the
 // public application form, which the Verification page links to.
@@ -142,8 +140,10 @@ function App() {
         <Route path="/mission" element={MISSION_REDIRECT ? <MissionRedirect /> : <MissionPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/mountains" element={<MountainsIndexPage />} />
-        <Route path="/mountains/:slug" element={<MountainPage />} />
+        {/* Removed pages (the mountain gear pages, 2026-09-30) send old links home. */}
+        {Object.entries(REMOVED_REDIRECTS).map(([from, to]) => (
+          <Route key={from} path={from} element={<Navigate to={to} replace />} />
+        ))}
         <Route path="/disclosure" element={<DisclosurePage />} />
         <Route path="/verification" element={<VerificationPage />} />
         <Route path="/giveaway" element={<GiveawayPage />} />
