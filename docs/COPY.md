@@ -161,3 +161,10 @@ Ruling: "Rishav 2026-09-30: copy ICEFALL's pricing page shape; prices unchanged.
   - Legend: "Included: on that plan today" / "Not included: not on that plan" / "Soon: in progress, never counted as included" / "Numbers are the real limits the app enforces". Footnote under it (the app's PAYWALL_COMPARISON_FOOTNOTE): "Gear readiness, the season switch and the full gear list are free for everyone."
 - Questions: "Can I cancel?" Yes. Cancel any time in your App Store or Google Play subscription settings. If you cancel before the 7-day trial ends, the trial costs nothing. / "Does Pro work on both my iPhone and Android phone?" Yes. Pro belongs to your EIGER account, not to one phone. Sign in with the same account on the other phone and use Restore purchases. / "Can I pay on the website?" Not yet. Billing runs through the App Store and Google Play today, so your card stays with Apple or Google. / "What stays free if I never pay?" The footnote, then "On the free plan you always get:" and the five free for everyone rows. Below: "Anything else? Write to support@eiger014.com."
 - Then the shared Get the app and email capture sections, and the footer. Nav and footer gain a "Pricing" link after About.
+
+## Verified by strip (2026-09-30)
+Shown on the home page directly under the Brand Athlete section, and on /verification above Apply to verify (one component, src/components/VerifiedBy.jsx).
+- Eyebrow "Verified by"; one pill per reviewer: name, role (for Timoteo: "Lead reviewer and mountaineer"), handle linking out in a new tab ("@tomatosummit4", TikTok).
+- Closing line: "Every gear list in EIGER is checked by a mountaineer before it ships. Reviewers are credited on the mountains they verify."
+- Link "Apply to verify" (to /verification?section=apply, which lands on the apply block).
+- Consent rule: names live in src/data/reviewers.json. A name appears on the site only after the person says yes; Rishav adds rows after consent. Rows with consent false or an empty name never render (src/lib/reviewers.js visibleReviewers, pinned by tests/reviewers.test.js).

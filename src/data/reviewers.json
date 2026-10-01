@@ -1,0 +1,29 @@
+{
+  "_note": "Named reviewers for the Verified by strip. A name appears on the site only after the person says yes to being credited. Rishav adds rows after consent. Rows with consent false or an empty name never render.",
+  "reviewers": [
+    {
+      "name": "Timoteo Desantos",
+      "role": "Lead reviewer and mountaineer",
+      "handle": "@tomatosummit4",
+      "handleUrl": "https://www.tiktok.com/@tomatosummit4",
+      "consent": true,
+      "mountains": []
+    },
+    {
+      "name": "",
+      "role": "Verified reviewer",
+      "handle": "",
+      "handleUrl": "",
+      "consent": false,
+      "mountains": []
+    },
+    {
+      "name": "",
+      "role": "Verified reviewer",
+      "handle": "",
+      "handleUrl": "",
+      "consent": false,
+      "mountains": []
+    }
+  ]
+}

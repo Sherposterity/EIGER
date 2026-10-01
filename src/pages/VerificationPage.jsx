@@ -15,6 +15,7 @@ import { DRIFT_CSS } from '@/components/home/tryit/glyphs';
 import PipelinePanel from '@/components/verification/PipelinePanel';
 import { scrollToElement } from '@/components/verification/scrollToElement';
 import ApplyToVerify from '@/components/verification/ApplyToVerify';
+import VerifiedBy from '@/components/VerifiedBy';
 import MoreBelowCue from '@/components/verification/MoreBelowCue';
 import { RUN_SCHEDULE, STAGES, announce, phrasesFor } from '@/components/verification/pipeline';
 
@@ -323,6 +324,7 @@ export default function VerificationPage() {
             </div>
           </section>
 
+          <VerifiedBy />
           <ApplyToVerify />
         </main>
         <MoreBelowCue targetId="apply" label="Mountaineer? Apply to verify" onActivate={stopRun} />

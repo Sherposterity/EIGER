@@ -8,6 +8,7 @@ import TryIt from './components/home/TryIt';
 import WhyEiger from './components/home/WhyEiger';
 import MountainRequest from './components/home/MountainRequest';
 import Athlete from './components/Athlete';
+import VerifiedBy from './components/VerifiedBy';
 import GetTheApp from './components/home/GetTheApp';
 import EmailCapture from './components/home/EmailCapture';
 import Faq from './components/home/Faq';
@@ -101,6 +102,7 @@ function Home() {
         <WhyEiger />
         <MountainRequest />
         <Athlete />
+        <VerifiedBy />
         <GetTheApp />
         <EmailCapture />
         <Faq />
