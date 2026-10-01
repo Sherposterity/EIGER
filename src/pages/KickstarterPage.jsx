@@ -56,9 +56,9 @@ const PHASE_BUTTON = {
 const REWARDS = [
   { name: 'Base Camp Pack', price: 5, image: tierBaseCamp, alt: 'Two EIGER app screens: Mission Control and a mountain dossier', items: ['One month of EIGER Pro'] },
   { name: 'Waypoint Pack', price: 15, image: tierWaypoint, alt: 'Four EIGER stickers: the climber mark, the wordmark and Live for the summit', items: ['One month of EIGER Pro', '4 x EIGER stickers'] },
-  { name: 'Ascent Pack', price: 30, image: tierAscent, alt: 'Black EIGER t-shirt, front and back', items: ['One month of EIGER Pro', '4 x EIGER stickers', 'EIGER t-shirt (S, M or L)'] },
-  { name: 'Ridgeline Pack', price: 50, image: tierRidgeline, alt: 'Black EIGER sweatshirt with embroidered lettering, front and back', items: ['Three months of EIGER Pro', '4 x EIGER stickers', 'EIGER sweatshirt (embroidered, S to XXL)'] },
-  { name: 'Summit Pack', price: 120, image: tierSummit, alt: 'Black EIGER hoodie and pants set with an embroidered chest logo', items: ['One year of EIGER Pro', '4 x EIGER stickers', 'EIGER sweatset (embroidered, S to XXL)'] },
+  { name: 'Ascent Pack', price: 40, image: tierAscent, alt: 'Black EIGER t-shirt, front and back', items: ['One month of EIGER Pro', '4 x EIGER stickers', 'EIGER t-shirt (S, M or L)'] },
+  { name: 'Ridgeline Pack', price: 65, image: tierRidgeline, alt: 'Black EIGER sweatshirt with embroidered lettering, front and back', items: ['Three months of EIGER Pro', '4 x EIGER stickers', 'EIGER sweatshirt (embroidered, S to XXL)'] },
+  { name: 'Summit Pack', price: 135, image: tierSummit, alt: 'Black EIGER hoodie and pants set with an embroidered chest logo', items: ['One year of EIGER Pro', '4 x EIGER stickers', 'EIGER sweatset (embroidered, S to XXL)'] },
 ];
 
 export default function KickstarterPage() {
