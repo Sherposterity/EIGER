@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/accordion';
 import plans from '../data/plans.json';
 import { annualMonthlyEquivalent, formatUsd, savingsPercent } from '../lib/plans';
+import { routeHeads } from '../lib/routeHeads';
+import usePageHead from '../components/usePageHead';
 
 // Pricing (/pricing). Shape follows ICEFALL's pricing page (Rishav 2026-09-30),
 // prices unchanged. Every table row comes from src/data/plans.json, whose first
@@ -34,8 +36,7 @@ const secondaryBtn = `inline-flex h-12 w-full items-center justify-center gap-2 
 
 const inlineLink = `rounded-sm text-fg underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-fg ${focusRing}`;
 
-const TITLE = 'Pricing | EIGER';
-const DESCRIPTION = `Every mountain's gear list on EIGER is free forever. EIGER Pro is ${ANNUAL} a year with a ${prices.trialDays}-day free trial, or ${WEEKLY} a week.`;
+const HEAD = routeHeads(prices)['/pricing'];
 
 const FREE_LINES = ['Your objective, scored', "Every mountain's gear list", 'Join group trips by code'];
 const PRO_LINES = [
@@ -162,19 +163,8 @@ export default function PricingPage() {
     window.scrollTo(0, 0);
   }, []);
 
-  // No head manager on this site: set the title and description while the
-  // page is mounted and put the previous ones back on the way out.
-  useEffect(() => {
-    const prevTitle = document.title;
-    const meta = document.querySelector('meta[name="description"]');
-    const prevDescription = meta?.getAttribute('content');
-    document.title = TITLE;
-    meta?.setAttribute('content', DESCRIPTION);
-    return () => {
-      document.title = prevTitle;
-      if (meta && prevDescription != null) meta.setAttribute('content', prevDescription);
-    };
-  }, []);
+  // Title, description and canonical: the same table the prerender step uses.
+  usePageHead(HEAD);
 
   const toggleBtn = (active) =>
     `inline-flex h-11 items-center gap-2 rounded-pill px-5 text-small font-semibold transition-colors duration-300 ${
@@ -195,8 +185,7 @@ export default function PricingPage() {
                 Two plans. One is free forever.
               </h1>
               <p className="mt-5 max-w-2xl text-body text-fg-muted sm:mt-6 sm:text-body-lg">
-                Every mountain&apos;s gear list is free and stays free, reviewed by mountaineers. Pro adds the tools that
-                take real work to build and keep up to date: scoring your own kit against every mountain, saved kits, kit
+                Every mountain&apos;s gear list is free and stays free. Pro adds the tools that take real work to build and keep up to date: scoring your own kit against every mountain, saved kits, kit
                 comparison, offline maps.
               </p>
             </FadeIn>

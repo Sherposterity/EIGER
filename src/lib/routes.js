@@ -3,7 +3,7 @@
 // it forwards every extensionless unknown path into the app, and the app's
 // NotFound route handles anything not listed here.
 
-export const ROUTE_PATHS = ['/', '/mission', '/about', '/pricing', '/verification', '/giveaway', '/giveaway/rules', '/kickstarter', '/request', '/review', '/review/m/:trailId', '/review/admin', '/review/apply'];
+export const ROUTE_PATHS = ['/', '/mission', '/about', '/pricing', '/mountains', '/mountains/:slug', '/disclosure', '/verification', '/giveaway', '/giveaway/rules', '/kickstarter', '/request', '/review', '/review/m/:trailId', '/review/admin', '/review/apply'];
 
 // TODO(mission merge): the Mission and About pages are being merged. Until the
 // merge lands both pages render at their own paths. Flip this to true when it

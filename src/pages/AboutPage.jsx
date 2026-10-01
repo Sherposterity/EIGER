@@ -1,3 +1,5 @@
+import usePageHead from '../components/usePageHead';
+import { STATIC_HEADS } from '../lib/routeHeads';
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { animate, motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import { ArrowUpRight, Gauge, ShieldCheck } from 'lucide-react';
@@ -126,6 +128,7 @@ function StoryPhoto() {
 }
 
 export default function AboutPage() {
+  usePageHead(STATIC_HEADS['/about']);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);

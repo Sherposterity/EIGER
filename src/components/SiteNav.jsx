@@ -29,6 +29,7 @@ const scrollToHomeSection = (id) => {
 const NAV_LINKS = [
   { to: '/about', label: 'About' },
   { to: '/pricing', label: 'Pricing' },
+  { to: '/mountains', label: 'Mountains' },
   { to: '/verification', label: 'Verification process' },
   { to: '/giveaway', label: 'Giveaway' },
   { to: '/kickstarter', label: 'Kickstarter' },
@@ -38,14 +39,15 @@ const NAV_LINKS = [
 const focusRing =
   'outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-bg';
 
-const linkClass = `rounded-sm text-eyebrow font-semibold uppercase text-fg-muted transition-colors duration-300 hover:text-fg ${focusRing}`;
+const linkClass = `whitespace-nowrap rounded-sm text-eyebrow font-semibold uppercase text-fg-muted transition-colors duration-300 hover:text-fg ${focusRing}`;
 
 const ctaClass = `h-10 rounded-pill px-5 text-eyebrow font-semibold uppercase ${focusRing}`;
 
 // Fixed top navigation: wordmark left, links and the store CTA right. Transparent
 // over the hero video, gains a blurred backdrop once the page scrolls so the
-// links stay readable. From lg (1024 px) all five items fit on one row (checked
-// 2026-09-25, over 150 px to spare at 1024); below lg they move into a sheet.
+// links stay readable. From lg (1024 px) all six links and the button fit on one
+// row (Mountains added 2026-09-30; the gap tightens below xl so 1024 still fits,
+// checked by screenshot); below lg they move into a sheet.
 const SiteNav = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -95,7 +97,7 @@ const SiteNav = () => {
         </Link>
 
         {/* Desktop */}
-        <div className="hidden items-center gap-7 lg:flex">
+        <div className="hidden items-center gap-4 lg:flex xl:gap-7">
           {NAV_LINKS.map(({ to, section, label }) => (
             <Link
               key={to}

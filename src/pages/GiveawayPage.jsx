@@ -1,3 +1,5 @@
+import usePageHead from '../components/usePageHead';
+import { STATIC_HEADS } from '../lib/routeHeads';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Check } from 'lucide-react';
@@ -243,6 +245,7 @@ const TaskRow = ({ task, units, onDo, busy, open, activated, opened, onOpen, cop
 };
 
 export default function GiveawayPage() {
+  usePageHead(STATIC_HEADS['/giveaway']);
   const location = useLocation();
   const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
   // The link's code is remembered so reading the rules and coming back keeps the attribution.

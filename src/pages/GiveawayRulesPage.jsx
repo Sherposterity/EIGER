@@ -1,3 +1,5 @@
+import usePageHead from '../components/usePageHead';
+import { STATIC_HEADS } from '../lib/routeHeads';
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import SiteNav from '../components/SiteNav';
@@ -28,6 +30,7 @@ const Section = ({ n, title, children }) => (
 );
 
 export default function GiveawayRulesPage() {
+  usePageHead(STATIC_HEADS['/giveaway/rules']);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);

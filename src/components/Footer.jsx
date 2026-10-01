@@ -15,6 +15,7 @@ const legalLinkClass = `rounded-sm text-small text-fg-subtle transition-colors d
 const SITE_LINKS = [
   { to: '/about', label: 'About' },
   { to: '/pricing', label: 'Pricing' },
+  { to: '/mountains', label: 'Mountains' },
   { to: '/verification', label: 'Verification process' },
   { to: '/giveaway', label: 'Giveaway' },
   { to: '/kickstarter', label: 'Kickstarter' },
@@ -24,6 +25,7 @@ const SITE_LINKS = [
 const LEGAL_LINKS = [
   { href: '/privacy.html', label: 'Privacy Policy' },
   { href: '/terms.html', label: 'Terms of Use' },
+  { href: '/disclosure', label: 'Disclosure' },
   { href: '/delete-account.html', label: 'Delete Account' },
   { href: '/support.html', label: 'Support' },
 ];

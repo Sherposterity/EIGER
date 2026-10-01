@@ -4,7 +4,7 @@ import { visibleReviewers } from '@/lib/reviewers';
 import { focusRing } from '@/components/home/utils';
 import { FadeIn } from '@/components/home/motion';
 
-// "Verified by" strip: the named mountaineers who check every gear list, as
+// "Verified by" strip: the named mountaineers reviewing the gear lists, as
 // pills that wrap at any width. Used on the home page (under the Brand Athlete
 // section) and on /verification (above Apply to verify). Static: the list is
 // src/data/reviewers.json, and a name shows only after that person consents.
@@ -46,8 +46,8 @@ export default function VerifiedBy() {
         </ul>
 
         <p className="mt-6 max-w-prose text-body text-fg-muted">
-          Every gear list in EIGER is checked by a mountaineer before it ships. Reviewers are credited on the
-          mountains they verify.
+          We are working through every gear list with mountaineers. Reviewers are credited on the mountains they
+          verify.
         </p>
       </FadeIn>
     </section>

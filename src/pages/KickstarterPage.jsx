@@ -1,3 +1,5 @@
+import usePageHead from '../components/usePageHead';
+import { STATIC_HEADS } from '../lib/routeHeads';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDown, ArrowRight, ArrowUpRight, Check } from 'lucide-react';
@@ -60,6 +62,7 @@ const REWARDS = [
 ];
 
 export default function KickstarterPage() {
+  usePageHead(STATIC_HEADS['/kickstarter']);
   const [stats, setStats] = useState(() => mergeStats(FALLBACK, null));
   const GOAL = stats.goal;
   const PLEDGED = stats.pledged;

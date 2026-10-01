@@ -24,7 +24,7 @@
   "freeForEveryone": {
     "label": "Free for everyone",
     "rows": [
-      { "label": "Every mountain's gear list, reviewed by mountaineers", "free": "Included", "pro": "Included" },
+      { "label": "Every mountain's gear list, built from manufacturer specs and guide sources, with mountaineer review in progress", "free": "Included", "pro": "Included" },
       { "label": "Gear readiness view", "free": "Included", "pro": "Included" },
       { "label": "Summer and winter season switch", "free": "Included", "pro": "Included" },
       { "label": "Marketplace browsing (3,000+ items)", "free": "Included", "pro": "Included" },

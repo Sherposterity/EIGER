@@ -1,3 +1,5 @@
+import usePageHead from '../components/usePageHead';
+import { STATIC_HEADS } from '../lib/routeHeads';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { MotionConfig, useReducedMotion } from 'motion/react';
 import { GitMerge, Layers, Play, RefreshCw, Search, Smartphone, UserCheck } from 'lucide-react';
@@ -86,6 +88,7 @@ function Controls({ ids, slug, onSlug, onRun, className }) {
 }
 
 export default function VerificationPage() {
+  usePageHead(STATIC_HEADS['/verification']);
   const ids = useId();
   const reduce = useReducedMotion();
   const desktop = useMedia('(min-width: 1024px)');

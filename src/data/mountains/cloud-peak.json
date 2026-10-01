@@ -1,0 +1,965 @@
+{
+ "generated_at": "2026-10-01T00:54:05Z",
+ "slug": "cloud-peak",
+ "name": "Cloud Peak",
+ "country": "United States",
+ "countries": [
+  "United States"
+ ],
+ "altitude_m": 4015,
+ "difficulty": "Intermediate",
+ "duration_days": 2,
+ "technical": false,
+ "glaciated": false,
+ "avalanche_terrain": true,
+ "temp_min_c": -4,
+ "temp_max_c": 10,
+ "summer_insulation_gsm": 150,
+ "winter_insulation_gsm": 300,
+ "review": {
+  "status": "pending",
+  "reviewed_on": null
+ },
+ "counts": {
+  "essential": 22,
+  "recommended": 8,
+  "optional": 3,
+  "winter": 3,
+  "products": 97
+ },
+ "gear": [
+  {
+   "group": "Clothing",
+   "items": [
+    {
+     "item_type": "upper_baselayer",
+     "name": "Upper Baselayer",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "bottom_baselayer",
+     "name": "Bottom Baselayer",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "sun_hoodie",
+     "name": "Sun Hoodie",
+     "level": "recommended",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "fleece",
+     "name": "Fleece",
+     "level": "recommended",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "softshell_jacket",
+     "name": "Softshell Jacket",
+     "level": "recommended",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "hardshell_jacket",
+     "name": "Hardshell Jacket",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "down_jacket",
+     "name": "Down Jacket",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "hardshell_pants",
+     "name": "Hard Shell Pants",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "softshell_pants",
+     "name": "Softshell Pants",
+     "level": "recommended",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "liner_gloves",
+     "name": "Liner Gloves",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "insulated_gloves",
+     "name": "Insulated Gloves",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "waterproof_mittens",
+     "name": "Waterproof Mittens",
+     "level": "recommended",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "warm_hat",
+     "name": "Warm Hat / Beanie",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "neck_gaiter",
+     "name": "Neck Gaiter / Buff",
+     "level": "recommended",
+     "season": "all",
+     "min_items": 1
+    }
+   ]
+  },
+  {
+   "group": "Footwear",
+   "items": [
+    {
+     "item_type": "mountaineering_boots",
+     "name": "Mountaineering Boots",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "socks",
+     "name": "Socks",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    }
+   ]
+  },
+  {
+   "group": "Technical Hardware",
+   "items": [
+    {
+     "item_type": "trekking_poles",
+     "name": "Trekking Poles",
+     "level": "recommended",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "avalanche_beacon",
+     "name": "Avalanche Beacon",
+     "level": "recommended",
+     "season": "winter",
+     "min_items": 1
+    },
+    {
+     "item_type": "avalanche_probe",
+     "name": "Avalanche Probe",
+     "level": "recommended",
+     "season": "winter",
+     "min_items": 1
+    },
+    {
+     "item_type": "avalanche_shovel",
+     "name": "Avalanche Shovel",
+     "level": "recommended",
+     "season": "winter",
+     "min_items": 1
+    }
+   ]
+  },
+  {
+   "group": "Camp & Sleep",
+   "items": [
+    {
+     "item_type": "tent",
+     "name": "Tent",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "sleeping_bag",
+     "name": "Sleeping Bag",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "inflatable_sleeping_pad",
+     "name": "Inflatable Sleeping Pad",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "foam_sleeping_pad",
+     "name": "Foam Sleeping Pad",
+     "level": "optional",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "stove",
+     "name": "Stove",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "pot_utensils",
+     "name": "Pot & Utensils",
+     "level": "recommended",
+     "season": "all",
+     "min_items": 1
+    }
+   ]
+  },
+  {
+   "group": "Essentials & Accessories",
+   "items": [
+    {
+     "item_type": "backpack",
+     "name": "Backpack",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "headlamp",
+     "name": "Headlamp",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "sunglasses",
+     "name": "Sunglasses",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "first_aid_kit",
+     "name": "First Aid Kit",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "water_bottles",
+     "name": "Water Bottles",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "navigation",
+     "name": "Navigation",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "water_treatment",
+     "name": "Water Treatment",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "lighter_matches",
+     "name": "Lighter & Matches",
+     "level": "optional",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "sunscreen_lip_balm",
+     "name": "Sunscreen & Lip Balm",
+     "level": "essential",
+     "season": "all",
+     "min_items": 1
+    },
+    {
+     "item_type": "multi_tool_knife",
+     "name": "Multi-Tool / Knife",
+     "level": "optional",
+     "season": "all",
+     "min_items": 1
+    }
+   ]
+  }
+ ],
+ "products": {
+  "upper_baselayer": [
+   {
+    "name": "Classic Thermal Merino Crew",
+    "brand": "Smartwool",
+    "url": "https://www.smartwool.com/en-us/products/mens-classic-thermal-merino-base-layer-crew-sw016349",
+    "fits_count": 63
+   },
+   {
+    "name": "Merino 200 Oasis Long Sleeve Crewe",
+    "brand": "Icebreaker",
+    "url": "https://na.icebreaker.com/en-us/products/men-merino-200-oasis-ls-crewe-ib1043650l1",
+    "fits_count": 95
+   },
+   {
+    "name": "185 Rock'N'Wool Long Sleeve",
+    "brand": "Ortovox",
+    "url": "https://www.ortovox.com/us-en/men/mountainwear/base-layer/base-layer-long/185-rock-n-wool-long-sleeve-m/4255736218816",
+    "fits_count": 59
+   }
+  ],
+  "bottom_baselayer": [
+   {
+    "name": "Classic Thermal Merino Base Layer Bottom",
+    "brand": "Smartwool",
+    "url": "https://www.smartwool.com/en-us/products/mens-classic-thermal-merino-base-layer-bottom-sw016361",
+    "fits_count": 97
+   },
+   {
+    "name": "200 Oasis Leggings",
+    "brand": "Icebreaker",
+    "url": "https://na.icebreaker.com/en-us/products/women-merino-200-oasis-leggings-ib1043830lg",
+    "fits_count": 50
+   },
+   {
+    "name": "185 Rock'N'Wool Long Pants",
+    "brand": "Ortovox",
+    "url": "https://www.ortovox.com/us-en/men/mountainwear/base-layer/base-layer-pants-long/185-rock-n-wool-long-pants-m/84182",
+    "fits_count": 97
+   }
+  ],
+  "sun_hoodie": [
+   {
+    "name": "Echo Hoodie",
+    "brand": "Outdoor Research",
+    "url": "https://www.outdoorresearch.com/products/mens-echo-hoodie-287625",
+    "fits_count": 71
+   },
+   {
+    "name": "Alpenglow Hoody",
+    "brand": "Black Diamond",
+    "url": "https://blackdiamondequipment.com/products/mens-alpenglow-hoody",
+    "fits_count": 56
+   }
+  ],
+  "fleece": [
+   {
+    "name": "A90 Half-Zip Hoodie",
+    "brand": "Senchi Designs",
+    "url": "https://senchidesigns.com/products/a90-half-zip-hoodie",
+    "fits_count": 1
+   },
+   {
+    "name": "Polartec Power Grid Half Zip Jacket",
+    "brand": "Mountain Hardwear",
+    "url": "https://www.mountainhardwear.com/p/mens-polartec-power-grid-half-zip-jacket-2104551.html",
+    "fits_count": 51
+   },
+   {
+    "name": "Vigor Grid Fleece Full Zip Hoodie",
+    "brand": "Outdoor Research",
+    "url": "https://backcountrynorth.com/product/outdoor-research-vigor-grid-fleece-full-zip-hoodie-mens",
+    "fits_count": 44
+   }
+  ],
+  "softshell_jacket": [
+   {
+    "name": "Ferrosi Hoodie",
+    "brand": "Outdoor Research",
+    "url": "https://www.outdoorresearch.com/products/mens-ferrosi-hoodie-322477",
+    "fits_count": 43
+   },
+   {
+    "name": "Gamma Hoody",
+    "brand": "Arc'teryx",
+    "url": "https://arcteryx.com.au/products/gamma-hoody-mens-x00000990501",
+    "fits_count": 33
+   }
+  ],
+  "hardshell_jacket": [
+   {
+    "name": "Beta Jacket",
+    "brand": "Arc'teryx",
+    "url": "https://arcteryx.com/us/en/shop/mens/beta-jacket-0511",
+    "fits_count": 86
+   },
+   {
+    "name": "Firewall Waterproof Jacket",
+    "brand": "Rab",
+    "url": "https://rab.equipment/us/mens-firewall-waterproof-jacket",
+    "fits_count": 49
+   },
+   {
+    "name": "Foray 3L Rain Jacket",
+    "brand": "Outdoor Research",
+    "url": "https://www.outdoorresearch.com/products/mens-foray-3l-jacket-322088",
+    "fits_count": 44
+   }
+  ],
+  "down_jacket": [
+   {
+    "name": "Neutrino Pro Down Jacket",
+    "brand": "Rab",
+    "url": "https://rab.equipment/us/mens-neutrino-pro-down-jacket",
+    "fits_count": 56
+   },
+   {
+    "name": "Uncompahgre Foundry Jacket",
+    "brand": "First Lite",
+    "url": "https://firstlite.com/products/mens-uncompahgre-foundry-jacket",
+    "fits_count": 1
+   },
+   {
+    "name": "Microlight Alpine Jacket",
+    "brand": "Rab",
+    "url": "https://rab.equipment/us/microlight-alpine-jacket",
+    "fits_count": 50
+   }
+  ],
+  "hardshell_pants": [
+   {
+    "name": "Beta Pant",
+    "brand": "Arc'teryx",
+    "url": "https://arcteryx.com/us/en/shop/mens/beta-pant-0391",
+    "fits_count": 48
+   },
+   {
+    "name": "Firewall Waterproof Pants",
+    "brand": "Rab",
+    "url": "https://rab.equipment/us/mens-firewall-waterproof-pants",
+    "fits_count": 50
+   },
+   {
+    "name": "Minimalist Pant",
+    "brand": "Marmot",
+    "url": "https://www.hiltonstentcity.com/products/marmot-mens-minimalist-pants",
+    "fits_count": 42
+   }
+  ],
+  "softshell_pants": [
+   {
+    "name": "Cirque II Pants",
+    "brand": "Outdoor Research",
+    "url": "https://www.grivetoutdoors.com/products/outdoor-research-mens-cirque-ii-pants-lightweight-hiking-climbing-gear",
+    "fits_count": 62
+   },
+   {
+    "name": "Gamma Pant",
+    "brand": "Arc'teryx",
+    "url": "https://arcteryx.com.au/products/gamma-pant-mens-x00000953201",
+    "fits_count": 62
+   },
+   {
+    "name": "Courmayeur SO Pants",
+    "brand": "Mammut",
+    "url": "https://www.mammut.com/us/en/products/1021-01630-3825/courmayeur-so-pants-men",
+    "fits_count": 62
+   }
+  ],
+  "liner_gloves": [
+   {
+    "name": "Stormtracker Sensor Windbloc Gloves",
+    "brand": "Outdoor Research",
+    "url": "https://www.outdoorresearch.com/products/mens-stormtracker-sensor-windbloc-gloves-322187",
+    "fits_count": 1
+   },
+   {
+    "name": "Thermal Merino Glove",
+    "brand": "Smartwool",
+    "url": "https://www.smartwool.com/en-us/products/thermal-merino-glove-sw018132",
+    "fits_count": 32
+   },
+   {
+    "name": "ActiveIce Chroma Full Sun Glove",
+    "brand": "Outdoor Research",
+    "url": "https://www.outdoorresearch.com/products/activeice-chroma-full-sun-gloves-280134",
+    "fits_count": 34
+   }
+  ],
+  "insulated_gloves": [
+   {
+    "name": "Guide Gloves",
+    "brand": "Black Diamond",
+    "url": "https://blackdiamondequipment.com/products/guide-gloves",
+    "fits_count": 72
+   },
+   {
+    "name": "Arete II GORE-TEX Gloves",
+    "brand": "Outdoor Research",
+    "url": "https://www.outdoorresearch.com/products/mens-arete-ii-gore-tex-gloves-300013",
+    "fits_count": 85
+   },
+   {
+    "name": "Army Leather Heli Ski Glove",
+    "brand": "Hestra",
+    "url": "https://www.hestragloves.com/products/army-leather-heli-ski-5-finger-black",
+    "fits_count": 55
+   }
+  ],
+  "waterproof_mittens": [
+   {
+    "name": "Mercury Mitts",
+    "brand": "Black Diamond",
+    "url": "https://blackdiamondequipment.com/products/mercury-mitts",
+    "fits_count": 20
+   },
+   {
+    "name": "Alti II GORE-TEX Mitts",
+    "brand": "Outdoor Research",
+    "url": "https://www.outdoorresearch.com/products/mens-alti-ii-gore-tex-mitts-300009",
+    "fits_count": 22
+   }
+  ],
+  "warm_hat": [
+   {
+    "name": "Thermal Merino Reversible Cuffed Beanie",
+    "brand": "Smartwool",
+    "url": "https://www.smartwool.com/en-us/products/thermal-merino-reversible-cuffed-beanie-sw0sw956",
+    "fits_count": 95
+   },
+   {
+    "name": "Trail Mix Beanie",
+    "brand": "Outdoor Research",
+    "url": "https://www.outdoorresearch.com/products/trail-mix-beanie-300039",
+    "fits_count": 1
+   },
+   {
+    "name": "Dome Perignon",
+    "brand": "Mountain Hardwear",
+    "url": "https://www.mountainhardwear.com/p/dome-perignon-pro-1852701.html",
+    "fits_count": 74
+   }
+  ],
+  "neck_gaiter": [
+   {
+    "name": "Thermal Merino Balaclava",
+    "brand": "Smartwool",
+    "url": "https://www.smartwool.com/en-us/products/thermal-merino-balaclava-sw0sc967",
+    "fits_count": 53
+   },
+   {
+    "name": "Original EcoStretch",
+    "brand": "Buff",
+    "url": "https://www.buff.com/us/original-ecostretch",
+    "fits_count": 27
+   }
+  ],
+  "mountaineering_boots": [
+   {
+    "name": "Lone Peak Hiker",
+    "brand": "Altra",
+    "url": "https://www.altrarunning.com/products/mens-lone-peak-hiker-al0a4vqf",
+    "fits_count": 1
+   },
+   {
+    "name": "Trango Tech GTX",
+    "brand": "La Sportiva",
+    "url": "https://www.lasportivausa.com/products/trango-tech-gtx",
+    "fits_count": 23
+   },
+   {
+    "name": "Aequilibrium ST GTX",
+    "brand": "La Sportiva",
+    "url": "https://www.lasportivausa.com/products/aequilibrium-st-gtx",
+    "fits_count": 45
+   }
+  ],
+  "socks": [
+   {
+    "name": "Mountaineering Over-the-Calf Full Cushion",
+    "brand": "Darn Tough",
+    "url": "https://darntough.com/products/mens-merino-wool-mountaineering-otc-full-cushion-heavyweight-hiking-socks",
+    "fits_count": 54
+   },
+   {
+    "name": "Pursuit Hike Six Medium",
+    "brand": "Swiftwick",
+    "url": "https://www.therideonline.net/product/swiftwick-pursuit-hike-six-medium-cushion-socks-405653-1.htm",
+    "fits_count": 1
+   },
+   {
+    "name": "Mountaineer Classic Edition Crew",
+    "brand": "Smartwool",
+    "url": "https://www.smartwool.com/en-us/products/mountaineer-classic-edition-crew-socks-sw013300",
+    "fits_count": 51
+   }
+  ],
+  "trekking_poles": [
+   {
+    "name": "Alpine Carbon Cork",
+    "brand": "Black Diamond",
+    "url": "https://blackdiamondequipment.com/products/alpine-carbon-cork-trekking-poles",
+    "fits_count": 67
+   },
+   {
+    "name": "Carbonlite Pro",
+    "brand": "Mountainsmith",
+    "url": "https://www.wildairoutdoors.com.au/products/carbonlite-pro",
+    "fits_count": 1
+   },
+   {
+    "name": "Makalu Lite",
+    "brand": "Leki",
+    "url": "https://www.leki.com/us/en/Makalu-Lite/65621081S",
+    "fits_count": 76
+   }
+  ],
+  "tent": [
+   {
+    "name": "Access 2",
+    "brand": "MSR",
+    "url": "https://cascadedesigns.com/products/access-2-two-person-four-season-ski-touring-tent",
+    "fits_count": 15
+   },
+   {
+    "name": "The One",
+    "brand": "Gossamer Gear",
+    "url": "https://www.gossamergear.com/products/the-one",
+    "fits_count": 1
+   },
+   {
+    "name": "Skyscape Trekker",
+    "brand": "Six Moon Designs",
+    "url": "https://www.sixmoondesigns.com/products/skyscape-trekker-hiking-tent",
+    "fits_count": 1
+   }
+  ],
+  "sleeping_bag": [
+   {
+    "name": "Questar 0F",
+    "brand": "Therm-a-Rest",
+    "url": "https://www.altitude-sports.com/products/therm-a-rest-questar-0f-18c-sleeping-bag-regular-llll-tar-13159",
+    "fits_count": 17
+   },
+   {
+    "name": "Vesper 20 Quilt",
+    "brand": "Therm-a-Rest",
+    "url": "https://cascadedesigns.com/products/vesper-20f-6c-down-quilt",
+    "fits_count": 1
+   },
+   {
+    "name": "Snowbunting EX 0",
+    "brand": "Feathered Friends",
+    "url": "https://www.mountainshop.net/product/feathered-friends-snowbunting-0-sleeping-bag/",
+    "fits_count": 15
+   }
+  ],
+  "inflatable_sleeping_pad": [
+   {
+    "name": "Insulated Static V Lite",
+    "brand": "Klymit",
+    "url": "https://www.klymit.eu/products/insulated-static-v-lite%E2%84%A2-sleeping-pad",
+    "fits_count": 1
+   },
+   {
+    "name": "NeoAir XTherm NXT",
+    "brand": "Therm-a-Rest",
+    "url": "https://cascadedesigns.com/products/neoair-xtherm-nxt-sleeping-pad",
+    "fits_count": 17
+   },
+   {
+    "name": "Ultra 7R",
+    "brand": "Exped",
+    "url": "https://enlightenedequipment.com/exped-ultra-7r-mummy/",
+    "fits_count": 15
+   }
+  ],
+  "foam_sleeping_pad": [
+   {
+    "name": "Z Lite Sol",
+    "brand": "Therm-a-Rest",
+    "url": "https://cascadedesigns.com/products/z-lite-sol-sleeping-pad",
+    "fits_count": 22
+   }
+  ],
+  "stove": [
+   {
+    "name": "Crux",
+    "brand": "Optimus",
+    "url": "https://www.katadyngroup.com/int/en/8019260-optimus-crux~p6905",
+    "fits_count": 1
+   },
+   {
+    "name": "WindBurner",
+    "brand": "MSR",
+    "url": "https://cascadedesigns.com/products/windburner-personal-stove-system",
+    "fits_count": 25
+   },
+   {
+    "name": "WhisperLite International",
+    "brand": "MSR",
+    "url": "https://cascadedesigns.com/products/whisperlite-international-stove",
+    "fits_count": 15
+   }
+  ],
+  "pot_utensils": [
+   {
+    "name": "Halulite Boiler 1.1L",
+    "brand": "GSI Outdoors",
+    "url": "https://gsioutdoors.com/products/halulite-boiler",
+    "fits_count": 23
+   },
+   {
+    "name": "Titanium 750ml Pot",
+    "brand": "TOAKS",
+    "url": "https://www.toaksoutdoor.com/products/pot-750",
+    "fits_count": 23
+   }
+  ],
+  "backpack": [
+   {
+    "name": "Aether 65",
+    "brand": "Osprey",
+    "url": "https://www.osprey.com/aether-trade-65-aether65f20-550",
+    "fits_count": 13
+   },
+   {
+    "name": "Perimeter 50",
+    "brand": "Granite Gear",
+    "url": "https://www.granitegear.com/perimeter-50-unisex.html",
+    "fits_count": 1
+   },
+   {
+    "name": "Southwest 40",
+    "brand": "Hyperlite Mountain Gear",
+    "url": "https://hyperlitemountaingear.com/products/southwest",
+    "fits_count": 1
+   }
+  ],
+  "headlamp": [
+   {
+    "name": "Swift RL",
+    "brand": "Petzl",
+    "url": "https://www.petzl.com/US/en/Sport/Headlamps/SWIFT-RL",
+    "fits_count": 69
+   },
+   {
+    "name": "Actik Core",
+    "brand": "Petzl",
+    "url": "https://www.petzl.com/US/en/Sport/Headlamps/ACTIK-CORE",
+    "fits_count": 97
+   },
+   {
+    "name": "Storm 500-R",
+    "brand": "Black Diamond",
+    "url": "https://blackdiamondequipment.com/products/storm-500-r-rechargeable-headlamp",
+    "fits_count": 17
+   }
+  ],
+  "sunglasses": [
+   {
+    "name": "Vermont Classic",
+    "brand": "Julbo",
+    "url": "https://julbo.us/products/vermont-classic-sunglasses",
+    "fits_count": 53
+   },
+   {
+    "name": "Shield M",
+    "brand": "Julbo",
+    "url": "https://www.julbo.com/en_us/shield-m",
+    "fits_count": 76
+   },
+   {
+    "name": "Explorer 2.0",
+    "brand": "Julbo",
+    "url": "https://julbo.us/products/explorer-2-sunglasses",
+    "fits_count": 83
+   }
+  ],
+  "first_aid_kit": [
+   {
+    "name": "Mountain Series Day Tripper Lite",
+    "brand": "Adventure Medical Kits",
+    "url": "https://adventuremedicalkits.com/products/mountain-series-medical-kit-day-tripper-lite",
+    "fits_count": 60
+   },
+   {
+    "name": "Ultralight Watertight .7",
+    "brand": "Adventure Medical Kits",
+    "url": "https://adventuremedicalkits.com/products/ultralight-watertight-medical-kit-7",
+    "fits_count": 90
+   },
+   {
+    "name": "MyFAK",
+    "brand": "My Medic",
+    "url": "https://mymedic.com/products/myfak-firstaidkit",
+    "fits_count": 86
+   }
+  ],
+  "water_bottles": [
+   {
+    "name": "32oz Wide Mouth",
+    "brand": "Nalgene",
+    "url": "https://nalgene.com/product/32oz-wide-mouth-bottle/",
+    "fits_count": 97
+   },
+   {
+    "name": "Vecto 1L",
+    "brand": "CNOC Outdoors",
+    "url": "https://point-one.nl/en/products/vecto-waterzak-1l",
+    "fits_count": 1
+   },
+   {
+    "name": "32oz Wide Mouth",
+    "brand": "Hydro Flask",
+    "url": "https://www.hydroflask.com/32-oz-wide-mouth?color=lilac",
+    "fits_count": 53
+   }
+  ],
+  "navigation": [
+   {
+    "name": "inReach Mini 2",
+    "brand": "Garmin",
+    "url": "https://www.garmin.com/en-US/p/765374/",
+    "fits_count": 97
+   },
+   {
+    "name": "Trails Illustrated 720 Cloud Peak Wilderness",
+    "brand": "National Geographic",
+    "url": "https://www.natgeomaps.com/ti-720-cloud-peak-wilderness",
+    "fits_count": 1
+   },
+   {
+    "name": "GPSMAP 67i",
+    "brand": "Garmin",
+    "url": "https://www.garmin.com/en-US/p/890109/",
+    "fits_count": 60
+   }
+  ],
+  "water_treatment": [
+   {
+    "name": "Squeeze Water Filter System",
+    "brand": "Sawyer",
+    "url": "https://www.sawyer.com/product/squeeze-water-filter-system",
+    "fits_count": 24
+   },
+   {
+    "name": "BeFree 0.6L",
+    "brand": "Katadyn",
+    "url": "https://www.katadyngroup.com/int/en/8019946-katadyn-befree-0-6l~p6732",
+    "fits_count": 24
+   },
+   {
+    "name": "QuickDraw Filter",
+    "brand": "Platypus",
+    "url": "https://cascadedesigns.com/products/quickdraw-filter",
+    "fits_count": 23
+   }
+  ],
+  "lighter_matches": [
+   {
+    "name": "Stormproof Match Kit",
+    "brand": "UCO",
+    "url": "https://ucogear.com/products/stormproof-match-container-w-25-matches",
+    "fits_count": 30
+   }
+  ],
+  "sunscreen_lip_balm": [
+   {
+    "name": "Mountain Suncream SPF 50+",
+    "brand": "Piz Buin",
+    "url": "https://www.ocado.com/products/piz-buin-mountain-sun-cream-spf-50/392991011",
+    "fits_count": 54
+   },
+   {
+    "name": "Sport Mineral Sunscreen Cream SPF 40",
+    "brand": "Badger",
+    "url": "https://www.badgerbalm.com/products/sport-mineral-sunscreen-cream-tube-spf-40",
+    "fits_count": 1
+   },
+   {
+    "name": "Original SPF 50 Sunscreen Lotion",
+    "brand": "Sun Bum",
+    "url": "https://www.sunbum.com/products/original-spf-50-sunscreen-lotion?variant=42007065788463",
+    "fits_count": 40
+   }
+  ],
+  "multi_tool_knife": [
+   {
+    "name": "Classic SD Printed",
+    "brand": "Victorinox",
+    "url": "https://www.victorinox.com/en-US/Products/Swiss-Army-Knife%E2%84%A2-and-Tools/Essentials/Classic-SD-Printed/p/0.6223",
+    "fits_count": 44
+   }
+  ],
+  "avalanche_beacon": [
+   {
+    "name": "BCA Tracker4",
+    "brand": "Backcountry Access",
+    "url": "https://backcountryaccess.com/en-us/p/bca-tracker4-avalanche-beacon-c2012001",
+    "fits_count": 87
+   },
+   {
+    "name": "Barryvox",
+    "brand": "Mammut",
+    "url": "https://www.mammut.com/us/en/products/2710-00150-1012/barryvox",
+    "fits_count": 94
+   },
+   {
+    "name": "Neo BT Pro",
+    "brand": "Arva",
+    "url": "https://us.arva-equipment.com/avalanche-transceivers/578-neo-bt-pro.html",
+    "fits_count": 62
+   }
+  ],
+  "avalanche_probe": [
+   {
+    "name": "Stealth 300 Carbon",
+    "brand": "Backcountry Access",
+    "url": "https://backcountryaccess.com/en-us/p/stealth-300-carbon-avalanche-probe-c2305006",
+    "fits_count": 56
+   },
+   {
+    "name": "Probe 280 Speed Lock",
+    "brand": "Mammut",
+    "url": "https://www.mammut.com/us/en/products/2620-00122-2228/probe-280-speed-lock",
+    "fits_count": 73
+   },
+   {
+    "name": "Stealth 270",
+    "brand": "Backcountry Access",
+    "url": "https://backcountryaccess.com/en-us/p/stealth-270-avalanche-probe-c2305002",
+    "fits_count": 43
+   }
+  ],
+  "avalanche_shovel": [
+   {
+    "name": "Dozer 2H",
+    "brand": "Backcountry Access",
+    "url": "https://backcountryaccess.com/en-us/p/dozer-2h-avalanche-shovel-bc240364",
+    "fits_count": 36
+   },
+   {
+    "name": "Transfer Shovel",
+    "brand": "Black Diamond",
+    "url": "https://www.blackdiamondequipment.com/products/transfer-shovel-1",
+    "fits_count": 94
+   },
+   {
+    "name": "Shovel Pro Guide",
+    "brand": "Ortovox",
+    "url": "https://www.ortovox.com/us-en/emergency-equipment/avalanche-shovels/shovel-pro-guide/4255736221816",
+    "fits_count": 63
+   }
+  ]
+ }
+}
