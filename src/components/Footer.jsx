@@ -3,7 +3,11 @@ import { Link } from 'react-router-dom';
 import { Check, Copy } from 'lucide-react';
 import lockup from '../assets/logo/lockup.svg';
 
-const CONTACT_EMAIL = 'support@eiger014.com';
+// Footer contacts: app help, and a direct line for sponsors and business partners (Muad, 2026-10-02).
+const CONTACTS = [
+  { label: 'Support', email: 'support@eiger014.com' },
+  { label: 'Sponsorships and partnerships', email: 'business@eiger014.com' },
+];
 
 const focusRing =
   'outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-bg';
@@ -47,15 +51,15 @@ const SOCIAL = [
 // so it is inverted to white here; loading it as an image keeps its 42 KB out
 // of the JavaScript bundle.
 const Footer = () => {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState(null);
   const copyTimerRef = useRef(null);
 
-  const copyEmail = async () => {
+  const copyEmail = async (email) => {
     try {
-      await navigator.clipboard.writeText(CONTACT_EMAIL);
-      setCopied(true);
+      await navigator.clipboard.writeText(email);
+      setCopied(email);
       clearTimeout(copyTimerRef.current);
-      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
+      copyTimerRef.current = setTimeout(() => setCopied(null), 2000);
     } catch {
       // Clipboard API unavailable; the address is visible, so manual copy still works.
     }
@@ -87,22 +91,27 @@ const Footer = () => {
           <div className="flex flex-col gap-4">
             {/* mailto works where a mail app exists; the copy button covers
                 desktop webmail users. */}
-            <div className="flex items-center gap-2">
-              <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>
-                {CONTACT_EMAIL}
-              </a>
-              <button
-                type="button"
-                onClick={copyEmail}
-                aria-label="Copy email address"
-                className={`inline-flex size-8 items-center justify-center rounded-sm text-fg-subtle transition-colors hover:text-fg ${focusRing}`}
-              >
-                {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
-              </button>
-              <span className="sr-only" aria-live="polite">
-                {copied ? 'Copied!' : ''}
-              </span>
-            </div>
+            {CONTACTS.map(({ label, email }) => (
+              <div key={email} className="flex flex-col gap-1">
+                <p className="font-mono text-eyebrow uppercase text-fg-subtle">{label}</p>
+                <div className="flex items-center gap-2">
+                  <a href={`mailto:${email}`} className={linkClass}>
+                    {email}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => copyEmail(email)}
+                    aria-label={`Copy ${label.toLowerCase()} email address`}
+                    className={`inline-flex size-8 items-center justify-center rounded-sm text-fg-subtle transition-colors hover:text-fg ${focusRing}`}
+                  >
+                    {copied === email ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
+                  </button>
+                </div>
+              </div>
+            ))}
+            <span className="sr-only" aria-live="polite">
+              {copied ? 'Copied!' : ''}
+            </span>
             <div className="flex items-center gap-3">
               {SOCIAL.map(({ href, label, path }) => (
                 <a
