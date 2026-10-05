@@ -27,9 +27,9 @@
   --color-live: oklch(69.6% 0.17 162.48);
 
   /* Type families */
-  --font-display: "League Spartan", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: "League Spartan Variable", "League Spartan", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Type scale: text-display-xl, text-heading, text-eyebrow and so on */
   --text-display-xl: clamp(3rem, 2rem + 5vw, 6rem);

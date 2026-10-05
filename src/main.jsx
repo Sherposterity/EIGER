@@ -1,6 +1,12 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+// Fonts are bundled with the site (no request to Google Fonts, so no visitor IP goes to Google)
+import '@fontsource-variable/inter/opsz.css'
+import '@fontsource-variable/inter/opsz-italic.css'
+import '@fontsource-variable/jetbrains-mono/wght.css'
+import '@fontsource-variable/jetbrains-mono/wght-italic.css'
+import '@fontsource-variable/league-spartan/wght.css'
 import './index.css'
 import App from './App.jsx'
 import { applyHashRedirect } from './lib/hashRedirect.js'
