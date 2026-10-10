@@ -2,8 +2,8 @@ import storeLinks from '@/data/store-links.json';
 
 // A badge is live as soon as its store URL exists in store-links.json. Play
 // production 1.4.0 went public on 2026-09-26, so the Android badge no longer
-// waits for the campaign launch instant; iOS stays null until Apple approves,
-// and ios_beta (the public TestFlight link) fills the gap under the badge.
+// waits for the campaign launch instant. iOS went live on the App Store on
+// 2026-10-09; ios_beta (the TestFlight link) only shows while ios is null.
 const linkFor = (key) => storeLinks[key] || null;
 import { FadeIn } from './motion';
 import { focusRing } from './utils';
@@ -111,7 +111,7 @@ const GetTheApp = () => {
           </h2>
         </FadeIn>
         <FadeIn delay={0.06}>
-          <p className="mt-5 text-body-lg text-fg-muted">Download it today on Android. The iPhone beta is open while the App Store listing is in review.</p>
+          <p className="mt-5 text-body-lg text-fg-muted">Download it today on iPhone and Android.</p>
         </FadeIn>
 
         <FadeIn delay={0.12} className="mt-10 flex flex-col items-center gap-2 sm:flex-row sm:gap-6 md:-ml-3">
