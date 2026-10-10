@@ -111,17 +111,22 @@ const LaunchBanner = () => {
       <div className="mx-auto flex max-w-7xl items-start gap-3 px-4 py-2.5 sm:items-center sm:px-6 lg:px-8">
         <Rocket aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-fg-muted sm:mt-0" strokeWidth={1.75} />
         <p className="min-w-0 flex-1 font-mono text-xs leading-relaxed text-fg-muted sm:text-small">
-          <span className="text-fg">
+          {/* Phones get the short line and no running total (Rishav 2026-10-09:
+              scale to every device): at 320 to 375 px the full strip took five
+              lines and pushed the hero's Get the app button below the fold. */}
+          <span className="text-fg sm:hidden">Now on iPhone and Android.</span>
+          <span className="hidden text-fg sm:inline">
             {live ? 'EIGER is now on iPhone and Android, and our Kickstarter is live.' : 'EIGER is now on iPhone and Android.'}
           </span>{' '}
-          {total ? <span className="whitespace-nowrap tabular-nums">{total}</span> : null}{' '}
+          {total ? <span className="hidden whitespace-nowrap tabular-nums sm:inline">{total}</span> : null}{' '}
           {/* No left margin on phones: the links wrap to their own line there. */}
           {/* Kickstarter + mountain requests (founder 2026-09-26): no giveaway
               link here, it read as though it opened with the campaign. */}
           <span className="inline-flex flex-wrap gap-x-3 gap-y-1 sm:ml-2">
             {live && KICKSTARTER_URL ? (
               <a href={KICKSTARTER_URL} target="_blank" rel="noopener noreferrer" className={`${linkClass} inline-flex items-center gap-1 whitespace-nowrap`}>
-                Back us on Kickstarter
+                <span className="sm:hidden">Kickstarter</span>
+                <span className="hidden sm:inline">Back us on Kickstarter</span>
                 <ArrowUpRight aria-hidden="true" className="size-3.5" />
               </a>
             ) : null}
