@@ -1,45 +1,30 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'motion/react';
-import { ArrowUpRight, Calendar, Rocket, X } from 'lucide-react';
+import { ArrowUpRight, Rocket, X } from 'lucide-react';
 import storeLinks from '../../data/store-links.json';
-import { LAUNCH_AT as GIVEAWAY_LAUNCH_AT } from '../../lib/giveawayWindow';
 import { campaignPhase, fetchKickstarterStats, LAUNCH_AT, pledgeLine } from '../../lib/kickstarterStats';
 import { EASE_OUT_EXPO, focusRing } from './utils';
 
-// Launch strip on the home page, just under the fixed nav and over the top of
-// the hero. It follows the Kickstarter campaign's own state (the kickstarter_stats
-// feed, same as the Kickstarter page): before launch it counts down, while the
-// campaign is live it says so and links straight to it (with the running total
-// once pledges arrive), and once the campaign is funded or over it renders
-// nothing. It also leaves at the end of launch week (BANNER_UNTIL, Rishav's
-// seat, 2026-09-30) whatever the feed says. Dismissal lasts for the browser
-// session and is per stage, so people who closed the countdown still see the
-// launch once. No dashes; keep the Request a mountain link.
+// Store strip on the home page, just under the fixed nav and over the top of
+// the hero (Rishav 2026-10-09: bring the banner back, it carried Request a
+// mountain). EIGER is on both stores; while the Kickstarter campaign is live
+// (the kickstarter_stats feed, same as the Kickstarter page) it says so with
+// the running total and links straight to it; once the campaign is funded or
+// over, the strip keeps the store line and Request a mountain only. No end
+// date (the launch-week cutoff of 2026-09-30 is gone). Dismissal lasts for the
+// browser session, keyed per state, so a dismissed strip returns only when its
+// message changes. No dashes.
 
-const DAY_MS = 86400000;
-// One week of launch strip after the planned launch instant (2026-10-08 16:00 UTC).
-const BANNER_UNTIL = Date.parse(GIVEAWAY_LAUNCH_AT) + 7 * DAY_MS;
 const KICKSTARTER_URL = storeLinks.kickstarter;
 
-const dismissKey = (phase) => `eiger_launch_banner_dismissed_${phase}`;
+const dismissKey = (phase) => `eiger_store_banner_dismissed_${phase}`;
 const readDismissed = (phase) => {
   try {
     return sessionStorage.getItem(dismissKey(phase)) === '1';
   } catch {
     return false;
   }
-};
-
-// Whole calendar days between today and launch day, in the visitor's own time zone.
-const countdownLabel = (now) => {
-  const startOfDay = (ms) => {
-    const d = new Date(ms);
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  };
-  const days = Math.round((startOfDay(LAUNCH_AT) - startOfDay(now)) / DAY_MS);
-  if (days <= 0) return 'today';
-  return `in ${days} ${days === 1 ? 'day' : 'days'}`;
 };
 
 // The hero reads --launch-banner-h to push its content below the strip.
@@ -55,9 +40,9 @@ const LaunchBanner = () => {
   const phase = campaignPhase({ state: feed?.state ?? null, now });
   const [dismissed, setDismissed] = useState({});
   const ref = useRef(null);
-  // Wait for the feed before showing anything, so a live campaign never flashes the old countdown
-  // (if the feed fails, the launch date decides).
-  const showable = now < BANNER_UNTIL && (feedDone || now >= LAUNCH_AT) && (phase === 'prelaunch' || phase === 'live');
+  // Wait for the feed before showing anything, so the Kickstarter line never
+  // flashes in and out (if the feed fails, the launch date decides).
+  const showable = feedDone || now >= LAUNCH_AT;
   const visible = showable && !(dismissed[phase] ?? readDismissed(phase));
 
   // The campaign's state and totals, from the same cache as the Kickstarter page.
@@ -70,12 +55,12 @@ const LaunchBanner = () => {
     return () => ctrl.abort();
   }, []);
 
-  // Re-check once a minute so the strip switches at the launch instant and leaves on time.
+  // Re-check once a minute until the launch instant has passed.
   useEffect(() => {
-    if (!showable) return undefined;
+    if (now >= LAUNCH_AT) return undefined;
     const id = setInterval(() => setNow(Date.now()), 60000);
     return () => clearInterval(id);
-  }, [showable]);
+  }, [now]);
 
   useLayoutEffect(() => {
     const node = ref.current;
@@ -113,31 +98,23 @@ const LaunchBanner = () => {
 
   const live = phase === 'live';
   const total = live ? pledgeLine(Number(feed?.pledged_usd), Number(feed?.goal_usd) || storeLinks.kickstarter_goal_usd) : null;
-  const Icon = live ? Rocket : Calendar;
 
   return (
     <motion.aside
       ref={ref}
-      aria-label={live ? 'Kickstarter announcement' : 'Launch announcement'}
+      aria-label="EIGER announcement"
       // Sits right under the fixed header: 77 px tall on phones (44 px menu button), 73 px from lg (both include its 1 px border).
       // z-45: above the z-40 AscentLine strip, below the z-50 header.
       className="absolute inset-x-0 top-[77px] z-[45] border-y border-line bg-surface-2 lg:top-[73px]"
       {...motionProps}
     >
       <div className="mx-auto flex max-w-7xl items-start gap-3 px-4 py-2.5 sm:items-center sm:px-6 lg:px-8">
-        <Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-fg-muted sm:mt-0" strokeWidth={1.75} />
+        <Rocket aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-fg-muted sm:mt-0" strokeWidth={1.75} />
         <p className="min-w-0 flex-1 font-mono text-xs leading-relaxed text-fg-muted sm:text-small">
-          {live ? (
-            <>
-              <span className="text-fg">The app is out on Android, and our Kickstarter is live.</span>{' '}
-              {total ? <span className="whitespace-nowrap tabular-nums">{total}</span> : null}{' '}
-            </>
-          ) : (
-            <>
-              <span className="text-fg">The app is out on Android. October 1: our Kickstarter goes live.</span>{' '}
-              <span className="whitespace-nowrap tabular-nums">{countdownLabel(now)}</span>{' '}
-            </>
-          )}
+          <span className="text-fg">
+            {live ? 'EIGER is now on iPhone and Android, and our Kickstarter is live.' : 'EIGER is now on iPhone and Android.'}
+          </span>{' '}
+          {total ? <span className="whitespace-nowrap tabular-nums">{total}</span> : null}{' '}
           {/* No left margin on phones: the links wrap to their own line there. */}
           {/* Kickstarter + mountain requests (founder 2026-09-26): no giveaway
               link here, it read as though it opened with the campaign. */}
@@ -147,11 +124,7 @@ const LaunchBanner = () => {
                 Back us on Kickstarter
                 <ArrowUpRight aria-hidden="true" className="size-3.5" />
               </a>
-            ) : (
-              <Link to="/kickstarter" className={`${linkClass} whitespace-nowrap`}>
-                Kickstarter
-              </Link>
-            )}
+            ) : null}
             <Link to="/request" className={`${linkClass} whitespace-nowrap`}>
               Request a mountain
             </Link>
