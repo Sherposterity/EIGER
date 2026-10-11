@@ -1,9 +1,11 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowUpRight, Rocket, X } from 'lucide-react';
 import storeLinks from '../../data/store-links.json';
 import { campaignPhase, fetchKickstarterStats, KICKSTARTER_ON_SITE, LAUNCH_AT, pledgeLine } from '../../lib/kickstarterStats';
+import { isLaunchDay } from '../../lib/launchDay';
+import { fireLaunchConfetti, shouldFireLaunchConfetti } from './launchConfetti';
 import { EASE_OUT_EXPO, focusRing } from './utils';
 
 // Store strip on the home page, just under the fixed nav and over the top of
@@ -15,6 +17,11 @@ import { EASE_OUT_EXPO, focusRing } from './utils';
 // date (the launch-week cutoff of 2026-09-30 is gone). Dismissal lasts for the
 // browser session, keyed per state, so a dismissed strip returns only when its
 // message changes. No dashes.
+//
+// iOS launch day (2026-10-12, src/lib/launchDay.js): the line says EIGER is out
+// on iPhone today, with its own dismissal key so a strip dismissed earlier
+// comes back for it, and first visits in the launch window get one small
+// confetti burst from both ends of the strip (launchConfetti.js).
 
 const KICKSTARTER_URL = storeLinks.kickstarter;
 
@@ -37,9 +44,13 @@ const LaunchBanner = () => {
   const [now, setNow] = useState(() => Date.now());
   const [feed, setFeed] = useState(null);
   const [feedDone, setFeedDone] = useState(false);
-  const phase = campaignPhase({ state: feed?.state ?? null, now });
+  const { search } = useLocation();
+  const launchDay = isLaunchDay({ now, search });
+  // Dismissal is keyed per message: launch day has its own key.
+  const phase = launchDay ? 'ios-launch' : campaignPhase({ state: feed?.state ?? null, now });
   const [dismissed, setDismissed] = useState({});
   const ref = useRef(null);
+  const rocketRef = useRef(null);
   // Wait for the feed before showing anything, so the Kickstarter line never
   // flashes in and out (if the feed fails, the launch date decides).
   const showable = feedDone || now >= LAUNCH_AT;
@@ -61,6 +72,13 @@ const LaunchBanner = () => {
     const id = setInterval(() => setNow(Date.now()), 60000);
     return () => clearInterval(id);
   }, [now]);
+
+  // First visit in the launch window: one burst once the strip has settled in.
+  useEffect(() => {
+    if (!visible || !shouldFireLaunchConfetti({ now: Date.now(), search, reduceMotion })) return undefined;
+    const id = setTimeout(() => fireLaunchConfetti(rocketRef.current, ref.current).catch(() => {}), 450);
+    return () => clearTimeout(id);
+  }, [visible, search, reduceMotion]);
 
   useLayoutEffect(() => {
     const node = ref.current;
@@ -110,15 +128,28 @@ const LaunchBanner = () => {
       {...motionProps}
     >
       <div className="mx-auto flex max-w-7xl items-start gap-3 px-4 py-2.5 sm:items-center sm:px-6 lg:px-8">
-        <Rocket aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-fg-muted sm:mt-0" strokeWidth={1.75} />
+        <Rocket ref={rocketRef} aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-fg-muted sm:mt-0" strokeWidth={1.75} />
         <p className="min-w-0 flex-1 font-mono text-xs leading-relaxed text-fg-muted sm:text-small">
           {/* Phones get the short line and no running total (Rishav 2026-10-09:
               scale to every device): at 320 to 375 px the full strip took five
               lines and pushed the hero's Get the app button below the fold. */}
-          <span className="text-fg sm:hidden">Now on iPhone and Android.</span>
-          <span className="hidden text-fg sm:inline">
-            {live ? 'EIGER is now on iPhone and Android, and our Kickstarter is live.' : 'EIGER is now on iPhone and Android.'}
-          </span>{' '}
+          {launchDay ? (
+            <>
+              <span className="text-fg sm:hidden">
+                Out on iPhone <span className="text-live">today</span>.
+              </span>
+              <span className="hidden text-fg sm:inline">
+                EIGER is out on iPhone <span className="text-live">today</span>, and on Android.
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="text-fg sm:hidden">Now on iPhone and Android.</span>
+              <span className="hidden text-fg sm:inline">
+                {live ? 'EIGER is now on iPhone and Android, and our Kickstarter is live.' : 'EIGER is now on iPhone and Android.'}
+              </span>
+            </>
+          )}{' '}
           {total ? <span className="hidden whitespace-nowrap tabular-nums sm:inline">{total}</span> : null}{' '}
           {/* No left margin on phones: the links wrap to their own line there. */}
           {/* Kickstarter + mountain requests (founder 2026-09-26): no giveaway
@@ -128,6 +159,12 @@ const LaunchBanner = () => {
               <a href={KICKSTARTER_URL} target="_blank" rel="noopener noreferrer" className={`${linkClass} inline-flex items-center gap-1 whitespace-nowrap`}>
                 <span className="sm:hidden">Kickstarter</span>
                 <span className="hidden sm:inline">Back us on Kickstarter</span>
+                <ArrowUpRight aria-hidden="true" className="size-3.5" />
+              </a>
+            ) : null}
+            {storeLinks.ios ? (
+              <a href={storeLinks.ios} target="_blank" rel="noopener noreferrer" className={`${linkClass} inline-flex items-center gap-1 whitespace-nowrap`}>
+                App Store
                 <ArrowUpRight aria-hidden="true" className="size-3.5" />
               </a>
             ) : null}

@@ -15,6 +15,7 @@ import Faq from './components/home/Faq';
 import Footer from './components/Footer';
 import AscentLine from './components/AscentLine';
 import { MISSION_REDIRECT, REMOVED_REDIRECTS } from './lib/routes';
+import { KICKSTARTER_ON_SITE } from './lib/kickstarterStats';
 
 // Mission and About are split out of the home bundle so the landing page
 // ships less JavaScript; they load on first navigation.
@@ -148,7 +149,7 @@ function App() {
         <Route path="/verification" element={<VerificationPage />} />
         <Route path="/giveaway" element={<GiveawayPage />} />
         <Route path="/giveaway/rules" element={<GiveawayRulesPage />} />
-        <Route path="/kickstarter" element={<KickstarterPage />} />
+        {KICKSTARTER_ON_SITE ? <Route path="/kickstarter" element={<KickstarterPage />} /> : null}
         <Route path="/request" element={<RequestPage />} />
         <Route path="/review" element={<ReviewShell />}>
           <Route index element={<ReviewBoard />} />

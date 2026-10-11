@@ -3,6 +3,7 @@
 // scripts/copy-routes.mjs writes it into each route folder's static HTML, so
 // crawlers never see the home page's canonical on another page. Pure (no JSON
 // imports) so node --test and the build script can load it.
+import { KICKSTARTER_ON_SITE } from './kickstarterStats.js';
 export const SITE_URL = 'https://eiger014.com';
 
 const escapeHtml = (s) =>
@@ -58,11 +59,17 @@ export const STATIC_HEADS = {
     title: 'Giveaway official rules | EIGER',
     description: 'Official rules for the Eiger Thank You Giveaway. No purchase, payment or pledge is necessary to enter or win.',
   },
-  '/kickstarter': {
-    path: '/kickstarter',
-    title: 'Kickstarter | EIGER',
-    description: 'Back EIGER on Kickstarter and help fund app development, research and the safety work behind every gear list.',
-  },
+  // Not prerendered while the page is down (KICKSTARTER_ON_SITE off): GitHub
+  // Pages then serves 404.html, which hands /kickstarter to the app's redirect.
+  ...(KICKSTARTER_ON_SITE
+    ? {
+        '/kickstarter': {
+          path: '/kickstarter',
+          title: 'Kickstarter | EIGER',
+          description: 'Back EIGER on Kickstarter and help fund app development, research and the safety work behind every gear list.',
+        },
+      }
+    : {}),
   '/request': {
     path: '/request',
     title: 'Request a mountain | EIGER',
