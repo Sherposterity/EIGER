@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Copy } from 'lucide-react';
 import lockup from '../assets/logo/lockup.svg';
+import { KICKSTARTER_ON_SITE } from '../lib/kickstarterStats';
 
 // Footer contacts: app help, and a direct line for sponsors and business partners (Muad, 2026-10-02).
 const CONTACTS = [
@@ -21,7 +22,7 @@ const SITE_LINKS = [
   { to: '/pricing', label: 'Pricing' },
   { to: '/verification', label: 'Verification process' },
   { to: '/giveaway', label: 'Giveaway' },
-  { to: '/kickstarter', label: 'Kickstarter' },
+  ...(KICKSTARTER_ON_SITE ? [{ to: '/kickstarter', label: 'Kickstarter' }] : []),
   { to: '/request', label: 'Request a mountain' },
 ];
 

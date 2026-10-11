@@ -3,7 +3,9 @@
 // it forwards every extensionless unknown path into the app, and the app's
 // NotFound route handles anything not listed here.
 
-export const ROUTE_PATHS = ['/', '/mission', '/about', '/pricing', '/mountains', '/mountains/*', '/disclosure', '/verification', '/giveaway', '/giveaway/rules', '/kickstarter', '/request', '/review', '/review/m/:trailId', '/review/admin', '/review/apply'];
+import { KICKSTARTER_ON_SITE } from './kickstarterStats.js';
+
+export const ROUTE_PATHS = ['/', '/mission', '/about', '/pricing', '/mountains', '/mountains/*', '/disclosure', '/verification', '/giveaway', '/giveaway/rules', ...(KICKSTARTER_ON_SITE ? ['/kickstarter'] : []), '/request', '/review', '/review/m/:trailId', '/review/admin', '/review/apply'];
 
 // TODO(mission merge): the Mission and About pages are being merged. Until the
 // merge lands both pages render at their own paths. Flip this to true when it
@@ -14,4 +16,11 @@ export const MISSION_REDIRECT = true;
 // Outreach emails already link to /mountains, so /mountains and anything under
 // it redirect to the home page. Not prerendered: GitHub Pages serves 404.html,
 // which hands the path to the app, and App.jsx renders <Navigate to="/" />.
-export const REMOVED_REDIRECTS = { '/mountains': '/', '/mountains/*': '/' };
+//
+// /kickstarter is down while KICKSTARTER_ON_SITE is off (Muad 2026-10-11): old
+// links (backers, social posts) land on the home page instead of NotFound.
+export const REMOVED_REDIRECTS = {
+  '/mountains': '/',
+  '/mountains/*': '/',
+  ...(KICKSTARTER_ON_SITE ? {} : { '/kickstarter': '/' }),
+};

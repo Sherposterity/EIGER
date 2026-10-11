@@ -15,7 +15,7 @@ const canonicalOf = (html) => html.match(/<link rel="canonical" href="([^"]*)"/)
 // U+2013 en dash, U+2014 em dash, built from code points so this file has none.
 const DASHES = [String.fromCharCode(0x2013), String.fromCharCode(0x2014)];
 
-const STATIC_ROUTES = ['/about', '/mission', '/pricing', '/verification', '/giveaway', '/giveaway/rules', '/kickstarter', '/request', '/disclosure'];
+const STATIC_ROUTES = ['/about', '/mission', '/pricing', '/verification', '/giveaway', '/giveaway/rules', '/request', '/disclosure'];
 
 test('every static prerendered route has a head; every public route path is covered', () => {
   const heads = routeHeads(prices);
