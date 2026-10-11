@@ -3,6 +3,7 @@ import mark from '../assets/logo/mark.svg';
 import wordmark from '../assets/logo/wordmark.svg';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu } from 'lucide-react';
+import { KICKSTARTER_ON_SITE } from '../lib/kickstarterStats';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -31,7 +32,7 @@ const NAV_LINKS = [
   { to: '/pricing', label: 'Pricing' },
   { to: '/verification', label: 'Verification process' },
   { to: '/giveaway', label: 'Giveaway' },
-  { to: '/kickstarter', label: 'Kickstarter' },
+  ...(KICKSTARTER_ON_SITE ? [{ to: '/kickstarter', label: 'Kickstarter' }] : []),
 ];
 
 // Shared focus ring: every link and button in the nav shows it on keyboard focus.

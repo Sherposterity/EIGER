@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowUpRight, Rocket, X } from 'lucide-react';
 import storeLinks from '../../data/store-links.json';
-import { campaignPhase, fetchKickstarterStats, LAUNCH_AT, pledgeLine } from '../../lib/kickstarterStats';
+import { campaignPhase, fetchKickstarterStats, KICKSTARTER_ON_SITE, LAUNCH_AT, pledgeLine } from '../../lib/kickstarterStats';
 import { EASE_OUT_EXPO, focusRing } from './utils';
 
 // Store strip on the home page, just under the fixed nav and over the top of
@@ -96,7 +96,8 @@ const LaunchBanner = () => {
         transition: { duration: 0.3, ease: EASE_OUT_EXPO },
       };
 
-  const live = phase === 'live';
+  // KICKSTARTER_ON_SITE off: the strip keeps only the store line and Request a mountain.
+  const live = KICKSTARTER_ON_SITE && phase === 'live';
   const total = live ? pledgeLine(Number(feed?.pledged_usd), Number(feed?.goal_usd) || storeLinks.kickstarter_goal_usd) : null;
 
   return (

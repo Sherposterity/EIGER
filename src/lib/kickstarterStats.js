@@ -21,6 +21,15 @@ export function mergeStats(fallback, remote) {
   };
 }
 
+// Whether the site points visitors at the Kickstarter (Muad 2026-10-11): off
+// while the campaign is early ($166 of $5,000 from 4 backers on 10-11), because
+// sponsors we email land on the site first and a near-empty goal bar was the
+// first thing they saw. Off hides the nav and footer links and the banner's
+// Kickstarter line; /kickstarter itself stays reachable for existing links but
+// is out of the sitemap. Back on at the founders' call ($1k or $2k pledged):
+// flip this to true and restore the /kickstarter line in public/sitemap.xml.
+export const KICKSTARTER_ON_SITE = false;
+
 // Launch: 2026-10-01 9:00 AM Central (CDT, UTC-5). Muad presses launch by hand.
 export const LAUNCH_AT = Date.parse('2026-10-01T14:00:00Z');
 
