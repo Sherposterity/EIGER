@@ -19,9 +19,9 @@ consumer, no embedded raster, tight viewBox cropped to the inked pixels
 
 ## Sources
 
-- `mark.svg` ← `/Users/muadshaikh/hike/assets/images/eiger_logo.png` (1155×1431, white on transparent)
-- `wordmark.svg` ← `/Users/muadshaikh/hike/assets/images/eiger_text.png` (1193×313, white on transparent, includes TM)
-- `lockup.svg` ← `/Users/muadshaikh/eiger-website/src/assets/EigerLogo.png` (7200×4241, white on transparent, mark + wordmark + TM at the founder's spacing)
+- `mark.svg` ← `~/hike/assets/images/eiger_logo.png` (1155×1431, white on transparent)
+- `wordmark.svg` ← `~/hike/assets/images/eiger_text.png` (1193×313, white on transparent, includes TM)
+- `lockup.svg` ← `~/eiger-website/src/assets/EigerLogo.png` (7200×4241, white on transparent, mark + wordmark + TM at the founder's spacing)
 - `eiger_logo_black_square.png` was reference-only (mark on black square, grayscale) and was not traced.
 
 ## Tool and settings
@@ -35,7 +35,7 @@ Tool actually used, in order tried:
    call**, even on a trivial 100×100 test image (confirmed with
    `faulthandler`, reproducible, not a fluke; a macOS crash report was
    generated). A same-session workaround (Python 3.12 via
-   `/Users/muadshaikh/miniforge3/bin/python3.12` in its own venv) did trace
+   `~/miniforge3/bin/python3.12` in its own venv) did trace
    correctly, but per instruction this path was dropped in favor of the
    npm option below rather than shipped from.
 1. **Tool used**: `npx -y @neplex/vectorizer` — an npm package that installs
@@ -96,7 +96,7 @@ Rendered each SVG (inlined, `color:#fff`) next to its source PNG (`<img>`) on
 `#0A0A0A`, at 28px/40px/64px/160px/600px tall, via headless Chrome
 (`--headless=new --disable-gpu --allow-file-access-from-files --screenshot`).
 Screenshots (session scratch, not part of this commit):
-`/private/tmp/claude-501/-Users-muadshaikh-hike/d5da10dc-b841-491d-812e-d26aee7045a6/scratchpad/logo/prep/compare_{mark,wordmark,lockup}.png`
+`/private/tmp/claude-501/-Users-...-hike/d5da10dc-b841-491d-812e-d26aee7045a6/scratchpad/logo/prep/compare_{mark,wordmark,lockup}.png`
 (28–600px in one page each; the 600px row is cropped by window width in
 these), plus dedicated full-width 600px captures
 `row600_{mark,wordmark,lockup}.png`, plus 4×-device-scale closeups of just

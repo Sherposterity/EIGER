@@ -129,7 +129,7 @@ Hello Climbers! We are Eiger, a startup led by three university students who wan
 **A4. Founders.** Heading for the section, then for each founder a role and a two-sentence bio (existing bios are usable drafts).
 > Section heading: Who we are
 > Rishav, CEO / put whats on the page rn. dont have it yet:
-> Muad, Chief Data Officer / My name is Muad Shaikh and I'm currently a senior at the University of Houston studying biochemistry with a minor in computer science, with multiple awards merit based scholarships for quantitative data analysis in human physiology. Climbing is my passion and I want to bring a medical perspective of safety and health in the hiking field that is often absent in these high impact sports:
+> Muad, Chief Data Officer / My name is Muad and I'm currently a senior studying biochemistry with a minor in computer science, with multiple awards merit based scholarships for quantitative data analysis in human physiology. Climbing is my passion and I want to bring a medical perspective of safety and health in the hiking field that is often absent in these high impact sports:
 > Cody, Chief Technology Officer / put whats on the page rn. dont have it yet:
 
 **A5. Athlete, short version** (one sentence, not the Home wording).
