@@ -7,9 +7,6 @@ import SiteNav from '../components/SiteNav';
 import Footer from '../components/Footer';
 import GetTheApp from '../components/home/GetTheApp';
 import EmailCapture from '../components/home/EmailCapture';
-import RishavPhoto from '../assets/founders/rishav.jpg';
-import MuadPhoto from '../assets/founders/muad.jpg';
-import CodyPhoto from '../assets/founders/cody.jpg';
 import AthletePhoto from '../assets/TimEiger.jpg';
 
 // About (merged with the old Mission page). Every string on this page is from
@@ -24,22 +21,19 @@ const DISCORD_URL = 'https://discord.gg/x3Dfj32dAK';
 
 const founders = [
   {
-    name: 'Rishav Akilla',
+    name: 'Rishav',
     role: 'CEO',
-    photo: RishavPhoto,
-    body: 'My name is Rishav Akilla and I am currently studying Biochemistry at the University of Houston. I have knowledge within the medical research field as several of my publications are on the National Institute of Health. Mountaineering is my passion and I integrate research capabilities into the development of safety and technical data.',
+    body: 'My name is Rishav and I am currently studying Biochemistry. I have knowledge within the medical research field as several of my publications are on the National Institute of Health. Mountaineering is my passion and I integrate research capabilities into the development of safety and technical data.',
   },
   {
-    name: 'Muad Shaikh',
+    name: 'Muad',
     role: 'Chief Data Officer',
-    photo: MuadPhoto,
-    body: "My name is Muad Shaikh and I'm currently a senior at the University of Houston studying biochemistry with a minor in computer science, with multiple merit based scholarships for quantitative data analysis in human physiology. Climbing is my passion and I want to bring a medical perspective of safety and health in the hiking field that is often absent in these high impact sports.",
+    body: "My name is Muad and I'm currently a senior studying biochemistry with a minor in computer science, with multiple merit based scholarships for quantitative data analysis in human physiology. Climbing is my passion and I want to bring a medical perspective of safety and health in the hiking field that is often absent in these high impact sports.",
   },
   {
-    name: 'Cody Luc',
+    name: 'Cody',
     role: 'Chief Technology Officer',
-    photo: CodyPhoto,
-    body: 'My name is Cody Luc and I currently have experience at several S&P 500 companies as a software intern. I study computer science at the University of Houston and apply that knowledge to the main infrastructure of the app as the technical cofounder. Climbing and hiking introduce new challenges every time I head out, and I love these activities because they get my brain running, the same way solving a hard problem in code does.',
+    body: 'My name is Cody and I currently have experience at several S&P 500 companies as a software intern. I study computer science and apply that knowledge to the main infrastructure of the app as the technical cofounder. Climbing and hiking introduce new challenges every time I head out, and I love these activities because they get my brain running, the same way solving a hard problem in code does.',
   },
 ];
 
@@ -230,14 +224,6 @@ export default function AboutPage() {
               {founders.map((founder, i) => (
                 <Rise key={founder.name} delay={i * 0.08} className="h-full">
                   <article className="flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface-1 transition-[translate,border-color] duration-300 ease-out-expo hover:-translate-y-0.5 hover:border-line-strong">
-                    <div className="aspect-[4/5] w-full overflow-hidden bg-surface-2">
-                      <img
-                        src={founder.photo}
-                        alt={founder.name}
-                        loading="lazy"
-                        className="h-full w-full object-cover object-[50%_30%]"
-                      />
-                    </div>
                     <div className="flex flex-1 flex-col p-6">
                       <h3 className="text-heading">{founder.name}</h3>
                       <p className="mt-2 font-mono text-eyebrow uppercase text-fg-subtle">{founder.role}</p>
