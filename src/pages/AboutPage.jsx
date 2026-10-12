@@ -220,7 +220,7 @@ export default function AboutPage() {
                 Who we are
               </h2>
             </Rise>
-            <div className="mt-12 grid gap-6 md:grid-cols-3">
+            <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
               {founders.map((founder, i) => (
                 <Rise key={founder.name} delay={i * 0.08} className="h-full">
                   <article className="flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface-1 transition-[translate,border-color] duration-300 ease-out-expo hover:-translate-y-0.5 hover:border-line-strong">

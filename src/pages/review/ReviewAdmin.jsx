@@ -408,7 +408,7 @@ function Disputes({ toast }) {
       {rows === null ? <Empty>Loading</Empty> : rows.length === 0 ? <Empty>No open disputes.</Empty> : null}
       {(rows || []).map((d) => (
         <article key={d.id} className="rounded-lg border border-line-strong p-4">
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {[d.a, d.b].map((l, i) =>
               l ? (
                 <label key={l.id} className="flex cursor-pointer flex-col gap-2">

@@ -160,7 +160,7 @@ function Board({ me, signOut, toast }) {
       ) : visible.length === 0 ? (
         <p className="mt-10 text-small text-fg-subtle">No mountains match.</p>
       ) : (
-        <ul className="mt-6 grid gap-2 sm:grid-cols-2">
+        <ul className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {visible.map((row) => {
             const canClaim = row.state === 'open' && !mine;
             return (

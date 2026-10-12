@@ -225,7 +225,7 @@ export default function PricingPage() {
               </p>
             </div>
 
-            <div className="mt-10 grid gap-4 md:grid-cols-2">
+            <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
               <article className="flex h-full flex-col rounded-lg border border-line bg-surface-1 p-6 sm:p-8">
                 <h2 className="text-heading">Free</h2>
                 <p className="mt-6 flex items-baseline gap-2">
@@ -343,7 +343,7 @@ export default function PricingPage() {
               </table>
             </div>
 
-            <ul aria-label="Legend" className="mt-6 grid gap-2 text-small text-fg-muted sm:grid-cols-2">
+            <ul aria-label="Legend" className="mt-6 grid grid-cols-1 gap-2 text-small text-fg-muted sm:grid-cols-2">
               {LEGEND.map((item) => {
                 const { Icon, term, text } = item;
                 return (
