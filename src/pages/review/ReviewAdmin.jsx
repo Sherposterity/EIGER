@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import RequireReviewer from './ReviewGate';
-import { fromTable, reviewBoard, rpc, shortDate, shortDateTime } from '@/lib/reviewApi';
+import { fromTable, reviewBoard, rpc, sendReviewerWelcome, shortDate, shortDateTime, welcomeOutcome } from '@/lib/reviewApi';
 import { EYEBROW, STATE_LABEL, TIERS, btnGhost, btnQuiet, fieldSm, surface } from './reviewStyles';
 
 // Admin view. Plain and usable: applications, reviewers, the full board,
@@ -115,12 +115,16 @@ function Applications({ toast }) {
               <button
                 type="button"
                 className={btnQuiet}
-                onClick={() =>
-                  run(
-                    () => rpc('approve_application', { p_application_id: a.id, p_tier: tiers[a.id] || a.background || null }),
-                    `${a.full_name} approved`,
-                  )
-                }
+                onClick={async () => {
+                  try {
+                    const reviewerId = await rpc('approve_application', { p_application_id: a.id, p_tier: tiers[a.id] || a.background || null });
+                    const result = await sendReviewerWelcome(reviewerId);
+                    toast(welcomeOutcome(a.full_name, result), result.sent ? 'ok' : undefined);
+                    reload();
+                  } catch (e) {
+                    toast(e.message);
+                  }
+                }}
               >
                 Approve
               </button>
@@ -144,20 +148,31 @@ function Applications({ toast }) {
 }
 
 function Reviewers({ toast }) {
-  const loader = useCallback(() => fromTable('reviewers', 'id, email, first_name, last_name, tier, is_admin, active, created_at'), []);
+  const loader = useCallback(() => fromTable('reviewers', 'id, email, first_name, last_name, tier, is_admin, active, created_at, welcome_sent_at'), []);
   const [rows, reload] = useAsync(loader, toast);
   const [form, setForm] = useState({ email: '', first: '', last: '', tier: 'experienced_amateur' });
 
   const add = async (e) => {
     e.preventDefault();
     try {
-      await rpc('add_reviewer', { p_email: form.email.trim(), p_first_name: form.first.trim(), p_last_name: form.last.trim(), p_tier: form.tier });
-      toast(`${form.first} added`, 'ok');
+      const reviewerId = await rpc('add_reviewer', { p_email: form.email.trim(), p_first_name: form.first.trim(), p_last_name: form.last.trim(), p_tier: form.tier });
+      const result = await sendReviewerWelcome(reviewerId);
+      toast(
+        result.sent ? `${form.first} added, welcome email sent` : `${form.first} added, but the welcome email did not send. Use Send welcome email below.`,
+        result.sent ? 'ok' : undefined,
+      );
       setForm({ email: '', first: '', last: '', tier: 'experienced_amateur' });
       reload();
     } catch (err) {
       toast(err.message);
     }
+  };
+  const welcome = async (r) => {
+    const result = await sendReviewerWelcome(r.id, Boolean(r.welcome_sent_at));
+    if (result.sent) toast(`Welcome email sent to ${r.first_name}`, 'ok');
+    else if (result.reason === 'inactive') toast(`${r.first_name} is deactivated. Reactivate first.`);
+    else toast('The welcome email did not send. Try again in a minute.');
+    reload();
   };
   const toggle = async (r) => {
     try {
@@ -195,8 +210,14 @@ function Reviewers({ toast }) {
               </p>
               <p className="truncate font-mono text-small text-fg-subtle">
                 {r.email} · {TIER_LABEL[r.tier] || r.tier} · since {shortDate(r.created_at)}
+                {r.welcome_sent_at ? ` · welcomed ${shortDate(r.welcome_sent_at)}` : ' · not welcomed yet'}
               </p>
             </div>
+            {r.active ? (
+              <button type="button" className={btnQuiet} onClick={() => welcome(r)}>
+                {r.welcome_sent_at ? 'Resend welcome' : 'Send welcome email'}
+              </button>
+            ) : null}
             <button type="button" className={btnGhost} onClick={() => toggle(r)}>
               {r.active ? 'Deactivate' : 'Reactivate'}
             </button>
