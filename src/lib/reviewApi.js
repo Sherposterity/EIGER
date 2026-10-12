@@ -61,6 +61,25 @@ export async function loadDraft(reviewId) {
 
 export const fromTable = (table, columns = '*') => supabase.from(table).select(columns).then(unwrap);
 
+// Welcome email for an approved reviewer (edge function reviewer-welcome,
+// admins only, hike migration 163). Resolves { sent, reason? }; never throws,
+// so an approval is never reported as failed because the email was.
+export async function sendReviewerWelcome(reviewerId, resend = false) {
+  try {
+    const { data, error } = await supabase.functions.invoke('reviewer-welcome', { body: { reviewer_id: reviewerId, resend } });
+    if (error) return { sent: false, reason: 'send_failed' };
+    return data || { sent: false, reason: 'send_failed' };
+  } catch {
+    return { sent: false, reason: 'send_failed' };
+  }
+}
+
+// Toast text for an approval or manual add followed by the welcome email.
+export const welcomeOutcome = (name, result) =>
+  result.sent
+    ? `${name} approved, welcome email sent`
+    : `${name} approved, but the welcome email did not send. Use Send welcome email in Reviewers.`;
+
 // "Oct 2"
 export const shortDate = (iso) =>
   iso ? new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
