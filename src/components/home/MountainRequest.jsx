@@ -15,7 +15,7 @@ import { APP_MOUNTAINS, appMountainFor, nearbyAppMountain, searchAppMountains, s
 //
 // Bundle: the globe (WebGL) loads when the section scrolls in; the peaks
 // dataset is split per letter and a chunk loads on the first letter typed.
-// Only the 97 app mountains (about 10 KB) ride in the home bundle.
+// Only the app mountains (183 on 2026-10-13, about 19 KB) ride in the home bundle.
 // Copy here is user-facing: no dashes.
 
 const Globe = lazy(() => import('../Globe'));
