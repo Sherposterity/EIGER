@@ -34,3 +34,9 @@ test('with the Kickstarter switch off, /kickstarter redirects home and is not pr
   assert.equal(REMOVED_REDIRECTS['/kickstarter'], '/');
   assert.ok(!('/kickstarter' in routeHeads({ annual: 1, weekly: 1, trialDays: 1 })));
 });
+
+test('launch week (the banner lead line) runs on the confetti window', async () => {
+  const { isLaunchWeek } = await import('../src/lib/launchDay.js');
+  assert.equal(isLaunchWeek({ now: at('2026-10-13T15:00:00Z') }), true);
+  assert.equal(isLaunchWeek({ now: at('2026-10-19T05:00:00Z') }), false);
+});

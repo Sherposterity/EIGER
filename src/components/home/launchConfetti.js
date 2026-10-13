@@ -1,16 +1,18 @@
 import { inConfettiWindow, isPreview } from '../../lib/launchDay';
 
-// One small confetti burst from both ends of the launch banner on a visitor's
-// first visit during the iOS launch window (src/lib/launchDay.js). The
+// One small confetti burst from both ends of the launch banner once per visit
+// during the iOS launch window (src/lib/launchDay.js). A visit is a browser tab
+// session (sessionStorage): a reload does not fire it again, a new tab or a
+// later visit does (Muad 2026-10-13; it was once per browser before). The
 // library loads only when it is about to fire, so it stays out of the main
 // bundle. Skipped with reduced motion. White and greys with a few green flecks,
 // the site's own palette.
 
-const SEEN_KEY = 'eiger_launch_confetti_seen';
+const SEEN_KEY = 'eiger_launch_confetti_seen_session';
 
 const seen = () => {
   try {
-    return localStorage.getItem(SEEN_KEY) === '1';
+    return sessionStorage.getItem(SEEN_KEY) === '1';
   } catch {
     return true; // storage blocked: never risk firing on every page view
   }
@@ -18,7 +20,7 @@ const seen = () => {
 
 const markSeen = () => {
   try {
-    localStorage.setItem(SEEN_KEY, '1');
+    sessionStorage.setItem(SEEN_KEY, '1');
   } catch {
     /* blocked: seen() already reports true */
   }

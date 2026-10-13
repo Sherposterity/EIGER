@@ -4,9 +4,10 @@
 // banner and the confetti switch at midnight Central for every visitor.
 //
 // - Launch day: the home banner says "out on iPhone today".
-// - Launch window (launch day through the following Saturday): a visitor's
-//   first visit gets one small confetti burst. After the window it never fires,
-//   so a sponsor opening the site weeks later does not get random confetti.
+// - Launch week (launch day through the following Saturday): the banner leads
+//   with "Launch week is here!" and each visit (browser tab session) gets one
+//   small confetti burst (Muad 2026-10-13). After the window neither shows, so a
+//   sponsor opening the site weeks later does not get random confetti.
 // - `?launch-preview` in the URL forces both, for checking the look before the
 //   day (local preview, or the live site the night before).
 
@@ -28,3 +29,6 @@ export const inConfettiWindow = ({ now = Date.now(), search = '' } = {}) => {
   const day = centralDate(now);
   return day >= IOS_LAUNCH_DAY && day <= CONFETTI_LAST_DAY;
 };
+
+/** Launch week: the banner's "Launch week is here!" runs on the confetti window. */
+export const isLaunchWeek = inConfettiWindow;

@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from 'motion/react';
 import { ArrowUpRight, Rocket, X } from 'lucide-react';
 import storeLinks from '../../data/store-links.json';
 import { campaignPhase, fetchKickstarterStats, KICKSTARTER_ON_SITE, LAUNCH_AT, pledgeLine } from '../../lib/kickstarterStats';
-import { isLaunchDay } from '../../lib/launchDay';
+import { isLaunchDay, isLaunchWeek } from '../../lib/launchDay';
 import { fireLaunchConfetti, shouldFireLaunchConfetti } from './launchConfetti';
 import { EASE_OUT_EXPO, focusRing } from './utils';
 
@@ -20,8 +20,10 @@ import { EASE_OUT_EXPO, focusRing } from './utils';
 //
 // iOS launch day (2026-10-12, src/lib/launchDay.js): the line says EIGER is out
 // on iPhone today, with its own dismissal key so a strip dismissed earlier
-// comes back for it, and first visits in the launch window get one small
-// confetti burst from both ends of the strip (launchConfetti.js).
+// comes back for it. The rest of launch week (through 2026-10-18) the usual
+// line is led by "Launch week is here!" (Muad 2026-10-13), again with its own
+// key. Each visit in the launch window gets one small confetti burst from both
+// ends of the strip (launchConfetti.js).
 
 const KICKSTARTER_URL = storeLinks.kickstarter;
 
@@ -46,8 +48,9 @@ const LaunchBanner = () => {
   const [feedDone, setFeedDone] = useState(false);
   const { search } = useLocation();
   const launchDay = isLaunchDay({ now, search });
-  // Dismissal is keyed per message: launch day has its own key.
-  const phase = launchDay ? 'ios-launch' : campaignPhase({ state: feed?.state ?? null, now });
+  const launchWeek = isLaunchWeek({ now, search });
+  // Dismissal is keyed per message: launch day and launch week have their own keys.
+  const phase = launchDay ? 'ios-launch' : launchWeek ? 'launch-week' : campaignPhase({ state: feed?.state ?? null, now });
   const [dismissed, setDismissed] = useState({});
   const ref = useRef(null);
   const rocketRef = useRef(null);
@@ -144,6 +147,7 @@ const LaunchBanner = () => {
             </>
           ) : (
             <>
+              {launchWeek ? <span className="text-live">Launch week is here! </span> : null}
               <span className="text-fg sm:hidden">Now on iPhone and Android.</span>
               <span className="hidden text-fg sm:inline">
                 {live ? 'EIGER is now on iPhone and Android, and our Kickstarter is live.' : 'EIGER is now on iPhone and Android.'}
