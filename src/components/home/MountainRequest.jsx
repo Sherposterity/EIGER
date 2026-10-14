@@ -33,9 +33,18 @@ const buttonQuiet = `inline-flex h-9 items-center justify-center gap-2 rounded-p
 
 const markerSize = (rank) => Math.max(0.03, 0.09 - rank * 0.006);
 
+// "In the app" is marked with a small summit, not a status dot (Muad
+// 2026-10-14: no green dots beside status words; the globe's dots stay).
+// Solid = expert verified or plain "in the app", outline = being verified.
+const SummitMark = ({ outline = false, className = '' }) => (
+  <svg aria-hidden="true" viewBox="0 0 10 8" className={`shrink-0 text-live ${className}`}>
+    <path d="M5 0.75 9.25 7.25H0.75Z" fill={outline ? 'none' : 'currentColor'} stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round" />
+  </svg>
+);
+
 const InAppChip = () => (
   <span className="inline-flex shrink-0 items-center gap-1.5 rounded-pill border border-line-strong px-2 py-0.5 font-mono text-[0.65rem] font-semibold tracking-[0.12em] uppercase text-fg-muted">
-    <span aria-hidden="true" className="size-1.5 rounded-full bg-live" />
+    <SummitMark className="h-1.5 w-2" />
     In the app
   </span>
 );
@@ -228,8 +237,7 @@ export default function MountainRequest({ standalone = false }) {
                   `${selected.name}, ${selected.country || 'on the globe'}`
                 ) : (
                   <>
-                    <span aria-hidden="true" className="mr-1.5 inline-block size-1.5 rounded-full bg-live align-middle" />
-                    {APP_MOUNTAINS.length} in the app, tap one. White dots are the most requested. Drag to turn.
+                    <span className="text-live">Green</span> marks the {APP_MOUNTAINS.length} in the app, tap one. White dots are the most requested. Drag to turn.
                   </>
                 )}
               </p>
@@ -327,7 +335,7 @@ export default function MountainRequest({ standalone = false }) {
                   </div>
                   {inApp ? (
                     <span className="inline-flex items-center gap-2 rounded-pill border border-line-strong px-4 py-2 text-small font-medium text-fg">
-                      <span aria-hidden="true" className="size-2 rounded-full bg-live" />
+                      {inApp.verified ? <Check aria-hidden="true" className="size-4 text-live" strokeWidth={2.5} /> : <SummitMark outline className="h-2.5 w-3" />}
                       {inApp.verified ? 'In the app, expert verified' : 'In the app, being verified'}
                     </span>
                   ) : (

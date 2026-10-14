@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchClimberCount, parseClimberCount } from '../src/lib/climberCount.js';
+import { CLIMBER_BACKOFF_MS, CLIMBER_POLL_MS, fetchClimberCount, nextClimberDelay, parseClimberCount } from '../src/lib/climberCount.js';
 
 test('parseClimberCount keeps positive integers only', () => {
   assert.equal(parseClimberCount(398), 398);
@@ -23,4 +23,11 @@ test('fetchClimberCount calls the RPC with the anon key and returns null on fail
   } finally {
     globalThis.fetch = realFetch;
   }
+});
+
+test('the count polls every 3 s and backs off to 30 s after a failure', () => {
+  assert.equal(CLIMBER_POLL_MS, 3000);
+  assert.equal(CLIMBER_BACKOFF_MS, 30000);
+  assert.equal(nextClimberDelay(true), 3000);
+  assert.equal(nextClimberDelay(false), 30000);
 });
