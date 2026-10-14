@@ -65,8 +65,8 @@ hand written CSS.
 
 - **Monochrome.** One near black base, white at fixed strengths for text and
   lines, three stepped surfaces for depth. No accent colour. Emerald appears
-  only where it already means live or success (the beta dot, "Copied!", the
-  waitlist confirmation). Form errors are white text with a marker, never red.
+  only where it already means live or success (the globe's in the app dots,
+  "Copied!", the waitlist confirmation). Form errors are white text with a marker, never red.
 - **Alpine and restrained.** The photography and video carry the colour.
   Type does the rest: League Spartan for display and the wordmark, Inter for
   reading, JetBrains Mono for numbers, elevations and small labels.
@@ -85,6 +85,12 @@ hand written CSS.
   layout. Two were removed on 2026-09-27 (the home verifier callout and the
   "Mountaineer? Apply to verify" cue on /verification); do not reintroduce
   them in any form.
+- **No status dots either (founder, 2026-10-14).** No static coloured dot
+  beside words like "live", "in the app", "online", "in operation" or "in
+  person", and no "Live" badges. When something has to read as live, show it
+  in an Eiger way instead: the number itself counting on, an "as of" time, a
+  small summit mark or a check. Fine as they are: the globe's green dots,
+  list bullets, chart legend keys and the reviewer board's state marks.
 - **One motion library.** `motion` only. No GSAP, Lenis or three.js. Motion is
   short, eases out, and never blocks reading. `prefers-reduced-motion`
   switches it off globally in `src/index.css`.

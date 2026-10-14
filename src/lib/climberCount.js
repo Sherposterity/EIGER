@@ -2,10 +2,15 @@
 // The number comes from public.public_climber_count() in Supabase (hike
 // migration 164): a security definer function that returns one integer, the
 // signed-up accounts minus test, reviewer and deleted ones, and nothing else.
-// The page polls it every 30 seconds while the tab is visible; signups arrive
-// a few an hour, so that reads as live without hammering the database.
+// The page polls it every 3 seconds (Muad 2026-10-14, signups picking up),
+// only while the figures line is on screen and the tab is visible, and drops
+// to every 30 seconds after a failed request until one succeeds again.
 
-export const CLIMBER_POLL_MS = 30000;
+export const CLIMBER_POLL_MS = 3000;
+export const CLIMBER_BACKOFF_MS = 30000;
+
+/** Wait before the next poll: the normal pace after a good answer, the slow one after a failure. */
+export const nextClimberDelay = (ok) => (ok ? CLIMBER_POLL_MS : CLIMBER_BACKOFF_MS);
 
 /** The count from the RPC's JSON body, or null when it is not a usable number. */
 export function parseClimberCount(body) {
