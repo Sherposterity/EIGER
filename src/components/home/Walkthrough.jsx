@@ -11,6 +11,7 @@ import missionControl from '@/assets/E_MissionControl.webp';
 import summitIntel from '@/assets/E_SummitIntel.webp';
 import gearVault from '@/assets/E_GearVault.webp';
 import ProofLine from './ProofLine';
+import UiRefreshNote from './UiRefreshNote';
 import { FadeIn } from './motion';
 import { EASE_OUT_EXPO } from './utils';
 
@@ -167,6 +168,7 @@ const Walkthrough = () => {
           </h2>
         </FadeIn>
         <ProofLine />
+        <UiRefreshNote />
 
         {reduce ? (
           <StaticRows />

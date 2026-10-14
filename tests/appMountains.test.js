@@ -7,15 +7,16 @@ const data = JSON.parse(readFileSync(new URL('../src/data/app-mountains.json', i
 const index = createAppIndex(data.mountains);
 const byName = (n) => data.mountains.find((m) => m.name === n);
 
-test('app mountains: 97 rows with coordinates, ids unique, most mapped to a dataset peak', () => {
-  assert.equal(data.mountains.length, 97);
-  assert.equal(new Set(data.mountains.map((m) => m.id)).size, 97);
+// 183 since the 2026-10-13 batch (86 added from Muad's seat); 97 before.
+test('app mountains: 183 rows with coordinates, ids unique, most mapped to a dataset peak', () => {
+  assert.equal(data.mountains.length, 183);
+  assert.equal(new Set(data.mountains.map((m) => m.id)).size, 183);
   for (const m of data.mountains) {
     assert.ok(m.lat >= -90 && m.lat <= 90 && m.lon >= -180 && m.lon <= 180, m.name);
     assert.ok(m.peakId === null || /^Q\d+$/.test(m.peakId), m.name);
   }
   const mapped = data.mountains.filter((m) => m.peakId).length;
-  assert.ok(mapped >= 85, `mapped ${mapped}`);
+  assert.ok(mapped >= 165, `mapped ${mapped}`);
   assert.equal(new Set(data.mountains.map((m) => m.peakId).filter(Boolean)).size, mapped, 'no two app mountains share a peak id');
 });
 
@@ -55,7 +56,12 @@ test('app mountains are searchable by name, including the unmapped ones, without
   assert.equal(index.appMountainFor(adams[0])?.name, 'Mount Adams');
   assert.ok(adams[0].id.startsWith('app:'), 'no catalogue id, so the synthetic id is never a valid request');
   const montBlanc = byName('Mont Blanc');
-  assert.deepEqual(index.searchAppMountains('mont blanc', normalize, new Set([montBlanc.peakId])), [], 'present through its peak: not repeated');
+  // Mont Blanc itself is left out when its peak is already present; other
+  // app mountains that start with the words (Mont Blanc de Cheilon, since
+  // 2026-10-13) still show.
+  const others = index.searchAppMountains('mont blanc', normalize, new Set([montBlanc.peakId]));
+  assert.ok(others.every((r) => r.appId !== montBlanc.id), 'present through its peak: not repeated');
+  assert.ok(index.searchAppMountains('mont blanc', normalize).some((r) => r.appId === montBlanc.id), 'listed when its peak is absent');
 });
 
 test('nearbyAppMountain is a hint for neighbours and null for the mountain itself', () => {
