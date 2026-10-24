@@ -38,7 +38,7 @@ const inlineLink = `rounded-sm text-fg underline decoration-line-strong underlin
 
 const HEAD = routeHeads(prices)['/pricing'];
 
-const FREE_LINES = ['Your objective, scored', "Every mountain's gear list", 'Join group trips by code'];
+const FREE_LINES = ['Your objective, scored', 'Two mountains, more with invites', "Every mountain's gear list", 'Join group trips by code'];
 const PRO_LINES = [
   'Every mountain, scored against your kit',
   'Unlimited saved kits and mountains',
