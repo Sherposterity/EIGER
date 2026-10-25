@@ -7,6 +7,18 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   base: '/',
   plugins: [react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      // The app, plus the standalone emergency contact page for the check-in
+      // timer (/contact-confirm, src/lib/contactConsent.js). That page is plain
+      // HTML and a small module: no React, no app shell, nothing that could
+      // record its one-time token.
+      input: {
+        index: fileURLToPath(new URL('./index.html', import.meta.url)),
+        contactConfirm: fileURLToPath(new URL('./contact-confirm/index.html', import.meta.url)),
+      },
+    },
+  },
   resolve: {
     alias: [
       { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
