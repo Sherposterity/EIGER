@@ -9,7 +9,7 @@ const plans = JSON.parse(raw);
 // Verbatim from hike app/utils/paywallPersonalization.ts PAYWALL_COMPARISON.
 const APP_ROWS = [
   ['Gear compatibility score', 'Your objective', 'Every mountain'],
-  ['Objectives and saved mountains', '2, more with invites', 'Unlimited'],
+  ['Mountains', '2, add 1 per invite, switch anytime', 'Every mountain'],
   ['Saved kits, scored per objective', '3', 'Unlimited'],
   ['Group trips', 'Join by code', 'Create and join'],
   ['Offline maps, 3D terrain, forecasts, GPS', 'Not included', 'Included'],

@@ -8,7 +8,7 @@
   },
   "appRows": [
     { "label": "Gear compatibility score", "free": "Your objective", "pro": "Every mountain", "group": "gear" },
-    { "label": "Objectives and saved mountains", "free": "2, more with invites", "pro": "Unlimited", "group": "trips" },
+    { "label": "Mountains", "free": "2, add 1 per invite, switch anytime", "pro": "Every mountain", "group": "trips" },
     { "label": "Saved kits, scored per objective", "free": "3", "pro": "Unlimited", "group": "gear" },
     { "label": "Group trips", "free": "Join by code", "pro": "Create and join", "group": "trips" },
     { "label": "Offline maps, 3D terrain, forecasts, GPS", "free": "Not included", "pro": "Included", "group": "maps" }
