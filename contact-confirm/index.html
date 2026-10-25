@@ -54,8 +54,8 @@
   <main>
     <!-- Consent: the invite email (confirm or decline). -->
     <section id="consent" hidden>
-      <h1>You were added as an emergency contact</h1>
-      <p>Someone you know added you as their emergency contact in Eiger, the mountaineering app. Their name is in the email that brought you here.</p>
+      <h1 id="consent-title">You were added as an emergency contact</h1>
+      <p id="consent-lead">Someone you know added you as their emergency contact in Eiger, the mountaineering app. Their name is in the email that brought you here.</p>
       <p>If you confirm, Eiger emails you only if they do not check in from a climb on time. You can stop at any time from any of our emails.</p>
       <p class="note">Eiger does not call rescue services. If an email says they have not checked in, try to reach them, and if you cannot, contact the local emergency number yourself.</p>
       <div class="actions">
@@ -66,13 +66,16 @@
 
     <!-- Stop: the link at the bottom of every email to a contact. -->
     <section id="stop" hidden>
-      <h1>Stop being an emergency contact</h1>
+      <h1 id="stop-title">Stop being an emergency contact</h1>
       <p>One tap and Eiger stops emailing you about this climber. Any check-in they set with you is cancelled, and we let them know so they can choose someone else.</p>
       <p class="note">Eiger does not call rescue services.</p>
       <div class="actions">
         <button type="button" id="btn-stop" class="btn-primary">Stop being an emergency contact</button>
       </div>
     </section>
+
+    <!-- While the read-only preview runs (at most a few seconds). -->
+    <p id="loading" class="note">Checking your link...</p>
 
     <!-- Result: filled in with textContent only. -->
     <section id="result" class="result" hidden aria-live="polite">
@@ -81,6 +84,7 @@
     </section>
 
     <noscript>
+      <style>#loading { display: none; }</style>
       <p>This page needs JavaScript to answer the invite. If you cannot turn it on, write to business@eiger014.com and we will do it for you.</p>
     </noscript>
   </main>

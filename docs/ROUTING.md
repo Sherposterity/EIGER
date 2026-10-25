@@ -44,8 +44,10 @@ its links carry a one-time token. The check-in timer emails (hike edge function
 | `?token=<hex>&action=decline` | same, Decline first | same |
 | `?action=stop&token=<hex>` | Stop being an emergency contact | `withdraw_emergency_contact` |
 
-Nothing is called on page load: every action waits for a click, so a mail
-scanner that opens the link changes nothing. The page strips the token from
+On load the page makes one read-only call, `preview_emergency_contact_token`
+(names the climber, answers expired or used links before any button; falls
+back to unnamed copy if it fails or is rate limited). Every action waits for a
+click, so a mail scanner that opens the link changes nothing. The page strips the token from
 the address bar once read. Logic and copy: `src/lib/contactConsent.js`, tested
 in `tests/contactConsent.test.js`.
 

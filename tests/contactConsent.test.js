@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { buildRequest, cleanName, missingTokenResult, parseLink, resultFor, RPC, TOKEN_RE } from '../src/lib/contactConsent.js';
+import { buildRequest, cleanName, missingTokenResult, namedCopy, parseLink, PREVIEW_RPC, previewView, resultFor, RPC, TOKEN_RE } from '../src/lib/contactConsent.js';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 // U+2013 en dash, U+2014 em dash, built from code points so this file has none.
@@ -37,6 +37,10 @@ test('buildRequest: POST to the documented rpc, anon key, token only in the body
     assert.equal(init.referrerPolicy, 'no-referrer');
   }
   assert.throws(() => buildRequest('delete', TOKEN, CFG));
+  assert.equal(PREVIEW_RPC, 'preview_emergency_contact_token');
+  const pv = buildRequest('preview', TOKEN, CFG);
+  assert.equal(pv.url, 'https://example.supabase.co/rest/v1/rpc/preview_emergency_contact_token');
+  assert.deepEqual(JSON.parse(pv.init.body), { p_token: TOKEN });
 });
 
 test('resultFor: success copy per action, climber name only from the response', () => {
@@ -106,4 +110,74 @@ test('page: noindex, no referrer, CSP, no analytics, names only through textCont
 
 test('build: the page is a Vite entry so it gets the anon key at build time', () => {
   assert.match(read('../vite.config.js'), /contact-confirm\/index\.html/);
+});
+
+const ok = (data) => ({ ok: true, data });
+const CONSENT = { mode: 'consent' };
+const STOP = { mode: 'stop' };
+
+test('previewView: pending tokens get named buttons; the server kind picks the page', () => {
+  const c = previewView(CONSENT, ok({ kind: 'consent', state: 'pending', climber_name: 'Lynn Hill', contact_first_name: 'Sam' }));
+  assert.deepEqual(c, { show: 'consent', climber: 'Lynn Hill' });
+  assert.equal(namedCopy(c).title, 'Lynn Hill added you as their emergency contact in Eiger');
+  assert.ok(!JSON.stringify(namedCopy(c)).includes('Sam'), 'contact first name is not printed');
+
+  for (const state of ['pending', 'confirmed']) {
+    const s = previewView(STOP, ok({ kind: 'stop', state, climber_name: 'Lynn Hill' }));
+    assert.deepEqual(s, { show: 'stop', climber: 'Lynn Hill' });
+    assert.equal(namedCopy(s).button, "Stop being Lynn Hill's emergency contact");
+    assert.equal(namedCopy(s).title, "Stop being Lynn Hill's emergency contact?");
+  }
+  // A stop token opened from a link without action=stop still gets the stop page.
+  assert.equal(previewView(CONSENT, ok({ kind: 'stop', state: 'confirmed', climber_name: 'A' })).show, 'stop');
+});
+
+test('previewView: dead or answered tokens get their state message and no buttons', () => {
+  const cases = [
+    [CONSENT, { kind: 'consent', state: 'confirmed', climber_name: 'Lynn' }, /already confirmed/],
+    [CONSENT, { kind: 'consent', state: 'declined', climber_name: 'Lynn' }, /already declined/],
+    [CONSENT, { kind: 'consent', state: 'revoked', climber_name: 'Lynn' }, /Lynn removed you/],
+    [CONSENT, { kind: 'consent', state: 'expired', climber_name: 'Lynn' }, /expired/],
+    [CONSENT, { kind: null, state: 'invalid' }, /expired or was already used/],
+    [STOP, { kind: 'stop', state: 'declined', climber_name: 'Lynn' }, /already stopped/],
+    [STOP, { kind: 'stop', state: 'revoked', climber_name: 'Lynn' }, /Lynn already removed you/],
+    [STOP, { kind: null, state: 'invalid' }, /no longer works/],
+  ];
+  for (const [link, data, re] of cases) {
+    const v = previewView(link, ok(data));
+    assert.equal(v.show, 'result', data.state);
+    assert.match(v.result.title, re, data.state);
+  }
+});
+
+test('previewView: an unreadable preview falls back to the unnamed page with buttons', () => {
+  for (const res of [{ ok: false, data: null }, ok(null), ok('x'), ok({ state: 'pending' }), ok({ kind: 'consent', state: 'weird', climber_name: 'A' })]) {
+    assert.deepEqual(previewView(CONSENT, res), { show: 'consent', climber: null });
+    assert.deepEqual(previewView(STOP, res), { show: 'stop', climber: null });
+  }
+  assert.equal(namedCopy({ show: 'consent', climber: null }), null);
+  // A known token with no usable name keeps the buttons, unnamed.
+  assert.deepEqual(previewView(CONSENT, ok({ kind: 'consent', state: 'pending', climber_name: '  ' })), { show: 'consent', climber: null });
+});
+
+test('previewView copy: no em or en dashes, no hiking', () => {
+  const states = ['pending', 'confirmed', 'declined', 'revoked', 'expired', 'invalid'];
+  for (const kind of ['consent', 'stop']) for (const state of states) {
+    const v = previewView({ mode: kind }, ok({ kind, state, climber_name: 'Lynn' }));
+    const texts = v.show === 'result' ? [v.result.title, v.result.body] : Object.values(namedCopy(v));
+    for (const t of texts) {
+      for (const d of DASHES) assert.ok(!t.includes(d), `${kind} ${state}`);
+      assert.ok(!/\bhik(e|ing|er)s?\b/i.test(t), `${kind} ${state}`);
+    }
+  }
+});
+
+test('page: actions only from click handlers; the load-time call is the read-only preview', () => {
+  const js = read('../src/contact/main.js');
+  assert.match(js, /call\('preview'/);
+  for (const a of ['confirm', 'decline', 'stop']) {
+    assert.match(js, new RegExp(`addEventListener\\('click', \\(\\) => run\\('${a}'`), a);
+  }
+  // run() is reached only from those handlers.
+  assert.equal((js.match(/\brun\(/g) || []).length, 4, 'run defined once, called from three click handlers');
 });
