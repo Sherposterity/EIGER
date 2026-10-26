@@ -30,6 +30,27 @@ pages are being merged; until the merge lands both render. Flip the flag to
 `true` and `/mission` redirects to `/about` (replace, query kept). Also drop
 `/mission` from `public/sitemap.xml` at that point.
 
+## Emergency contact page (outside the app)
+
+`/contact-confirm` is a second Vite entry (`contact-confirm/index.html`, wired
+in `vite.config.js`), built to `dist/contact-confirm/index.html`. It is plain
+HTML plus `src/contact/main.js`: no React, no app shell, no tracking, because
+its links carry a one-time token. The check-in timer emails (hike edge function
+`check-in-notify`, migration 172) link to it in three forms:
+
+| Link | Button | rpc (anon, `{ p_token }`) |
+| --- | --- | --- |
+| `?token=<hex>` | Confirm / Decline | `confirm_emergency_contact` / `decline_emergency_contact` |
+| `?token=<hex>&action=decline` | same, Decline first | same |
+| `?action=stop&token=<hex>` | Stop being an emergency contact | `withdraw_emergency_contact` |
+
+On load the page makes one read-only call, `preview_emergency_contact_token`
+(names the climber, answers expired or used links before any button; falls
+back to unnamed copy if it fails or is rate limited). Every action waits for a
+click, so a mail scanner that opens the link changes nothing. The page strips the token from
+the address bar once read. Logic and copy: `src/lib/contactConsent.js`, tested
+in `tests/contactConsent.test.js`.
+
 ## How a URL reaches the app
 
 GitHub Pages only has real files for `/` (`index.html`) and the static pages
