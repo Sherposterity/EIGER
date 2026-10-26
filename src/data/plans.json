@@ -8,14 +8,12 @@
   },
   "appRows": [
     { "label": "Gear compatibility score", "free": "Your objective", "pro": "Every mountain", "group": "gear" },
-    { "label": "Change of objective", "free": "1 free change", "pro": "Unlimited", "group": "trips" },
+    { "label": "Mountains", "free": "2, add 1 per invite, switch anytime", "pro": "Every mountain", "group": "trips" },
+    { "label": "Saved kits, scored per objective", "free": "3", "pro": "Unlimited", "group": "gear" },
     { "label": "Group trips", "free": "Join by code", "pro": "Create and join", "group": "trips" },
-    { "label": "Saved mountains", "free": "Objective + 1", "pro": "Unlimited", "group": "trips" },
-    { "label": "Saved kits, scored per objective", "free": "3 kits", "pro": "Unlimited", "group": "gear" },
-    { "label": "Plan and compare kits from the marketplace", "free": "Not included", "pro": "Included", "group": "gear" },
     { "label": "Offline maps, 3D terrain, forecasts, GPS", "free": "Not included", "pro": "Included", "group": "maps" }
   ],
-  "footnote": "Gear readiness, the season switch and the full gear list are free for everyone.",
+  "footnote": "Readiness, seasons and the full gear list are free for everyone.",
   "groups": [
     { "id": "gear", "label": "Gear" },
     { "id": "trips", "label": "Mountains and trips" },

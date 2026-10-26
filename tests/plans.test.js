@@ -9,11 +9,9 @@ const plans = JSON.parse(raw);
 // Verbatim from hike app/utils/paywallPersonalization.ts PAYWALL_COMPARISON.
 const APP_ROWS = [
   ['Gear compatibility score', 'Your objective', 'Every mountain'],
-  ['Change of objective', '1 free change', 'Unlimited'],
+  ['Mountains', '2, add 1 per invite, switch anytime', 'Every mountain'],
+  ['Saved kits, scored per objective', '3', 'Unlimited'],
   ['Group trips', 'Join by code', 'Create and join'],
-  ['Saved mountains', 'Objective + 1', 'Unlimited'],
-  ['Saved kits, scored per objective', '3 kits', 'Unlimited'],
-  ['Plan and compare kits from the marketplace', 'Not included', 'Included'],
   ['Offline maps, 3D terrain, forecasts, GPS', 'Not included', 'Included'],
 ];
 
@@ -31,12 +29,12 @@ test('plans.json: fixed prices, no monthly plan', () => {
   assert.equal(savingsPercent(plans.prices.annual, plans.prices.weekly), 88);
 });
 
-test('plans.json: exactly the seven app paywall rows, in order, verbatim', () => {
+test('plans.json: exactly the five app paywall rows (Muad D2, 2026-10-24), in order, verbatim', () => {
   assert.deepEqual(
     plans.appRows.map((r) => [r.label, r.free, r.pro]),
     APP_ROWS,
   );
-  assert.equal(plans.footnote, 'Gear readiness, the season switch and the full gear list are free for everyone.');
+  assert.equal(plans.footnote, 'Readiness, seasons and the full gear list are free for everyone.');
 });
 
 test('plans.json: every app row sits in a known group, every group has rows', () => {
