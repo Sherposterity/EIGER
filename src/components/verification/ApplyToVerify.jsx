@@ -93,7 +93,7 @@ export default function ApplyToVerify() {
             <p className="text-heading text-fg">Apply to verify</p>
             <p className="text-body text-fg-muted">
               {form
-                ? 'The application takes about five minutes. We read every one and reply within a week.'
+                ? 'The application takes about five minutes. We read every one and reply by email within a week.'
                 : 'Send us a short note about where you climb and which peaks you know best. We reply within a week.'}
             </p>
             {form && form.startsWith('/') ? (
