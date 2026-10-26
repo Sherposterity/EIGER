@@ -17,10 +17,13 @@ const RADIUS_H = (SCREEN_RADIUS / SCREEN_WIDTH) * 100
 const RADIUS_V = (SCREEN_RADIUS / SCREEN_HEIGHT) * 100
 
 // Local change: `children` render inside the screen cutout (under the frame),
-// so a page can crossfade several screens in one phone. `alt` labels `src`.
+// so a page can crossfade several screens in one phone. `alt` labels `src`;
+// `imageWidth`/`imageHeight` are the intrinsic size of `src` (layout hint).
 export function Iphone({
   src,
   alt = "",
+  imageWidth,
+  imageHeight,
   videoSrc,
   children,
   className = "",
@@ -95,6 +98,8 @@ export function Iphone({
           <img
             src={src}
             alt={alt}
+            width={imageWidth}
+            height={imageHeight}
             loading="lazy"
             decoding="async"
             className="block size-full object-cover object-top"

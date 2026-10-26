@@ -7,11 +7,10 @@ import {
   useTransform,
 } from 'motion/react';
 import { Iphone } from '@/components/ui/iphone';
-import missionControl from '@/assets/E_MissionControl.webp';
-import summitIntel from '@/assets/E_SummitIntel.webp';
-import gearVault from '@/assets/E_GearVault.webp';
+import homeScreen from '@/assets/E_Home.webp';
+import gearScreen from '@/assets/E_MountainGear.webp';
+import emergencyScreen from '@/assets/E_EmergencyMode.webp';
 import ProofLine from './ProofLine';
-import UiRefreshNote from './UiRefreshNote';
 import { FadeIn } from './motion';
 import { EASE_OUT_EXPO } from './utils';
 
@@ -20,24 +19,28 @@ import { EASE_OUT_EXPO } from './utils';
 // scrubbed by scroll progress (crossfade with a slight vertical drift).
 // Phones, and everyone under reduced motion, get plain rows: each step with
 // its own screen, nothing pinned or scrubbed.
+// Screens are app 1.5.0 (iPhone, status bar blanked), 720x1561 WebP.
+const SCREEN_WIDTH = 720;
+const SCREEN_HEIGHT = 1561;
+
 const STEPS = [
   {
-    title: 'Your control panel',
-    text: 'Access to all app features at a touch.',
-    image: missionControl,
-    alt: 'EIGER app, Mission Control screen',
+    title: 'Your objective',
+    text: 'Set the mountain you are training for. Home shows your gear score, the weather window and the next item worth adding.',
+    image: homeScreen,
+    alt: 'EIGER app Home screen with Adamello set as the objective, a gear score, the weather window and the next item to add',
   },
   {
-    title: 'Summit Search',
-    text: 'In depth info for your summit of interest and its corresponding gear.',
-    image: summitIntel,
-    alt: 'EIGER app, summit details for Mont Blanc with its recommended gear',
+    title: 'Gear for each mountain',
+    text: 'Every mountain has its own gear list for summer and winter. See how your kit compares and exactly what is missing.',
+    image: gearScreen,
+    alt: 'EIGER app Gear tab for Mont Blanc in summer, showing gear compatibility, items owned and the gear still missing',
   },
   {
-    title: 'Gear Vault',
-    text: 'Store the gear you own in your vault. This feeds directly into our compatibility algorithms.',
-    image: gearVault,
-    alt: 'EIGER app, My Gear Profile screen with a logged fleece',
+    title: 'Emergency Mode',
+    text: 'The rescue number for the mountain you picked, one tap away. Set a return time and we email your contact if you do not check in.',
+    image: emergencyScreen,
+    alt: 'EIGER app Emergency Mode for Mont Blanc with a Call 112 button and the local mountain rescue number',
   },
 ];
 
@@ -59,6 +62,8 @@ function ScrubbedScreen({ progress, index, step }) {
     <motion.img
       src={step.image}
       alt={step.alt}
+      width={SCREEN_WIDTH}
+      height={SCREEN_HEIGHT}
       loading="lazy"
       decoding="async"
       style={{ opacity, y }}
@@ -141,7 +146,7 @@ function StaticRows({ className = '' }) {
           className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16"
         >
           <FadeIn className="mx-auto w-full max-w-[240px] lg:max-w-[300px]">
-            <Iphone src={step.image} alt={step.alt} />
+            <Iphone src={step.image} alt={step.alt} imageWidth={SCREEN_WIDTH} imageHeight={SCREEN_HEIGHT} />
           </FadeIn>
           <FadeIn delay={0.06}>
             <StepText index={i} step={step} />
@@ -168,7 +173,6 @@ const Walkthrough = () => {
           </h2>
         </FadeIn>
         <ProofLine />
-        <UiRefreshNote />
 
         {reduce ? (
           <StaticRows />
