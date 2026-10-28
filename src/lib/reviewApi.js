@@ -3,6 +3,11 @@
 // RPCs enforce who may read or write what, the UI only reflects it.
 // Errors are thrown as Error(message) with the database's own sentence.
 import { supabase } from './supabase';
+import { createGapsApi } from './reviewGaps.js';
+
+// Migration 180 calls (slot detail and role, gear suggestions); each read is
+// null while 180 is not live, see src/lib/reviewGaps.js.
+export const gaps = createGapsApi(supabase);
 
 const unwrap = ({ data, error }) => {
   if (error) throw new Error(error.message || 'Something went wrong. Please try again.');
@@ -29,15 +34,10 @@ const TRAIL_COLUMNS =
 
 // Everything the review screen needs for one mountain, in parallel.
 export async function loadMountain(trailId, reviewerId) {
-  const [trail, types, live, reviews] = await Promise.all([
+  const [trail, types, profile, reviews] = await Promise.all([
     supabase.from('trails').select(TRAIL_COLUMNS).eq('id', trailId).maybeSingle().then(unwrap),
     supabase.from('gear_item_types').select('item_type, display_name, category_group, sort_order').order('sort_order').then(unwrap),
-    supabase
-      .from('trail_gear_profile')
-      .select('item_type, season, requirement_level, rationale')
-      .eq('trail_id', trailId)
-      .eq('status', 'approved')
-      .then(unwrap),
+    gaps.loadProfile(trailId),
     supabase
       .from('mountain_reviews')
       .select('id, trail_id, reviewer_id, state, claimed_at, lock_expires_at, submitted_at, verified_at, mountain_note, scrolled_to_end')
@@ -46,17 +46,20 @@ export async function loadMountain(trailId, reviewerId) {
       .order('claimed_at', { ascending: false })
       .then(unwrap),
   ]);
-  return { trail, types: types || [], live: live || [], reviews: reviews || [] };
+  return { trail, types: types || [], live: profile.rows, specsLive: profile.specs, reviews: reviews || [] };
 }
 
-// The reviewer's own draft rows for one review.
+// The reviewer's own draft rows for one review. specs and suggestions are
+// null while migration 180 is not live.
 export async function loadDraft(reviewId) {
-  const [changes, notes, flags] = await Promise.all([
+  const [changes, notes, flags, specs, suggestions] = await Promise.all([
     supabase.from('review_changes').select('item_type, season, original_level, proposed_level').eq('review_id', reviewId).then(unwrap),
     supabase.from('review_slot_notes').select('item_type, note, scope, condition').eq('review_id', reviewId).then(unwrap),
     supabase.from('review_fact_flags').select('field, current_value, claimed_value, note').eq('review_id', reviewId).then(unwrap),
+    gaps.loadSpecs(reviewId),
+    gaps.loadSuggestions(reviewId),
   ]);
-  return { changes: changes || [], notes: notes || [], flags: flags || [] };
+  return { changes: changes || [], notes: notes || [], flags: flags || [], specs, suggestions };
 }
 
 export const fromTable = (table, columns = '*') => supabase.from(table).select(columns).then(unwrap);

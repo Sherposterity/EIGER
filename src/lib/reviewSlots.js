@@ -12,6 +12,8 @@
 // The server deletes a change row when the proposal equals the live row, and
 // applyWrites() mirrors that locally, so there is never an explicit "undo".
 
+import { GEAR_SYNONYMS, synonymHit } from './reviewGaps.js';
+
 export const SEASONS = ['all', 'summer', 'winter'];
 export const LEVELS = ['essential', 'recommended', 'optional'];
 const LEVEL_RANK = { essential: 0, recommended: 1, optional: 2 };
@@ -196,15 +198,17 @@ export function groupSlots(slots) {
   return [...groups.entries()].sort((a, b) => rank(a[0]) - rank(b[0])).map(([group, items]) => ({ group, items }));
 }
 
-// Counts for the change summary. factFlags = number of flagged facts.
-export function summarize(slots, factFlags = 0) {
-  const out = { added: 0, removed: 0, changed: 0, facts: factFlags };
+// Counts for the change summary. factFlags = number of flagged facts;
+// extra.specs = slots whose detail or role changed, extra.suggestions = new
+// gear suggested (both migration 180, zero before it is live).
+export function summarize(slots, factFlags = 0, extra = {}) {
+  const out = { added: 0, removed: 0, changed: 0, facts: factFlags, specs: extra.specs || 0, suggestions: extra.suggestions || 0 };
   for (const s of slots) {
     if (s.status === 'added') out.added += 1;
     else if (s.status === 'removed') out.removed += 1;
     else if (s.status === 'changed') out.changed += 1;
   }
-  out.total = out.added + out.removed + out.changed + out.facts;
+  out.total = out.added + out.removed + out.changed + out.facts + out.specs + out.suggestions;
   return out;
 }
 
@@ -214,11 +218,16 @@ export function summaryLine(sum) {
   if (sum.removed) parts.push(`${sum.removed} removed`);
   if (sum.changed) parts.push(`${sum.changed} changed`);
   if (sum.facts) parts.push(`${sum.facts} ${sum.facts === 1 ? 'fact' : 'facts'} flagged`);
+  if (sum.specs) parts.push(`${sum.specs} ${sum.specs === 1 ? 'detail' : 'details'} set`);
+  if (sum.suggestions) parts.push(`${sum.suggestions} gear ${sum.suggestions === 1 ? 'suggestion' : 'suggestions'}`);
   return parts.length ? parts.join(', ') : 'No changes';
 }
 
 // Taxonomy search for the "Add a slot" box: names not already present.
-export function searchTaxonomy(types, slots, query, limit = 8) {
+// Direct name hits rank first (0 to 2), then synonym hits (3 whole word, 4
+// prefix) from GEAR_SYNONYMS, so "traxion" finds Rescue Pulley and "hms"
+// finds Locking Carabiners. Only loaded types can match.
+export function searchTaxonomy(types, slots, query, limit = 8, synonyms = GEAR_SYNONYMS) {
   const present = new Set(slots.filter((s) => s.status !== 'removed').map((s) => s.item_type));
   const q = (query || '').trim().toLowerCase();
   if (!q) return [];
@@ -228,9 +237,13 @@ export function searchTaxonomy(types, slots, query, limit = 8) {
     const name = (t.display_name || t.item_type).toLowerCase();
     const idx = name.indexOf(q);
     const wordStart = name.split(/[\s/&-]+/).some((w) => w.startsWith(q));
-    if (idx === -1 && !t.item_type.includes(q)) continue;
-    hits.push({ t, score: idx === 0 ? 0 : wordStart ? 1 : 2 });
+    if (idx !== -1 || t.item_type.includes(q)) {
+      hits.push({ t, score: idx === 0 ? 0 : wordStart ? 1 : 2 });
+      continue;
+    }
+    const syn = synonymHit(t.item_type, q, synonyms);
+    if (syn) hits.push({ t, score: 3 + syn.score, specific: syn.length });
   }
-  hits.sort((a, b) => a.score - b.score || a.t.display_name.localeCompare(b.t.display_name));
+  hits.sort((a, b) => a.score - b.score || (b.specific || 0) - (a.specific || 0) || a.t.display_name.localeCompare(b.t.display_name));
   return hits.slice(0, limit).map((h) => h.t);
 }

@@ -3,9 +3,13 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Plus, RotateCcw, X } from 'lucide-react';
 import RequireReviewer from './ReviewGate';
 import {
-  claimMountain, loadDraft, loadMountain, releaseClaim, saveChange, saveFactFlag, saveSlotNote, setMountainNote, shortDate,
+  claimMountain, gaps, loadDraft, loadMountain, releaseClaim, saveChange, saveFactFlag, saveSlotNote, setMountainNote, shortDate,
   submitReview,
 } from '@/lib/reviewApi';
+import {
+  DETAIL_MAX, ROLES, ROLE_LABEL, SUGGESTIONS_PER_REVIEW, SUGGESTION_NAME_MAX, SUGGESTION_NOTE_MAX, applySpec, cleanName, currentSpec,
+  isDefaultSpec, liveSpecs, sameSpec, specsMap, suggestionError, upsertSuggestion,
+} from '@/lib/reviewGaps';
 import {
   LEVELS, addedState, applyWrites, changesMap, currentState, deriveSlots, groupSlots, liveStates, mergeState, modeOf,
   nextMode, planWrites, searchTaxonomy, splitState, summarize, summaryLine, withLevel, withMode,
@@ -137,11 +141,88 @@ function SlotNote({ slot, note, onSave, disabled }) {
   );
 }
 
-function SlotRow({ slot, focused, editable, note, act, onNote, rowRef, onFocusRow }) {
+// Who carries it: Every climber / Leader only. Shared by the slot spec and
+// the gear suggestion form.
+function RoleChips({ value, onChange, disabled }) {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5" role="radiogroup" aria-label="Who carries it">
+      <span className="mr-1 text-[0.75rem] text-fg-subtle">Who carries it</span>
+      {ROLES.map((r) => (
+        <button
+          key={r}
+          type="button"
+          role="radio"
+          aria-checked={value === r}
+          disabled={disabled}
+          onClick={() => value !== r && onChange(r)}
+          className={`h-7 rounded-pill border px-2.5 text-[0.75rem] transition-colors ${focusRing} ${
+            value === r ? 'border-fg text-fg' : 'border-line text-fg-subtle hover:text-fg'
+          }`}
+        >
+          {ROLE_LABEL[r]}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Per slot detail (kind, size, count) and who carries it (migration 180).
+// Saves on blur and on a role tap, like SlotNote.
+function SlotSpec({ slot, spec, onSave, disabled }) {
+  const [detail, setDetail] = useState(spec?.detail || '');
+  const [role, setRole] = useState(spec?.role || 'everyone');
+  const saved = useRef({ detail: spec?.detail || '', role: spec?.role || 'everyone' });
+
+  const commit = (next = {}) => {
+    const v = { detail, role, ...next };
+    if (sameSpec(v, saved.current)) return;
+    saved.current = v;
+    onSave({ detail: v.detail, role: v.role });
+  };
+
+  const id = `detail-${slot.item_type}`;
+  const left = DETAIL_MAX - detail.length;
+  return (
+    <div className="mt-3 flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+        <label htmlFor={id} className="sr-only">
+          Detail for {slot.display_name}, optional
+        </label>
+        <input
+          id={id}
+          type="text"
+          value={detail}
+          maxLength={DETAIL_MAX}
+          disabled={disabled}
+          onChange={(e) => setDetail(e.target.value)}
+          onBlur={() => commit()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.currentTarget.blur();
+          }}
+          placeholder="Detail, for example HMS auto-lock x2"
+          className={`${fieldSm} sm:flex-1`}
+        />
+        <RoleChips
+          value={role}
+          disabled={disabled}
+          onChange={(r) => {
+            setRole(r);
+            commit({ role: r });
+          }}
+        />
+      </div>
+      {left <= 15 ? <p className="font-mono text-[0.7rem] text-fg-subtle">{left} characters left</p> : null}
+    </div>
+  );
+}
+
+function SlotRow({ slot, focused, editable, note, act, onNote, rowRef, onFocusRow, specsOn, spec, specChanged, onSpec }) {
   const { status, current, original } = slot;
   const mode = modeOf(current);
   const removed = status === 'removed';
   const showNote = status !== 'same' || !!note;
+  const [specOpen, setSpecOpen] = useState(false);
+  const showSpec = specsOn && !removed && (specOpen || specChanged || !isDefaultSpec(spec));
 
   const frame = `${focused ? 'ring-2 ring-fg/60' : ''} scroll-mt-24 scroll-mb-32`;
 
@@ -173,7 +254,7 @@ function SlotRow({ slot, focused, editable, note, act, onNote, rowRef, onFocusRo
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="font-medium text-fg">{slot.display_name}</span>
-            {status === 'added' ? <Tag strong>Added</Tag> : status === 'changed' ? <Tag strong>Changed</Tag> : null}
+            {status === 'added' ? <Tag strong>Added</Tag> : status === 'changed' ? <Tag strong>Changed</Tag> : specChanged ? <Tag strong>Detail</Tag> : null}
             {editable ? (
               <button
                 type="button"
@@ -187,6 +268,18 @@ function SlotRow({ slot, focused, editable, note, act, onNote, rowRef, onFocusRo
           </div>
           {slot.rationale ? <Rationale text={slot.rationale} /> : null}
           {status === 'changed' ? <p className="mt-1 font-mono text-[0.72rem] text-fg-subtle">Was: {describe(original)}</p> : null}
+          {specsOn && editable && !showSpec ? (
+            <button
+              type="button"
+              className={`${btnGhost} mt-1.5 text-[0.75rem]`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSpecOpen(true);
+              }}
+            >
+              Add detail or who carries it
+            </button>
+          ) : null}
         </div>
 
         <div className="flex shrink-0 flex-col gap-2 md:w-[23rem]">
@@ -249,6 +342,7 @@ function SlotRow({ slot, focused, editable, note, act, onNote, rowRef, onFocusRo
           )}
         </div>
       </div>
+      {showSpec ? <SlotSpec slot={slot} spec={spec} onSave={onSpec} disabled={!editable} /> : null}
       {showNote ? <SlotNote slot={slot} note={note} onSave={onNote} disabled={!editable} /> : null}
     </li>
   );
@@ -400,15 +494,154 @@ function FactStrip({ trail, flags, editable, onSave }) {
   );
 }
 
-function AddSlot({ types, slots, onAdd, inputRef, disabled }) {
+const LEVEL_CHOICES = [[null, 'Not sure'], ['essential', 'Essential'], ['recommended', 'Recommended'], ['optional', 'Optional']];
+
+// "Suggest new gear": nothing in the taxonomy matches, so the reviewer records
+// the gap as free text for the Eiger team (save_gear_suggestion, migration
+// 180). A suggestion never becomes a slot by itself.
+function SuggestForm({ initialName, onSave, onCancel }) {
+  const [name, setName] = useState(initialName);
+  const [note, setNote] = useState('');
+  const [level, setLevel] = useState(null);
+  const [role, setRole] = useState('everyone');
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    const problem = suggestionError({ name, note });
+    if (problem) {
+      setError(problem);
+      return;
+    }
+    setError('');
+    setSaving(true);
+    await onSave({ name, note, proposed_level: level, role });
+    setSaving(false);
+  };
+
+  return (
+    <form onSubmit={submit} className={`${surface} mt-3 flex flex-col gap-3 p-4`} aria-label="Suggest new gear">
+      <p className="text-small text-fg-muted">
+        Tell us what climbers need here that the list cannot name yet. The Eiger team reads every suggestion and adds new gear
+        types from them.
+      </p>
+      <label className="flex flex-col gap-1">
+        <span className="text-[0.75rem] text-fg-subtle">Gear</span>
+        <input
+          autoFocus
+          value={name}
+          maxLength={SUGGESTION_NAME_MAX}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="For example: ice screws, 13 cm"
+          className={fieldSm}
+        />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="text-[0.75rem] text-fg-subtle">Why, optional</span>
+        <textarea
+          rows={2}
+          value={note}
+          maxLength={SUGGESTION_NOTE_MAX}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Where it is used on this mountain and how many"
+          className={`${fieldSm} resize-y`}
+        />
+      </label>
+      <div className="flex flex-wrap items-center gap-1.5" role="radiogroup" aria-label="Proposed level">
+        <span className="mr-1 text-[0.75rem] text-fg-subtle">Level</span>
+        {LEVEL_CHOICES.map(([v, label]) => (
+          <button
+            key={label}
+            type="button"
+            role="radio"
+            aria-checked={level === v}
+            onClick={() => setLevel(v)}
+            className={`h-7 rounded-pill border px-2.5 text-[0.75rem] transition-colors ${focusRing} ${
+              level === v ? 'border-fg text-fg' : 'border-line text-fg-subtle hover:text-fg'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <RoleChips value={role} onChange={setRole} />
+      {error ? (
+        <p role="alert" className="text-small text-fg">
+          {error}
+        </p>
+      ) : null}
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="submit" className={btnQuiet} disabled={saving}>
+          {saving ? 'Saving' : 'Save suggestion'}
+        </button>
+        <button type="button" className={btnGhost} onClick={onCancel}>
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function SuggestionList({ suggestions, editable, onRemove }) {
+  if (!suggestions.length) return null;
+  return (
+    <div className="mt-5">
+      <p className="text-small text-fg">
+        Gear you suggested{' '}
+        <span className="font-mono text-[0.72rem] text-fg-subtle">
+          {suggestions.length} of {SUGGESTIONS_PER_REVIEW}
+        </span>
+      </p>
+      <ul className="mt-2 flex flex-col gap-2">
+        {suggestions.map((g) => (
+          <li key={g.id || g.name} className="rounded-md border border-dashed border-line-strong px-4 py-3">
+            <div className="flex items-start gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="break-words font-medium text-fg">{g.name}</p>
+                <p className="mt-0.5 font-mono text-[0.72rem] text-fg-subtle">
+                  {g.proposed_level ? LEVEL_LABEL[g.proposed_level] : 'Level not set'} · {ROLE_LABEL[g.role] || ROLE_LABEL.everyone}
+                  {g.status && g.status !== 'open' ? ` · ${g.status}` : ''}
+                </p>
+                {g.note ? <p className="mt-1 whitespace-pre-wrap break-words text-small text-fg-muted">{g.note}</p> : null}
+              </div>
+              {editable && g.id ? (
+                <button type="button" onClick={() => onRemove(g)} className={`${btnGhost} text-[0.75rem]`} aria-label={`Remove ${g.name}`}>
+                  <X aria-hidden="true" className="size-3.5" /> Remove
+                </button>
+              ) : null}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function AddSlot({ types, slots, onAdd, inputRef, disabled, suggestOn, suggestions, onSuggest, onRemoveSuggestion }) {
   const [q, setQ] = useState('');
   const [active, setActive] = useState(0);
+  const [suggesting, setSuggesting] = useState(null);
   const hits = useMemo(() => searchTaxonomy(types, slots, q), [types, slots, q]);
+  const canSuggest = suggestOn && !disabled;
+  const atCap = suggestions.length >= SUGGESTIONS_PER_REVIEW;
 
   const add = (t) => {
     onAdd(t);
     setQ('');
     setActive(0);
+  };
+  const startSuggest = () => {
+    if (!canSuggest || atCap) return;
+    setSuggesting(cleanName(q));
+  };
+  const saveSuggestion = async (s) => {
+    const ok = await onSuggest(s);
+    if (ok) {
+      setSuggesting(null);
+      setQ('');
+    }
+    return ok;
   };
   const onKeyDown = (e) => {
     if (e.key === 'ArrowDown') {
@@ -420,11 +653,35 @@ function AddSlot({ types, slots, onAdd, inputRef, disabled }) {
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (hits[active]) add(hits[active]);
+      else if (q.trim()) startSuggest();
     } else if (e.key === 'Escape') {
       setQ('');
       e.currentTarget.blur();
     }
   };
+
+  let noMatch = null;
+  if (!hits.length && q.trim() && suggesting === null) {
+    if (!canSuggest) {
+      noMatch = <p className="mt-2 text-small text-fg-subtle">Nothing in the taxonomy matches that, or it is already on the list.</p>;
+    } else if (atCap) {
+      noMatch = (
+        <p className="mt-2 text-small text-fg-subtle">
+          Nothing in the taxonomy matches that. You have suggested {SUGGESTIONS_PER_REVIEW} pieces of gear for this mountain, so use the
+          mountain note below for more.
+        </p>
+      );
+    } else {
+      noMatch = (
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <p className="text-small text-fg-subtle">Nothing in the taxonomy matches that, or it is already on the list.</p>
+          <button type="button" className={btnQuiet} onClick={startSuggest}>
+            <Plus aria-hidden="true" className="size-3.5" /> Suggest new gear
+          </button>
+        </div>
+      );
+    }
+  }
 
   return (
     <section aria-label="Add a slot" className="mt-8">
@@ -441,6 +698,7 @@ function AddSlot({ types, slots, onAdd, inputRef, disabled }) {
           onChange={(e) => {
             setQ(e.target.value);
             setActive(0);
+            setSuggesting(null);
           }}
           onKeyDown={onKeyDown}
           placeholder="Add a slot: type a gear name, Enter adds"
@@ -471,10 +729,14 @@ function AddSlot({ types, slots, onAdd, inputRef, disabled }) {
               </li>
             ))}
           </ul>
-        ) : q.trim() ? (
-          <p className="mt-2 text-small text-fg-subtle">Nothing in the taxonomy matches that, or it is already on the list.</p>
-        ) : null}
+        ) : (
+          noMatch
+        )}
       </div>
+      {suggesting !== null ? (
+        <SuggestForm key={suggesting} initialName={suggesting} onSave={saveSuggestion} onCancel={() => setSuggesting(null)} />
+      ) : null}
+      {suggestOn ? <SuggestionList suggestions={suggestions} editable={!disabled} onRemove={onRemoveSuggestion} /> : null}
     </section>
   );
 }
@@ -489,6 +751,13 @@ function MountainReview({ me, toast, trailId }) {
   const changesRef = useRef(new Map());
   const [notes, setNotes] = useState(new Map());
   const [flags, setFlags] = useState(new Map());
+  // Migration 180: per slot detail and role drafts, and gear suggestions.
+  // specsOn / suggestOn are false while 180 is not live; the controls hide.
+  const [specDrafts, setSpecDrafts] = useState(new Map());
+  const specDraftsRef = useRef(new Map());
+  const [specsOn, setSpecsOn] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [suggestOn, setSuggestOn] = useState(false);
   const [mountainNote, setMountainNoteText] = useState('');
   const savedMountainNote = useRef('');
   const [scrolled, setScrolled] = useState(false);
@@ -503,6 +772,10 @@ function MountainReview({ me, toast, trailId }) {
     changesRef.current = m;
     setChangesState(m);
   }, []);
+  const putSpecDrafts = useCallback((m) => {
+    specDraftsRef.current = m;
+    setSpecDrafts(m);
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -514,9 +787,13 @@ function MountainReview({ me, toast, trailId }) {
       const review = d.reviews.find((r) => r.state === 'in_progress') || d.reviews[0] || null;
       const now = Date.now();
       const lockOk = review?.state === 'in_progress' && Date.parse(review.lock_expires_at) > now;
-      let draft = { changes: [], notes: [], flags: [] };
+      let draft = { changes: [], notes: [], flags: [], specs: [], suggestions: [] };
       if (review) draft = await loadDraft(review.id);
       setChanges(changesMap(draft.changes));
+      putSpecDrafts(specsMap(draft.specs));
+      setSpecsOn(!!d.specsLive && draft.specs !== null);
+      setSuggestions(draft.suggestions || []);
+      setSuggestOn(draft.suggestions !== null);
       setNotes(new Map(draft.notes.map((n) => [n.item_type, n])));
       setFlags(new Map(draft.flags.map((f) => [f.field, f])));
       setMountainNoteText(review?.mountain_note || '');
@@ -526,7 +803,7 @@ function MountainReview({ me, toast, trailId }) {
     } catch (e) {
       setLoadError(e.message);
     }
-  }, [trailId, me.id, setChanges]);
+  }, [trailId, me.id, setChanges, putSpecDrafts]);
 
   useEffect(() => {
     // load() only sets state after its first await.
@@ -536,10 +813,12 @@ function MountainReview({ me, toast, trailId }) {
   const review = data?.review;
   const editable = !!data?.editable;
   const original = useMemo(() => liveStates(data?.live), [data]);
+  const liveSpec = useMemo(() => liveSpecs(data?.live), [data]);
   const slots = useMemo(() => (data ? deriveSlots(data.types, data.live, changes) : []), [data, changes]);
   const groups = useMemo(() => groupSlots(slots), [slots]);
   const flat = useMemo(() => groups.flatMap((g) => g.items), [groups]);
-  const summary = summarize(slots, flags.size);
+  const specCount = slots.filter((s) => s.status !== 'removed' && specDrafts.has(s.item_type)).length;
+  const summary = summarize(slots, flags.size, { specs: specCount, suggestions: suggestions.length });
 
   // Serial queue so rapid taps reach the server in order.
   const enqueue = useCallback((fn) => {
@@ -599,6 +878,70 @@ function MountainReview({ me, toast, trailId }) {
       enqueue(() => saveSlotNote(review.id, itemType, note, scope, condition)).catch((e) => toast(e.message));
     },
     [review, enqueue, toast],
+  );
+
+  // Detail and role for one slot. Optimistic; save_slot_spec deletes the
+  // draft row when the spec equals the live one, and applySpec mirrors that.
+  const saveSpec = useCallback(
+    (itemType, spec) => {
+      if (!editable) return;
+      putSpecDrafts(applySpec(specDraftsRef.current, liveSpec, itemType, spec));
+      enqueue(() => gaps.saveSlotSpec(review.id, itemType, spec)).catch(async (e) => {
+        if (e.missing) {
+          setSpecsOn(false);
+          putSpecDrafts(new Map());
+          toast('Detail and who carries it are not switched on yet. Use the slot note for now.');
+          return;
+        }
+        toast(e.message);
+        try {
+          putSpecDrafts(specsMap(await gaps.loadSpecs(review.id)));
+        } catch {
+          /* the toast explains; a reload fixes the rest */
+        }
+      });
+    },
+    [editable, liveSpec, review, enqueue, toast, putSpecDrafts],
+  );
+
+  const suggestGear = useCallback(
+    async (s) => {
+      try {
+        const id = await enqueue(() => gaps.saveGearSuggestion(review.id, s));
+        setSuggestions((list) =>
+          upsertSuggestion(list, {
+            id,
+            name: cleanName(s.name),
+            note: (s.note || '').trim() || null,
+            proposed_level: s.proposed_level || null,
+            role: s.role === 'leader' ? 'leader' : 'everyone',
+            status: 'open',
+          }),
+        );
+        return true;
+      } catch (e) {
+        if (e.missing) {
+          setSuggestOn(false);
+          toast('Gear suggestions are not switched on yet. Use the mountain note below for now.');
+        } else toast(e.message);
+        return false;
+      }
+    },
+    [review, enqueue, toast],
+  );
+
+  const removeSuggestion = useCallback(
+    async (g) => {
+      const prev = suggestions;
+      setSuggestions((list) => list.filter((x) => x.id !== g.id));
+      try {
+        await enqueue(() => gaps.removeGearSuggestion(review.id, g.id));
+      } catch (e) {
+        setSuggestions(prev);
+        toast(e.message);
+      }
+    },
+    [suggestions, review, enqueue, toast],
   );
 
   const saveFlag = useCallback(
@@ -835,6 +1178,10 @@ function MountainReview({ me, toast, trailId }) {
                 note={notes.get(s.item_type)}
                 act={act}
                 onNote={(n, sc, c) => saveNote(s.item_type, n, sc, c)}
+                specsOn={specsOn}
+                spec={currentSpec(liveSpec, specDrafts, s.item_type)}
+                specChanged={specDrafts.has(s.item_type)}
+                onSpec={(sp) => saveSpec(s.item_type, sp)}
                 onFocusRow={() => setFocusKey(s.item_type)}
                 rowRef={(el) => {
                   if (el) rowRefs.current.set(s.item_type, el);
@@ -847,7 +1194,17 @@ function MountainReview({ me, toast, trailId }) {
       ))}
       <div ref={sentinelRef} aria-hidden="true" className="h-px" />
 
-      <AddSlot types={data.types} slots={slots} onAdd={addSlot} inputRef={addRef} disabled={!editable} />
+      <AddSlot
+        types={data.types}
+        slots={slots}
+        onAdd={addSlot}
+        inputRef={addRef}
+        disabled={!editable}
+        suggestOn={suggestOn}
+        suggestions={suggestions}
+        onSuggest={suggestGear}
+        onRemoveSuggestion={removeSuggestion}
+      />
 
       <section aria-label="Finish" className="mt-12 border-t border-line pt-8">
         <label htmlFor="mountain-note" className="text-body text-fg">
