@@ -29,7 +29,7 @@ test('"You reviewed this" only for your own verified review', () => {
 });
 
 test('the count states the number only, like the app badge', () => {
-  assert.equal(reviewerCountLabel(reviewerCount(row())), 'No reviews yet');
+  assert.equal(reviewerCountLabel(reviewerCount(row())), 'Unverified');
   assert.equal(reviewerCountLabel(reviewerCount(row({ reviewer_count: 1 }))), 'Reviewed by 1 climber');
   assert.equal(reviewerCountLabel(reviewerCount(row({ reviewer_count: 3 }))), 'Reviewed by 3 climbers');
   assert.equal(reviewerCount(row({ reviewer_count: null })), 0);
@@ -64,6 +64,16 @@ test('portal copy for this change has no em or en dashes and no assurance words'
     const src = readFileSync(new URL(f, import.meta.url), 'utf8');
     assert.ok(!/[–—]/.test(src), `dash in ${f}`);
     assert.ok(!/trustworthy|\bsafe\b|\bready\b/i.test(src), `assurance word in ${f}`);
+  }
+});
+
+test('board states read "Reviewed", never "Verified", to match the app badge', () => {
+  const styles = readFileSync(new URL('../src/pages/review/reviewStyles.js', import.meta.url), 'utf8');
+  assert.match(styles, /verified: 'Reviewed'/);
+  for (const f of ['../src/pages/review/ReviewBoard.jsx', '../src/pages/review/ReviewMountain.jsx', '../src/pages/review/ReviewAdmin.jsx']) {
+    const src = readFileSync(new URL(f, import.meta.url), 'utf8');
+    assert.ok(!/['"`>]\s*(Verified|[^'"`<]*\bwas verified)\b/.test(src), `"Verified" label in ${f}`);
+    assert.ok(!/[\u2013\u2014]/.test(src), `dash in ${f}`);
   }
 });
 

@@ -170,7 +170,7 @@ function Board({ me, signOut, toast, updateMe }) {
           />
         </div>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by state">
-          {[['all', 'All'], ['open', 'Open'], ['in_progress', 'Claimed'], ['submitted', 'Submitted'], ['verified', 'Verified']].map(([k, label]) => (
+          {[['all', 'All'], ...['open', 'in_progress', 'submitted', 'verified'].map((s) => [s, STATE_LABEL[s]])].map(([k, label]) => (
             <button
               key={k}
               type="button"

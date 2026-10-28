@@ -28,9 +28,9 @@ export const reviewerCount = (row) => {
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
 };
 
-// The count only, the same words the app's badge uses.
+// The count only, the same words the app's badge uses: 0 is "Unverified".
 export const reviewerCountLabel = (n) =>
-  n <= 0 ? 'No reviews yet' : n === 1 ? 'Reviewed by 1 climber' : `Reviewed by ${n} climbers`;
+  n <= 0 ? 'Unverified' : n === 1 ? 'Reviewed by 1 climber' : `Reviewed by ${n} climbers`;
 
 const text = (v) => (typeof v === 'string' && v.trim() ? v.trim() : null);
 

@@ -14,7 +14,10 @@ export const field =
 export const fieldSm =
   'w-full rounded-md border border-line-strong bg-surface-2 px-3 py-2 text-small text-fg placeholder:text-fg-subtle outline-none transition-colors focus:border-fg/50';
 
-export const STATE_LABEL = { open: 'Open', in_progress: 'Claimed', submitted: 'Submitted', verified: 'Verified' };
+// The database state 'verified' means at least one applied review; the
+// portal says "Reviewed" so it matches the app's count badge (Muad
+// 2026-10-28: "Reviewed by N climbers", 0 is "Unverified").
+export const STATE_LABEL = { open: 'Open', in_progress: 'Claimed', submitted: 'Submitted', verified: 'Reviewed' };
 
 // Allowed fact fields, in strip order, with how to show them.
 export const FACTS = [
