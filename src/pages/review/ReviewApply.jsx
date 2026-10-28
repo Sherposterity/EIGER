@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { checkRateLimit, isBot, recordSubmission, validateEmail } from '@/lib/supabase';
 import { rpc } from '@/lib/reviewApi';
-import { EYEBROW, btnGhost, btnPrimary, field, focusRing } from './reviewStyles';
+import { CONSENT_OPTIONS, EYEBROW, btnGhost, btnPrimary, field, focusRing } from './reviewStyles';
 
 // Public reviewer application (no sign in). Linked from the Verification
 // page's "Are you a mountaineer?" card. Copy is user-facing: no dashes, no
@@ -48,6 +48,9 @@ const EMPTY = {
   public_links: '',
   uses_app: '',
   extra: '',
+  // Opt-ins (hike migration 180): unticked unless the applicant ticks them.
+  show_credentials: false,
+  share_contact: false,
 };
 
 const REQUIRED = {
@@ -147,6 +150,8 @@ export default function ReviewApply() {
       public_links: f.public_links.trim(),
       uses_app: f.uses_app,
       extra: f.extra.trim(),
+      show_credentials: f.show_credentials === true,
+      share_contact: f.share_contact === true,
     };
     setBusy(true);
     try {
@@ -232,6 +237,31 @@ export default function ReviewApply() {
         </Q>
         <Q n="14" label="Anything else we should know" htmlFor="ap-extra">
           <textarea id="ap-extra" rows={3} maxLength={2000} value={f.extra} onChange={set('extra')} className={`${field} resize-y`} />
+        </Q>
+
+        <Q n="15" label="What others see" hint="You can change both later in the reviewer portal.">
+          <div className="flex flex-col gap-1.5" role="group">
+            {CONSENT_OPTIONS.map(({ key, label, hint }) => (
+              <label
+                key={key}
+                className={`flex cursor-pointer items-start gap-3 rounded-md border px-3.5 py-2.5 text-small transition-colors focus-within:border-fg/60 ${
+                  f[key] ? 'border-fg/60 bg-surface-2 text-fg' : 'border-line text-fg-muted hover:border-line-strong'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  name={key}
+                  checked={f[key] === true}
+                  onChange={(e) => setF((prev) => ({ ...prev, [key]: e.target.checked }))}
+                  className="mt-0.5 accent-[#FAFAFA]"
+                />
+                <span>
+                  {label}
+                  <span className="mt-0.5 block text-fg-subtle">{hint}</span>
+                </span>
+              </label>
+            ))}
+          </div>
         </Q>
 
         {/* Honeypot: hidden from people, tempting to bots. */}

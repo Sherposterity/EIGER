@@ -14,7 +14,10 @@ export const field =
 export const fieldSm =
   'w-full rounded-md border border-line-strong bg-surface-2 px-3 py-2 text-small text-fg placeholder:text-fg-subtle outline-none transition-colors focus:border-fg/50';
 
-export const STATE_LABEL = { open: 'Open', in_progress: 'Claimed', submitted: 'Submitted', verified: 'Verified' };
+// The database state 'verified' means at least one applied review; the
+// portal says "Reviewed" so it matches the app's count badge (Muad
+// 2026-10-28: "Reviewed by N climbers", 0 is "Unverified").
+export const STATE_LABEL = { open: 'Open', in_progress: 'Claimed', submitted: 'Submitted', verified: 'Reviewed' };
 
 // Allowed fact fields, in strip order, with how to show them.
 export const FACTS = [
@@ -49,4 +52,19 @@ export const TIERS = [
   ['experienced_amateur', 'Experienced amateur'],
   ['club_leader', 'Club leader'],
   ['other', 'Other'],
+];
+
+// The reviewer's two opt-ins (hike migration 180), shared by the board's
+// consent panel and the application form. Both default to off.
+export const CONSENT_OPTIONS = [
+  {
+    key: 'show_credentials',
+    label: 'Show my name and credentials to climbers in the app',
+    hint: 'Your first name, last initial, ranges and certifications appear on the mountains you review. Off: climbers see only your background and the review date.',
+  },
+  {
+    key: 'share_contact',
+    label: 'Share my email with other Eiger reviewers',
+    hint: 'Reviewers who claim a mountain you reviewed can see your email and ask you about it. Climbers never see it.',
+  },
 ];
