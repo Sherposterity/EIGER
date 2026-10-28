@@ -76,7 +76,10 @@ export default function ReviewShell() {
     setMe(null);
   }, []);
 
-  const ctx = { session, me, loading: session === undefined || (session && me === undefined), signOut, toast: showToast };
+  // A local edit to the reviewer's own row (the consent toggles) without another read.
+  const updateMe = useCallback((patch) => setMe((prev) => (prev ? { ...prev, ...patch } : prev)), []);
+
+  const ctx = { session, me, loading: session === undefined || (session && me === undefined), signOut, toast: showToast, updateMe };
 
   return (
     <div className="min-h-screen overflow-x-clip bg-bg text-fg">

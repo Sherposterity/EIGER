@@ -3,11 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Search } from 'lucide-react';
 import RequireReviewer from './ReviewGate';
 import { claimMountain, reviewBoard, shortDate } from '@/lib/reviewApi';
+import { canClaim, priorReviewers, reviewedByMe, reviewerCount, reviewerCountLabel } from '@/lib/reviewBoard';
+import ReviewerConsent from './ReviewerConsent';
 import { EYEBROW, STATE_LABEL, btnGhost, btnPrimary, btnQuiet, field, focusRing, surface } from './reviewStyles';
 
-// The board: every mountain with its review state. Claim an open one, or
-// continue the one you hold. Four states, told apart by a small static mark
-// (hollow, half, solid, check) so they read without colour.
+// The board: every catalog mountain with its review state and how many
+// climbers reviewed it (Muad 2026-10-28: unlimited reviewers per mountain).
+// Claim an open one, add a review to one other climbers reviewed, or continue
+// the one you hold. Four states, told apart by a small static mark (hollow,
+// half, solid, filled) so they read without colour.
 
 const STATE_MARK = {
   open: 'border border-fg-subtle',
@@ -37,11 +41,41 @@ function stateLine(row) {
     return `Claimed by ${row.holder || 'a reviewer'}, frees up ${shortDate(row.lock_expires_at)}`;
   }
   if (row.state === 'submitted') return `Submitted ${shortDate(row.submitted_at)}${row.holder ? ` by ${row.holder}` : ''}`;
-  if (row.state === 'verified') return `Verified ${shortDate(row.verified_at)}`;
+  if (row.state === 'verified') return `${row.slot_count} gear slots · last review ${shortDate(row.verified_at)}`;
   return `${row.slot_count} gear slots`;
 }
 
-function Board({ me, signOut, toast }) {
+// Who reviewed this mountain before: name, background, date, and the email
+// only when that reviewer chose to share it with other reviewers.
+function PriorReviewers({ row }) {
+  const prior = priorReviewers(row);
+  if (prior.length === 0) return null;
+  return (
+    <ul className="mt-2 flex flex-col gap-1 border-t border-line pt-2 text-small text-fg-muted" aria-label={`Reviewers of ${row.name}`}>
+      {prior.map((p, i) => (
+        <li key={`${p.verifiedAt || ''}-${i}`} className="min-w-0 break-words">
+          <span className="text-fg">{p.name}</span>
+          <span className="text-fg-subtle">
+            {' '}
+            · {p.tier}
+            {p.verifiedAt ? ` · ${shortDate(p.verifiedAt)}` : ''}
+          </span>
+          {p.email ? (
+            <>
+              {' '}
+              <span className="text-fg-subtle">·</span>{' '}
+              <a href={`mailto:${p.email}`} className={`rounded-sm font-mono underline decoration-line-strong underline-offset-4 hover:text-fg ${focusRing}`}>
+                {p.email}
+              </a>
+            </>
+          ) : null}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Board({ me, signOut, toast, updateMe }) {
   const navigate = useNavigate();
   const [rows, setRows] = useState(null);
   const [query, setQuery] = useState('');
@@ -106,6 +140,8 @@ function Board({ me, signOut, toast }) {
         </div>
       </div>
 
+      <ReviewerConsent me={me} updateMe={updateMe} toast={toast} />
+
       {mine ? (
         <section aria-label="Your mountain" className={`${surface} mt-8 flex flex-wrap items-center justify-between gap-4 border-line-strong p-5`}>
           <div className="min-w-0">
@@ -162,32 +198,41 @@ function Board({ me, signOut, toast }) {
       ) : (
         <ul className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {visible.map((row) => {
-            const canClaim = row.state === 'open' && !mine;
+            const claimable = canClaim(row, !!mine);
+            const count = reviewerCount(row);
+            const yours = reviewedByMe(row);
             return (
-              <li key={row.trail_id} className={`${surface} flex items-center gap-3 px-4 py-3`}>
-                <StateMark state={row.state} />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-fg">
-                    {row.name}
-                    {row.altitude_m ? (
-                      <span className="ml-2 font-mono text-small font-normal text-fg-subtle">{row.altitude_m.toLocaleString('en-US')} m</span>
-                    ) : null}
-                  </p>
-                  <p className="truncate text-small text-fg-muted">
-                    {row.my_expired_draft && row.state === 'open' ? 'Your earlier draft is saved' : stateLine(row)}
-                  </p>
+              <li key={row.trail_id} className={`${surface} px-4 py-3`}>
+                <div className="flex items-center gap-3">
+                  <StateMark state={row.state} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium text-fg">
+                      {row.name}
+                      {row.altitude_m ? (
+                        <span className="ml-2 font-mono text-small font-normal text-fg-subtle">{row.altitude_m.toLocaleString('en-US')} m</span>
+                      ) : null}
+                    </p>
+                    <p className="truncate text-small text-fg-muted">
+                      {row.my_expired_draft && (row.state === 'open' || row.state === 'verified') ? 'Your earlier draft is saved' : stateLine(row)}
+                    </p>
+                    <p className="truncate text-small text-fg-subtle" data-testid="reviewer-count">
+                      {reviewerCountLabel(count)}
+                      {yours ? <span className="text-fg"> · You reviewed this</span> : null}
+                    </p>
+                  </div>
+                  {claimable ? (
+                    <button type="button" disabled={busyId !== null} onClick={() => claim(row)} className={btnQuiet}>
+                      {busyId === row.trail_id ? 'Claiming' : row.my_expired_draft ? 'Re-claim' : count > 0 ? 'Add a review' : 'Claim'}
+                    </button>
+                  ) : null}
                 </div>
-                {canClaim ? (
-                  <button type="button" disabled={busyId !== null} onClick={() => claim(row)} className={btnQuiet}>
-                    {busyId === row.trail_id ? 'Claiming' : row.my_expired_draft ? 'Re-claim' : 'Claim'}
-                  </button>
-                ) : null}
+                <PriorReviewers row={row} />
               </li>
             );
           })}
         </ul>
       )}
-      {mine && rows?.some((r) => r.state === 'open') ? (
+      {mine && rows?.some((r) => canClaim(r, false)) ? (
         <p className="mt-6 text-small text-fg-subtle">You can hold one mountain at a time. Submit or release {mine.name} to claim another.</p>
       ) : null}
     </main>

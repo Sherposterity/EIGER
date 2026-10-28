@@ -50,3 +50,18 @@ export const TIERS = [
   ['club_leader', 'Club leader'],
   ['other', 'Other'],
 ];
+
+// The reviewer's two opt-ins (hike migration 180), shared by the board's
+// consent panel and the application form. Both default to off.
+export const CONSENT_OPTIONS = [
+  {
+    key: 'show_credentials',
+    label: 'Show my name and credentials to climbers in the app',
+    hint: 'Your first name, last initial, ranges and certifications appear on the mountains you review. Off: climbers see only your background and the review date.',
+  },
+  {
+    key: 'share_contact',
+    label: 'Share my email with other Eiger reviewers',
+    hint: 'Reviewers who claim a mountain you reviewed can see your email and ask you about it. Climbers never see it.',
+  },
+];
