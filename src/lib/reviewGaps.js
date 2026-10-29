@@ -1,10 +1,11 @@
-// Review gear gaps (hike migration 180): gear synonyms for the "Missing
+// Review gear gaps (hike migration 181, live 2026-10-28): gear synonyms for the "Missing
 // something?" search, per slot detail and role, and "Suggest new gear" when
 // nothing in the taxonomy matches. Pure logic plus a small data layer that
 // takes the Supabase client as an argument, so all of it runs under
 // node --test with a fake client.
 //
-// Graceful degrade: the site may ship before migration 180 is live. Every
+// Graceful degrade: written before migration 181 was live, and kept so a
+// rollback cannot break the page. Every
 // read here returns null (not []) when its table, column or function does not
 // exist yet, and the screens then hide the new controls and behave exactly as
 // before. A write that hits a missing function throws an Error whose
@@ -73,11 +74,65 @@ const MISSING_CODES = new Set([
 
 export const isMissingFeature = (err) => !!err && (MISSING_CODES.has(err.code) || err.status === 404 || err.missing === true);
 
-// { data, error, status } -> data, or throw Error(message) keeping the code.
+// ---- Server refusals -> reviewer copy ------------------------------------
+
+// Every sentence migration 181's reviewer and admin RPCs raise (and the shared
+// review_require_open / review_require_admin guards from 122), mapped to copy
+// a climber can act on. Keys are the server text exactly; a message that is
+// not here is shown as the server wrote it.
+const RETYPE = 'often from a copy and paste. Please type it again by hand.';
+export const REFUSAL_COPY = {
+  // shared guards
+  'not a reviewer': 'This page is for approved Eiger reviewers. Sign in with your reviewer account.',
+  'not your review': 'This review belongs to another reviewer, so you cannot change it.',
+  'admin only': 'Only the Eiger team can do that.',
+  // save_slot_spec
+  'bad role': 'Choose who carries it: Every climber or Leader only.',
+  'keep the detail to 80 characters': 'Keep the detail to 80 characters.',
+  'the detail cannot contain control characters': 'The detail has to be one line of plain text. Remove any special characters and try again.',
+  'the detail contains hidden formatting characters; please retype it': `The detail has hidden formatting characters, ${RETYPE}`,
+  // save_gear_suggestion
+  'name the gear in at least 2 characters': 'Name the gear in at least 2 characters.',
+  'keep the gear name to 80 characters': 'Keep the gear name to 80 characters.',
+  'the gear name cannot contain control characters': 'The gear name has to be plain text. Remove any special characters and try again.',
+  'the gear name contains hidden formatting characters; please retype it': `The gear name has hidden formatting characters, ${RETYPE}`,
+  'keep the note to 500 characters': 'Keep the note to 500 characters.',
+  'the note contains hidden formatting characters; please retype it': `The note has hidden formatting characters, ${RETYPE}`,
+  'bad level': 'Choose a level: Essential, Recommended, Optional or Not sure.',
+  'this suggestion was already reviewed':
+    'The Eiger team has already reviewed this suggestion, so it can no longer be changed. Add anything new to the mountain note.',
+  'up to 10 gear suggestions per review; use the mountain note for more':
+    'You can suggest up to 10 pieces of gear per review. Add the rest to the mountain note.',
+  'you have 30 open gear suggestions; we will catch up on them first':
+    'You have 30 suggestions waiting for the Eiger team. We will work through those before you add more.',
+  // remove_gear_suggestion
+  'no such suggestion on this review': 'That suggestion is no longer on this review. Reload the page to see the current list.',
+  // set_gear_suggestion_status (admin)
+  'bad status': 'Pick a status: Open, Added as a new type, Mapped to a type or Declined.',
+  'mapped needs a slot': 'Pick the gear type this suggestion maps to.',
+  'no such suggestion': 'That suggestion no longer exists. Reload the page.',
+  'the resolution contains hidden formatting characters; please retype it': `The resolution has hidden formatting characters, ${RETYPE}`,
+};
+
+// Server sentence -> reviewer copy. Patterned messages (with a value in them)
+// are matched by shape; the value itself is never echoed back.
+export function reviewerMessage(message) {
+  const m = String(message ?? '').trim();
+  if (!m) return 'Something went wrong. Please try again.';
+  if (Object.prototype.hasOwnProperty.call(REFUSAL_COPY, m)) return REFUSAL_COPY[m];
+  if (/^unknown slot /.test(m)) return 'That gear type is not in the Eiger list any more. Reload the page and pick it again.';
+  if (/^review is [a-z_]+; re-claim the mountain to keep editing$/.test(m))
+    return 'This review is no longer open for edits. Claim the mountain again from the board to keep editing.';
+  return m;
+}
+
+// { data, error, status } -> data, or throw Error(reviewer copy) keeping the
+// code and the server's own sentence (serverMessage).
 export function unwrapKeep(res) {
   const { data, error, status } = res || {};
   if (error) {
-    const e = new Error(error.message || 'Something went wrong. Please try again.');
+    const e = new Error(reviewerMessage(error.message));
+    e.serverMessage = error.message || '';
     e.code = error.code;
     e.status = status ?? error.status;
     e.missing = isMissingFeature({ code: error.code, status: e.status });
@@ -102,14 +157,29 @@ export const DETAIL_MAX = 80;
 export const ROLES = ['everyone', 'leader'];
 export const ROLE_LABEL = { everyone: 'Every climber', leader: 'Leader only' };
 
+// Same as the server: any run of whitespace (tabs, newlines) becomes one
+// space, then trim; blank means no detail.
 export const cleanDetail = (s) => {
-  const t = String(s ?? '').trim();
+  const t = String(s ?? '').replace(/\s+/g, ' ').trim();
   return t ? t : null;
 };
+
+// Characters the server refuses: ASCII control characters, and bidi
+// override / isolate and zero-width space (U+202A..U+202E, U+2066..U+2069,
+// U+200B), which make text read differently from what it stores.
+// eslint-disable-next-line no-control-regex -- matching control characters is the point
+const CONTROL_RE = /[\u0000-\u001f\u007f]/;
+const HIDDEN_RE = /[\u202a-\u202e\u2066-\u2069\u200b]/;
+export const hasHiddenChars = (s) => HIDDEN_RE.test(String(s ?? ''));
+export const hasControlChars = (s) => CONTROL_RE.test(String(s ?? ''));
 export const cleanRole = (r) => (r === 'leader' ? 'leader' : 'everyone');
 export const detailError = (s) => {
   const d = cleanDetail(s);
-  return d && d.length > DETAIL_MAX ? `Keep the detail to ${DETAIL_MAX} characters.` : null;
+  if (!d) return null;
+  if (d.length > DETAIL_MAX) return REFUSAL_COPY['keep the detail to 80 characters'];
+  if (hasControlChars(d)) return REFUSAL_COPY['the detail cannot contain control characters'];
+  if (hasHiddenChars(d)) return REFUSAL_COPY['the detail contains hidden formatting characters; please retype it'];
+  return null;
 };
 
 const blankSpec = () => ({ detail: null, role: 'everyone' });
@@ -167,10 +237,24 @@ export const cleanName = (s) => String(s ?? '').replace(/\s+/g, ' ').trim();
 // The first problem with a suggestion, as a sentence, or null.
 export function suggestionError({ name, note }) {
   const n = cleanName(name);
-  if (n.length < SUGGESTION_NAME_MIN) return `Name the gear in at least ${SUGGESTION_NAME_MIN} characters.`;
-  if (n.length > SUGGESTION_NAME_MAX) return `Keep the gear name to ${SUGGESTION_NAME_MAX} characters.`;
-  if (String(note ?? '').trim().length > SUGGESTION_NOTE_MAX) return `Keep the note to ${SUGGESTION_NOTE_MAX} characters.`;
+  const t = String(note ?? '').trim();
+  if (n.length < SUGGESTION_NAME_MIN) return REFUSAL_COPY['name the gear in at least 2 characters'];
+  if (n.length > SUGGESTION_NAME_MAX) return REFUSAL_COPY['keep the gear name to 80 characters'];
+  if (hasControlChars(n)) return REFUSAL_COPY['the gear name cannot contain control characters'];
+  if (hasHiddenChars(n)) return REFUSAL_COPY['the gear name contains hidden formatting characters; please retype it'];
+  if (t.length > SUGGESTION_NOTE_MAX) return REFUSAL_COPY['keep the note to 500 characters'];
+  if (hasHiddenChars(t)) return REFUSAL_COPY['the note contains hidden formatting characters; please retype it'];
   return null;
+}
+
+// Triaged suggestions (added, mapped, declined) are read-only on the server.
+export const isTriaged = (g) => !!g && !!g.status && g.status !== 'open';
+
+// The triaged suggestion a save with this name would hit (the server matches
+// names case-insensitively on the same review), or null.
+export function triagedWithName(list, name) {
+  const key = cleanName(name).toLowerCase();
+  return (list || []).find((g) => isTriaged(g) && cleanName(g.name).toLowerCase() === key) || null;
 }
 
 // Full argument set for save_gear_suggestion. The RPC is a full replace, so

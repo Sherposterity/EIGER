@@ -200,7 +200,7 @@ export function groupSlots(slots) {
 
 // Counts for the change summary. factFlags = number of flagged facts;
 // extra.specs = slots whose detail or role changed, extra.suggestions = new
-// gear suggested (both migration 180, zero before it is live).
+// gear suggested (both migration 181, zero if it is not live).
 export function summarize(slots, factFlags = 0, extra = {}) {
   const out = { added: 0, removed: 0, changed: 0, facts: factFlags, specs: extra.specs || 0, suggestions: extra.suggestions || 0 };
   for (const s of slots) {

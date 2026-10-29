@@ -5,8 +5,9 @@
 import { supabase } from './supabase';
 import { createGapsApi } from './reviewGaps.js';
 
-// Migration 180 calls (slot detail and role, gear suggestions); each read is
-// null while 180 is not live, see src/lib/reviewGaps.js.
+// Migration 181 calls (slot detail and role, gear suggestions); each read is
+// null if 181 is not live, see src/lib/reviewGaps.js. Their refusals arrive
+// as reviewer copy (reviewerMessage).
 export const gaps = createGapsApi(supabase);
 
 const unwrap = ({ data, error }) => {

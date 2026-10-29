@@ -8,7 +8,8 @@ import {
 } from '@/lib/reviewApi';
 import {
   DETAIL_MAX, ROLES, ROLE_LABEL, SUGGESTIONS_PER_REVIEW, SUGGESTION_NAME_MAX, SUGGESTION_NOTE_MAX, applySpec, cleanName, currentSpec,
-  isDefaultSpec, liveSpecs, sameSpec, specsMap, suggestionError, upsertSuggestion,
+  SUGGESTION_STATUS_LABEL, detailError, isDefaultSpec, isTriaged, liveSpecs, reviewerMessage, sameSpec, specsMap, suggestionError,
+  triagedWithName, upsertSuggestion,
 } from '@/lib/reviewGaps';
 import {
   LEVELS, addedState, applyWrites, changesMap, currentState, deriveSlots, groupSlots, liveStates, mergeState, modeOf,
@@ -166,15 +167,19 @@ function RoleChips({ value, onChange, disabled }) {
   );
 }
 
-// Per slot detail (kind, size, count) and who carries it (migration 180).
+// Per slot detail (kind, size, count) and who carries it (migration 181).
 // Saves on blur and on a role tap, like SlotNote.
 function SlotSpec({ slot, spec, onSave, disabled }) {
   const [detail, setDetail] = useState(spec?.detail || '');
   const [role, setRole] = useState(spec?.role || 'everyone');
   const saved = useRef({ detail: spec?.detail || '', role: spec?.role || 'everyone' });
+  const [problem, setProblem] = useState('');
 
   const commit = (next = {}) => {
     const v = { detail, role, ...next };
+    const why = detailError(v.detail);
+    setProblem(why || '');
+    if (why) return;
     if (sameSpec(v, saved.current)) return;
     saved.current = v;
     onSave({ detail: v.detail, role: v.role });
@@ -211,6 +216,11 @@ function SlotSpec({ slot, spec, onSave, disabled }) {
           }}
         />
       </div>
+      {problem ? (
+        <p role="alert" className="text-small text-fg">
+          {problem}
+        </p>
+      ) : null}
       {left <= 15 ? <p className="font-mono text-[0.7rem] text-fg-subtle">{left} characters left</p> : null}
     </div>
   );
@@ -498,7 +508,8 @@ const LEVEL_CHOICES = [[null, 'Not sure'], ['essential', 'Essential'], ['recomme
 
 // "Suggest new gear": nothing in the taxonomy matches, so the reviewer records
 // the gap as free text for the Eiger team (save_gear_suggestion, migration
-// 180). A suggestion never becomes a slot by itself.
+// 181). A suggestion never becomes a slot by itself. Every field the reviewer
+// types is rendered as plain React text, never as HTML or markdown.
 function SuggestForm({ initialName, onSave, onCancel }) {
   const [name, setName] = useState(initialName);
   const [note, setNote] = useState('');
@@ -601,11 +612,11 @@ function SuggestionList({ suggestions, editable, onRemove }) {
                 <p className="break-words font-medium text-fg">{g.name}</p>
                 <p className="mt-0.5 font-mono text-[0.72rem] text-fg-subtle">
                   {g.proposed_level ? LEVEL_LABEL[g.proposed_level] : 'Level not set'} · {ROLE_LABEL[g.role] || ROLE_LABEL.everyone}
-                  {g.status && g.status !== 'open' ? ` · ${g.status}` : ''}
+                  {isTriaged(g) ? ` · ${SUGGESTION_STATUS_LABEL[g.status] || 'Reviewed'}` : ''}
                 </p>
                 {g.note ? <p className="mt-1 whitespace-pre-wrap break-words text-small text-fg-muted">{g.note}</p> : null}
               </div>
-              {editable && g.id ? (
+              {editable && g.id && !isTriaged(g) ? (
                 <button type="button" onClick={() => onRemove(g)} className={`${btnGhost} text-[0.75rem]`} aria-label={`Remove ${g.name}`}>
                   <X aria-hidden="true" className="size-3.5" /> Remove
                 </button>
@@ -751,7 +762,7 @@ function MountainReview({ me, toast, trailId }) {
   const changesRef = useRef(new Map());
   const [notes, setNotes] = useState(new Map());
   const [flags, setFlags] = useState(new Map());
-  // Migration 180: per slot detail and role drafts, and gear suggestions.
+  // Migration 181: per slot detail and role drafts, and gear suggestions.
   // specsOn / suggestOn are false while 180 is not live; the controls hide.
   const [specDrafts, setSpecDrafts] = useState(new Map());
   const specDraftsRef = useRef(new Map());
@@ -906,6 +917,12 @@ function MountainReview({ me, toast, trailId }) {
 
   const suggestGear = useCallback(
     async (s) => {
+      // The server refuses a same-name save over a triaged suggestion; say so
+      // before the round trip.
+      if (triagedWithName(suggestions, s.name)) {
+        toast(reviewerMessage('this suggestion was already reviewed'));
+        return false;
+      }
       try {
         const id = await enqueue(() => gaps.saveGearSuggestion(review.id, s));
         setSuggestions((list) =>
@@ -927,7 +944,7 @@ function MountainReview({ me, toast, trailId }) {
         return false;
       }
     },
-    [review, enqueue, toast],
+    [suggestions, review, enqueue, toast],
   );
 
   const removeSuggestion = useCallback(
