@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import RequireReviewer from './ReviewGate';
+import FeedbackInbox from './ReviewFeedback';
 import { reviewerCount } from '@/lib/reviewBoard';
 import { fromTable, gaps, reviewBoard, rpc, sendReviewerWelcome, shortDate, shortDateTime, welcomeOutcome } from '@/lib/reviewApi';
 import { ROLE_LABEL, SUGGESTION_STATUSES, SUGGESTION_STATUS_LABEL, byReview, specLine } from '@/lib/reviewGaps';
 import { EYEBROW, STATE_LABEL, TIERS, btnGhost, btnQuiet, fieldSm, surface } from './reviewStyles';
 
 // Admin view. Plain and usable: applications, reviewers, the full board,
-// submitted reviews to apply, lessons and disputes. Every action is an RPC
+// submitted reviews to apply, lessons, disputes and the climbers' feedback. Every action is an RPC
 // that re-checks is_admin on the server.
 
 const TABS = [
@@ -17,6 +18,7 @@ const TABS = [
   ['submitted', 'Submitted'],
   ['lessons', 'Lessons'],
   ['disputes', 'Disputes'],
+  ['feedback', 'Feedback'],
 ];
 
 const TIER_LABEL = Object.fromEntries(TIERS);
@@ -570,7 +572,7 @@ function Disputes({ toast }) {
 
 function Admin({ toast, signOut }) {
   const [tab, setTab] = useState('applications');
-  const Panel = { applications: Applications, reviewers: Reviewers, board: AdminBoard, submitted: Submitted, lessons: Lessons, disputes: Disputes }[tab];
+  const Panel = { applications: Applications, reviewers: Reviewers, board: AdminBoard, submitted: Submitted, lessons: Lessons, disputes: Disputes, feedback: FeedbackInbox }[tab];
   return (
     <main className="mx-auto max-w-5xl px-4 pb-24 pt-8 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
