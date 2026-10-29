@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import RequireReviewer from './ReviewGate';
 import { reviewerCount } from '@/lib/reviewBoard';
-import { fromTable, reviewBoard, rpc, sendReviewerWelcome, shortDate, shortDateTime, welcomeOutcome } from '@/lib/reviewApi';
+import { fromTable, gaps, reviewBoard, rpc, sendReviewerWelcome, shortDate, shortDateTime, welcomeOutcome } from '@/lib/reviewApi';
+import { ROLE_LABEL, SUGGESTION_STATUSES, SUGGESTION_STATUS_LABEL, byReview, specLine } from '@/lib/reviewGaps';
 import { EYEBROW, STATE_LABEL, TIERS, btnGhost, btnQuiet, fieldSm, surface } from './reviewStyles';
 
 // Admin view. Plain and usable: applications, reviewers, the full board,
@@ -292,14 +293,109 @@ function AdminBoard({ toast }) {
   );
 }
 
+const LEVEL_WORD = { essential: 'Essential', recommended: 'Recommended', optional: 'Optional' };
+
+// Triage for one gear suggestion (migration 181, admin only on the server).
+// Reviewer text (name, note) and the resolution render as plain React text.
+function SuggestionTriage({ g, types, toast, onDone }) {
+  const [status, setStatus] = useState(g.status);
+  const [itemType, setItemType] = useState(g.mapped_item_type || '');
+  const [resolution, setResolution] = useState(g.resolution || '');
+  const [saving, setSaving] = useState(false);
+  const typeName = new Map(types.map((t) => [t.item_type, t.display_name]));
+  const dirty = status !== g.status || (itemType || null) !== (g.mapped_item_type || null) || resolution.trim() !== (g.resolution || '');
+  const save = async () => {
+    if (status === 'mapped' && !itemType) {
+      toast('Pick the type it maps to.');
+      return;
+    }
+    setSaving(true);
+    try {
+      await gaps.setGearSuggestionStatus(g.id, status, itemType || null, resolution);
+      toast(`${g.name}: ${SUGGESTION_STATUS_LABEL[status]}`, 'ok');
+      onDone();
+    } catch (e) {
+      toast(e.message);
+    }
+    setSaving(false);
+  };
+  return (
+    <li className="rounded-md border border-line px-3 py-2.5">
+      <p className="break-words text-small font-medium text-fg">{g.name}</p>
+      <p className="font-mono text-[0.7rem] text-fg-subtle">
+        {g.proposed_level ? LEVEL_WORD[g.proposed_level] : 'level not set'} · {ROLE_LABEL[g.role] || ROLE_LABEL.everyone} ·{' '}
+        {SUGGESTION_STATUS_LABEL[g.status] || g.status}
+        {g.mapped_item_type ? ` (${typeName.get(g.mapped_item_type) || g.mapped_item_type})` : ''}
+        {g.resolved_at ? ` · ${shortDate(g.resolved_at)}` : ''}
+      </p>
+      {g.note ? <p className="mt-1 whitespace-pre-wrap break-words text-small text-fg-muted">{g.note}</p> : null}
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <select aria-label={`Status for ${g.name}`} value={status} onChange={(e) => setStatus(e.target.value)} className={`${fieldSm} w-auto`}>
+          {SUGGESTION_STATUSES.map((st) => (
+            <option key={st} value={st}>
+              {SUGGESTION_STATUS_LABEL[st]}
+            </option>
+          ))}
+        </select>
+        {status === 'mapped' ? (
+          <select aria-label="Maps to" value={itemType} onChange={(e) => setItemType(e.target.value)} className={`${fieldSm} w-auto`}>
+            <option value="">Maps to which type?</option>
+            {types.map((t) => (
+              <option key={t.item_type} value={t.item_type}>
+                {t.display_name}
+              </option>
+            ))}
+          </select>
+        ) : null}
+        <input
+          value={resolution}
+          maxLength={1000}
+          onChange={(e) => setResolution(e.target.value)}
+          placeholder="Resolution note, optional"
+          aria-label="Resolution note"
+          className={`${fieldSm} sm:w-64`}
+        />
+        <button type="button" className={btnQuiet} disabled={!dirty || saving} onClick={save}>
+          {saving ? 'Saving' : 'Save'}
+        </button>
+      </div>
+    </li>
+  );
+}
+
+// Detail and role changes for one review (review_slot_specs).
+function SpecChanges({ specs, types }) {
+  const typeName = new Map(types.map((t) => [t.item_type, t.display_name]));
+  return (
+    <div className="mt-2">
+      <p className="text-[0.75rem] text-fg-subtle">Detail and who carries it</p>
+      <ul className="mt-1 flex flex-col gap-1">
+        {specs.map((sp) => (
+          <li key={sp.item_type} className="break-words text-small text-fg-muted">
+            <span className="text-fg">{typeName.get(sp.item_type) || sp.item_type}</span>: now{' '}
+            <span className="text-fg">{specLine(sp) || 'no detail, every climber'}</span>, was{' '}
+            {specLine({ detail: sp.original_detail, role: sp.original_role }) || 'no detail, every climber'}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function Submitted({ toast }) {
   const loader = useCallback(async () => {
-    const [reviews, changes, board, reviewers] = await Promise.all([
+    const [reviews, changes, board, reviewers, suggestions, specs, types] = await Promise.all([
       fromTable('mountain_reviews', 'id, trail_id, reviewer_id, state, submitted_at, mountain_note'),
       fromTable('review_changes', 'review_id'),
       reviewBoard(),
       fromTable('reviewers', 'id, first_name, last_name, email'),
+      gaps.adminSuggestions(),
+      gaps.adminSpecs(),
+      fromTable('gear_item_types', 'item_type, display_name, sort_order'),
     ]);
+    const gearAsks = byReview(suggestions);
+    const specRows = byReview(specs);
+    const typeList = [...(types || [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
     const names = new Map(board.map((b) => [b.trail_id, b.name]));
     const who = new Map(reviewers.map((r) => [r.id, r]));
     const counts = new Map();
@@ -307,9 +403,17 @@ function Submitted({ toast }) {
     return reviews
       .filter((r) => r.state === 'submitted')
       .sort((a, b) => (a.submitted_at < b.submitted_at ? 1 : -1))
-      .map((r) => ({ ...r, mountain: names.get(r.trail_id) || r.trail_id, reviewer: who.get(r.reviewer_id), changes: counts.get(r.id) || 0 }));
+      .map((r) => ({
+        ...r,
+        mountain: names.get(r.trail_id) || r.trail_id,
+        reviewer: who.get(r.reviewer_id),
+        changes: counts.get(r.id) || 0,
+        suggestions: (gearAsks.get(r.id) || []).sort((a, b) => (a.created_at < b.created_at ? -1 : 1)),
+        specs: specRows.get(r.id) || [],
+        types: typeList,
+      }));
   }, []);
-  const [rows] = useAsync(loader, toast);
+  const [rows, reload] = useAsync(loader, toast);
   return (
     <Section title="Submitted, waiting to apply">
       {rows === null ? <Empty>Loading</Empty> : rows.length === 0 ? <Empty>Nothing submitted.</Empty> : null}
@@ -323,6 +427,17 @@ function Submitted({ toast }) {
               {r.reviewer ? `${r.reviewer.first_name} ${r.reviewer.last_name} (${r.reviewer.email})` : r.reviewer_id} · {shortDateTime(r.submitted_at)} · review {r.id}
             </p>
             {r.mountain_note ? <p className="mt-1 whitespace-pre-wrap text-small text-fg-muted">{r.mountain_note}</p> : null}
+            {r.specs.length ? <SpecChanges specs={r.specs} types={r.types} /> : null}
+            {r.suggestions.length ? (
+              <div className="mt-2">
+                <p className="text-[0.75rem] text-fg-subtle">Gear suggestions, not in the taxonomy</p>
+                <ul className="mt-1 flex flex-col gap-2">
+                  {r.suggestions.map((g) => (
+                    <SuggestionTriage key={`${g.id}|${g.status}|${g.resolved_at || ''}`} g={g} types={r.types} toast={toast} onDone={reload} />
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </li>
         ))}
       </ul>
