@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import RequireReviewer from './ReviewGate';
+import { reviewerCount } from '@/lib/reviewBoard';
 import { fromTable, gaps, reviewBoard, rpc, sendReviewerWelcome, shortDate, shortDateTime, welcomeOutcome } from '@/lib/reviewApi';
 import { ROLE_LABEL, SUGGESTION_STATUSES, SUGGESTION_STATUS_LABEL, byReview, specLine } from '@/lib/reviewGaps';
 import { EYEBROW, STATE_LABEL, TIERS, btnGhost, btnQuiet, fieldSm, surface } from './reviewStyles';
@@ -19,6 +20,8 @@ const TABS = [
 ];
 
 const TIER_LABEL = Object.fromEntries(TIERS);
+// The applicant's opt-ins (hike migration 180); absent on applications sent before it.
+const consentText = (v) => (v === true ? 'Yes' : v === false ? 'No' : null);
 const LESSON_STATUSES = ['pending', 'disputed', 'accepted', 'rejected', 'superseded'];
 const Section = ({ title, children }) => (
   <section className="mt-6">
@@ -97,6 +100,8 @@ function Applications({ toast }) {
             <Kv k="Public links" v={a.public_links} />
             <Kv k="Uses the app" v={a.uses_app} />
             <Kv k="Anything else" v={a.extra} />
+            <Kv k="Name and credentials in the app" v={consentText(a.show_credentials)} />
+            <Kv k="Email to other reviewers" v={consentText(a.share_contact)} />
             <Kv k="Decision note" v={a.decision_note} />
           </dl>
           {a.status === 'pending' ? (
@@ -149,7 +154,7 @@ function Applications({ toast }) {
 }
 
 function Reviewers({ toast }) {
-  const loader = useCallback(() => fromTable('reviewers', 'id, email, first_name, last_name, tier, is_admin, active, created_at, welcome_sent_at'), []);
+  const loader = useCallback(() => fromTable('reviewers', 'id, email, first_name, last_name, tier, is_admin, active, created_at, welcome_sent_at, show_credentials, share_contact'), []);
   const [rows, reload] = useAsync(loader, toast);
   const [form, setForm] = useState({ email: '', first: '', last: '', tier: 'experienced_amateur' });
 
@@ -212,6 +217,7 @@ function Reviewers({ toast }) {
               <p className="truncate font-mono text-small text-fg-subtle">
                 {r.email} · {TIER_LABEL[r.tier] || r.tier} · since {shortDate(r.created_at)}
                 {r.welcome_sent_at ? ` · welcomed ${shortDate(r.welcome_sent_at)}` : ' · not welcomed yet'}
+                {` · credentials ${r.show_credentials ? 'public' : 'private'} · email ${r.share_contact ? 'shared' : 'private'}`}
               </p>
             </div>
             {r.active ? (
@@ -252,6 +258,7 @@ function AdminBoard({ toast }) {
             <tr className="border-b border-line">
               <th className="px-3 py-2 font-medium">Mountain</th>
               <th className="px-3 py-2 font-medium">State</th>
+              <th className="px-3 py-2 font-medium">Reviewers</th>
               <th className="px-3 py-2 font-medium">Holder</th>
               <th className="px-3 py-2 font-medium">Lock until</th>
               <th className="px-3 py-2 font-medium">Submitted</th>
@@ -263,6 +270,7 @@ function AdminBoard({ toast }) {
               <tr key={r.trail_id} className="border-b border-line last:border-0">
                 <td className="px-3 py-2 text-fg">{r.name}</td>
                 <td className="px-3 py-2 text-fg-muted">{STATE_LABEL[r.state] || r.state}</td>
+                <td className="px-3 py-2 font-mono text-fg-muted">{reviewerCount(r)}</td>
                 <td className="px-3 py-2 text-fg-muted">
                   {r.holder}
                   {r.holder_email ? <span className="block font-mono text-[0.7rem] text-fg-subtle">{r.holder_email}</span> : null}
@@ -287,7 +295,8 @@ function AdminBoard({ toast }) {
 
 const LEVEL_WORD = { essential: 'Essential', recommended: 'Recommended', optional: 'Optional' };
 
-// Triage for one gear suggestion (migration 180, admin only on the server).
+// Triage for one gear suggestion (migration 181, admin only on the server).
+// Reviewer text (name, note) and the resolution render as plain React text.
 function SuggestionTriage({ g, types, toast, onDone }) {
   const [status, setStatus] = useState(g.status);
   const [itemType, setItemType] = useState(g.mapped_item_type || '');

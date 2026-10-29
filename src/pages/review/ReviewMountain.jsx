@@ -1108,7 +1108,7 @@ function MountainReview({ me, toast, trailId }) {
     } else if (review?.state === 'submitted' || review?.state === 'verified') {
       banner = (
         <Banner
-          title={review.state === 'verified' ? 'Your review was verified' : 'You submitted this review'}
+          title={review.state === 'verified' ? 'Your review was applied' : 'You submitted this review'}
           body={`Submitted ${shortDate(review.submitted_at)}. This is a read only view of the list with your changes.`}
         />
       );

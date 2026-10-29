@@ -28,6 +28,10 @@ export const saveFactFlag = (reviewId, field, claimed, note) =>
   rpc('save_fact_flag', { p_review_id: reviewId, p_field: field, p_claimed_value: claimed, p_note: note });
 export const setMountainNote = (reviewId, note) => rpc('set_mountain_note', { p_review_id: reviewId, p_note: note });
 export const submitReview = (reviewId, scrolled) => rpc('submit_review', { p_review_id: reviewId, p_scrolled_to_end: scrolled });
+// The calling reviewer's opt-ins (hike migration 180): name and credentials in
+// the app, email shared with other reviewers. Both default to off.
+export const setReviewerConsent = (showCredentials, shareContact) =>
+  rpc('set_reviewer_consent', { p_show_credentials: !!showCredentials, p_share_contact: !!shareContact });
 
 const TRAIL_COLUMNS =
   'id, name, altitude_m, approach_start_m, elevation_gain_m, elevation_loss_m, distance_km, duration_days, difficulty, technical, glaciated, avalanche_terrain, typical_temperature_min_c, typical_temperature_max_c, boots_crampon_rating, climate_zone, description, image_url';
