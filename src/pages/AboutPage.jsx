@@ -10,7 +10,7 @@ import EmailCapture from '../components/home/EmailCapture';
 import AthletePhoto from '../assets/TimEiger.jpg';
 
 // About (merged with the old Mission page). Every string on this page is from
-// docs/COPY.md, section About (all three bios are the founders' own words,
+// docs/COPY.md, section About (the founders' bios are their own words,
 // 2026-09-25). The shared "Get the app" and email blocks at the bottom are
 // the Home components, so the wording lives in one place.
 
@@ -34,6 +34,11 @@ const founders = [
     name: 'Cody',
     role: 'Chief Technology Officer',
     body: 'My name is Cody and I currently have experience at several S&P 500 companies as a software intern. I study computer science and apply that knowledge to the main infrastructure of the app as the technical cofounder. Climbing and hiking introduce new challenges every time I head out, and I love these activities because they get my brain running, the same way solving a hard problem in code does.',
+  },
+  {
+    name: 'Kevin',
+    role: 'Marketing Director',
+    body: "My name is Kevin and I rock climb as often as I can. I was one of Eiger's first testers, and I still help with development testing and our AI work, making sure the app's gear recommendations hold up against what climbers actually need. I also lead our marketing, from our brand voice to the content you see on Instagram and TikTok. When I'm not climbing or working on Eiger, I love to travel.",
   },
 ];
 
@@ -220,7 +225,7 @@ export default function AboutPage() {
                 Who we are
               </h2>
             </Rise>
-            <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
               {founders.map((founder, i) => (
                 <Rise key={founder.name} delay={i * 0.08} className="h-full">
                   <article className="flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface-1 transition-[translate,border-color] duration-300 ease-out-expo hover:-translate-y-0.5 hover:border-line-strong">
