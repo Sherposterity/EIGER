@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  GEAR_SYNONYMS, applySpec, createGapsApi, currentSpec, isMissingFeature, liveSpecs, specLine, specsMap, suggestionArgs,
+  CHECKLIST_ITEM_TYPES, GEAR_KITS, GEAR_SYNONYMS, applySpec, isChecklistType, kitHit, createGapsApi, currentSpec, isMissingFeature, liveSpecs, specLine, specsMap, suggestionArgs,
   suggestionError, synonymScore, upsertSuggestion,
 } from '../src/lib/reviewGaps.js';
 import { searchTaxonomy, summarize, summaryLine } from '../src/lib/reviewSlots.js';
@@ -17,6 +17,85 @@ const before180 = [
 ];
 const after180 = [...before180, T('ice_screws', 'Ice Screws'), T('satellite_messenger', 'Satellite Messenger or PLB', 'Essentials & Accessories')];
 const find = (types, q) => searchTaxonomy(types, [], q).map((t) => t.item_type);
+
+// Reze's Mont Blanc review (2026-11-23): the live taxonomy plus mig 196 and the new types.
+const reze = [
+  ...after180,
+  T('prusik_cords', 'Prusik Cords'),
+  T('sling', 'Sling'),
+  T('cordelette', 'Cordelette'),
+  T('personal_anchor', 'Personal Anchor (PAS)'),
+  T('spare_batteries', 'Spare Batteries', 'Essentials & Accessories'),
+  T('portable_power_station', 'Portable Power Station', 'Essentials & Accessories'),
+  T('water_bottles', 'Water Bottles', 'Essentials & Accessories'),
+  T('backpack', 'Backpack', 'Essentials & Accessories'),
+  T('sleeping_bag', 'Sleeping Bag', 'Camp & Sleep'),
+  T('tent', 'Tent', 'Camp & Sleep'),
+  T('navigation', 'Navigation', 'Essentials & Accessories'),
+  T('power_bank', 'Power Bank & Cables', 'Essentials & Accessories'),
+  T('thermos', 'Thermos', 'Essentials & Accessories'),
+  T('emergency_bivvy', 'Emergency Bivvy', 'Essentials & Accessories'),
+  T('dry_bags', 'Dry Bags', 'Essentials & Accessories'),
+  T('earplugs', 'Earplugs', 'Essentials & Accessories'),
+  T('cash', 'Cash', 'Essentials & Accessories'),
+  T('food_snacks', 'Food, Snacks & Energy Gels', 'Essentials & Accessories'),
+];
+const CREVASSE = ['rescue_pulley', 'ice_screws', 'cordelette', 'prusik_cords', 'sling', 'locking_carabiners'];
+
+test('synonyms (2026-11-23): the new types and mig 196 map to the right type first', () => {
+  const cases = {
+    power_bank: ['power bank', 'battery pack', 'charger', 'cables', 'Anker powerbank'],
+    thermos: ['thermos', 'flask', 'vacuum flask'],
+    emergency_bivvy: ['bivvy', 'bivy', 'emergency bag', 'space blanket'],
+    dry_bags: ['dry bag', 'drybag', 'stuff sack'],
+    earplugs: ['earplugs', 'ear plugs'],
+    cash: ['cash', 'money'],
+    food_snacks: ['food', 'snacks', 'gels', 'energy gel', 'bars'],
+    cordelette: ['cordelette', 'anchor cord', 'cord loop'],
+    personal_anchor: ['pas', 'daisy', 'daisy chain', 'tether', 'personal anchor', 'spider'],
+  };
+  for (const [type, words] of Object.entries(cases)) {
+    for (const w of words) assert.equal(find(reze, w)[0], type, `${w} -> ${type}`);
+  }
+});
+
+test('synonyms (2026-11-23): no collisions with the types that already existed', () => {
+  assert.equal(find(reze, 'batteries')[0], 'spare_batteries');
+  assert.equal(find(reze, 'power station')[0], 'portable_power_station');
+  assert.equal(find(reze, 'sleeping bag')[0], 'sleeping_bag');
+  assert.equal(find(reze, 'backpack')[0], 'backpack');
+  assert.equal(find(reze, 'prusik')[0], 'prusik_cords');
+  assert.equal(find(reze, 'water bottle')[0], 'water_bottles');
+  // 'bag' is a word in both names, so both show; the synonym lists add nothing more.
+  assert.deepEqual(new Set(find(reze, 'bag')), new Set(['dry_bags', 'sleeping_bag']));
+  assert.ok(!find(reze, 'compass').includes('personal_anchor'), "'pas' is a whole word, not inside compass");
+  // Searching "cord" still offers both, Cordelette (name starts with it) ahead of Prusik Cords.
+  assert.deepEqual(find(reze, 'cord').slice(0, 2), ['cordelette', 'prusik_cords']);
+});
+
+test('kits: "crevasse rescue" offers all six crevasse rescue parts', () => {
+  assert.deepEqual(GEAR_KITS['crevasse rescue'], CREVASSE);
+  for (const q of ['crevasse rescue', 'Crevasse rescue kit', 'crevasse kit', 'crev']) {
+    assert.deepEqual(new Set(find(reze, q)), new Set(CREVASSE), q);
+  }
+  assert.equal(kitHit('sling', 'cr'), null, 'prefix needs 4 characters');
+  assert.equal(kitHit('tent', 'crevasse rescue'), null);
+});
+
+test('kits: parts already on the mountain are not offered again', () => {
+  const slots = [{ item_type: 'sling', status: 'same' }, { item_type: 'locking_carabiners', status: 'same' }];
+  const hits = searchTaxonomy(reze, slots, 'crevasse rescue').map((t) => t.item_type);
+  assert.deepEqual(new Set(hits), new Set(['rescue_pulley', 'ice_screws', 'cordelette', 'prusik_cords']));
+});
+
+test('checklist types: earplugs, cash and food are labelled, gear is not', () => {
+  assert.deepEqual(CHECKLIST_ITEM_TYPES, ['earplugs', 'cash', 'food_snacks']);
+  assert.ok(isChecklistType('earplugs'));
+  assert.ok(isChecklistType({ item_type: 'cash' }));
+  assert.ok(isChecklistType({ item_type: 'something_new', is_checklist: true }));
+  assert.ok(!isChecklistType('power_bank'));
+  assert.ok(!isChecklistType(null));
+});
 
 test('synonyms: the brief list maps to the right types', () => {
   const cases = {

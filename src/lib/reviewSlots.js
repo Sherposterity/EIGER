@@ -12,7 +12,7 @@
 // The server deletes a change row when the proposal equals the live row, and
 // applyWrites() mirrors that locally, so there is never an explicit "undo".
 
-import { GEAR_SYNONYMS, synonymHit } from './reviewGaps.js';
+import { GEAR_KITS, GEAR_SYNONYMS, kitHit, synonymHit } from './reviewGaps.js';
 
 export const SEASONS = ['all', 'summer', 'winter'];
 export const LEVELS = ['essential', 'recommended', 'optional'];
@@ -226,8 +226,9 @@ export function summaryLine(sum) {
 // Taxonomy search for the "Add a slot" box: names not already present.
 // Direct name hits rank first (0 to 2), then synonym hits (3 whole word, 4
 // prefix) from GEAR_SYNONYMS, so "traxion" finds Rescue Pulley and "hms"
-// finds Locking Carabiners. Only loaded types can match.
-export function searchTaxonomy(types, slots, query, limit = 8, synonyms = GEAR_SYNONYMS) {
+// finds Locking Carabiners. A kit phrase ("crevasse rescue") offers every
+// part of the kit (GEAR_KITS) the same way. Only loaded types can match.
+export function searchTaxonomy(types, slots, query, limit = 8, synonyms = GEAR_SYNONYMS, kits = GEAR_KITS) {
   const present = new Set(slots.filter((s) => s.status !== 'removed').map((s) => s.item_type));
   const q = (query || '').trim().toLowerCase();
   if (!q) return [];
@@ -242,7 +243,9 @@ export function searchTaxonomy(types, slots, query, limit = 8, synonyms = GEAR_S
       continue;
     }
     const syn = synonymHit(t.item_type, q, synonyms);
-    if (syn) hits.push({ t, score: 3 + syn.score, specific: syn.length });
+    const kit = kitHit(t.item_type, q, kits);
+    const best = syn && kit ? (kit.score < syn.score ? kit : syn) : syn || kit;
+    if (best) hits.push({ t, score: 3 + best.score, specific: best.length });
   }
   hits.sort((a, b) => a.score - b.score || (b.specific || 0) - (a.specific || 0) || a.t.display_name.localeCompare(b.t.display_name));
   return hits.slice(0, limit).map((h) => h.t);

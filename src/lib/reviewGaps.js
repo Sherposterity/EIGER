@@ -25,6 +25,61 @@ export const GEAR_SYNONYMS = {
   quickdraws: ['quickdraw', 'draw'],
   ice_screws: ['ice screw', 'screw'],
   satellite_messenger: ['inreach', 'garmin', 'plb', 'satellite', 'sat phone', 'sos', 'messenger', 'zoleo', 'spot', 'radio'],
+  // Migration 196 (handoff-cordelette-pas-types task 5).
+  cordelette: ['cordelette', 'anchor cord', 'cord loop'],
+  personal_anchor: ['pas', 'daisy', 'daisy chain', 'tether', 'personal anchor', 'spider'],
+  // Reze's Mont Blanc review, Rishav's rulings 2026-11-23. 'battery' alone
+  // stays off power_bank's list so "batteries" still finds Spare Batteries;
+  // 'bag' alone stays off dry_bags so it does not crowd Sleeping Bag.
+  power_bank: ['power bank', 'powerbank', 'battery pack', 'battery bank', 'charger', 'cables', 'cable'],
+  thermos: ['thermos', 'flask', 'vacuum flask'],
+  emergency_bivvy: ['bivvy', 'bivy', 'emergency bag', 'space blanket', 'survival bag'],
+  dry_bags: ['dry bag', 'drybag', 'stuff sack'],
+  // Checklist-only types (no products, no score).
+  earplugs: ['earplugs', 'ear plugs', 'earplug', 'ear plug'],
+  cash: ['cash', 'money'],
+  food_snacks: ['food', 'snacks', 'snack', 'gels', 'gel', 'energy gel', 'bars', 'bar'],
+};
+
+// A kit a reviewer names as one thing but the taxonomy holds as its parts
+// (Rishav's ruling 2026-11-23: the crevasse rescue kit is its six parts, not
+// a type). Searching any of these phrases offers every part not already on
+// the list.
+const CREVASSE_RESCUE_PARTS = ['rescue_pulley', 'ice_screws', 'cordelette', 'prusik_cords', 'sling', 'locking_carabiners'];
+export const GEAR_KITS = {
+  'crevasse rescue': CREVASSE_RESCUE_PARTS,
+  'crevasse rescue kit': CREVASSE_RESCUE_PARTS,
+  'crevasse kit': CREVASSE_RESCUE_PARTS,
+};
+
+// The kit hit for one type: { score, length } or null, scored like
+// synonymHit. Prefix hits need 4 characters ("crev"), so "c" or "cr" do not
+// pull in six parts at once.
+export function kitHit(itemType, query, kits = GEAR_KITS) {
+  const q = normalizeTerm(query);
+  if (!q) return null;
+  let best = null;
+  for (const [phrase, types] of Object.entries(kits)) {
+    if (!types.includes(itemType)) continue;
+    const p = normalizeTerm(phrase);
+    let score = null;
+    if (` ${q} `.includes(` ${p} `)) score = 0;
+    else if (q.length >= 4 && p.startsWith(q)) score = 1;
+    if (score === null) continue;
+    if (!best || score < best.score || (score === best.score && p.length > best.length)) best = { score, length: p.length };
+  }
+  return best;
+}
+
+// Checklist-only types (Rishav's ruling 2026-11-23): things worth packing
+// that are not gear products, so they have no products and no score. The
+// database flags them on gear_item_types; until the page reads that flag it
+// keys off this list. The review page labels them "Checklist item".
+export const CHECKLIST_ITEM_TYPES = ['earplugs', 'cash', 'food_snacks'];
+export const CHECKLIST_LABEL = 'Checklist item';
+export const isChecklistType = (t) => {
+  const itemType = typeof t === 'string' ? t : t?.item_type;
+  return CHECKLIST_ITEM_TYPES.includes(itemType) || (!!t && typeof t === 'object' && t.is_checklist === true);
 };
 
 // Lowercase, any run of punctuation or spaces becomes one space.

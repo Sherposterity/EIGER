@@ -7,9 +7,9 @@ import {
   submitReview,
 } from '@/lib/reviewApi';
 import {
-  DETAIL_MAX, ROLES, ROLE_LABEL, SUGGESTIONS_PER_REVIEW, SUGGESTION_NAME_MAX, SUGGESTION_NOTE_MAX, applySpec, cleanName, currentSpec,
+  CHECKLIST_LABEL, DETAIL_MAX, ROLES, ROLE_LABEL, SUGGESTIONS_PER_REVIEW, SUGGESTION_NAME_MAX, SUGGESTION_NOTE_MAX, applySpec, cleanName, currentSpec,
   SUGGESTION_STATUS_LABEL, detailError, isDefaultSpec, isTriaged, liveSpecs, reviewerMessage, sameSpec, specsMap, suggestionError,
-  triagedWithName, upsertSuggestion,
+  triagedWithName, upsertSuggestion, isChecklistType,
 } from '@/lib/reviewGaps';
 import {
   LEVELS, addedState, applyWrites, changesMap, currentState, deriveSlots, groupSlots, liveStates, mergeState, modeOf,
@@ -264,6 +264,7 @@ function SlotRow({ slot, focused, editable, note, act, onNote, rowRef, onFocusRo
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="font-medium text-fg">{slot.display_name}</span>
+            {isChecklistType(slot.item_type) ? <Tag>{CHECKLIST_LABEL}</Tag> : null}
             {status === 'added' ? <Tag strong>Added</Tag> : status === 'changed' ? <Tag strong>Changed</Tag> : specChanged ? <Tag strong>Detail</Tag> : null}
             {editable ? (
               <button
@@ -736,7 +737,7 @@ function AddSlot({ types, slots, onAdd, inputRef, disabled, suggestOn, suggestio
                 className={`flex cursor-pointer items-baseline justify-between gap-3 px-4 py-2.5 ${i === active ? 'bg-fg/10' : ''}`}
               >
                 <span className="text-fg">{t.display_name}</span>
-                <span className="font-mono text-[0.7rem] text-fg-subtle">{t.category_group}</span>
+                <span className="font-mono text-[0.7rem] text-fg-subtle">{isChecklistType(t) ? CHECKLIST_LABEL : t.category_group}</span>
               </li>
             ))}
           </ul>
