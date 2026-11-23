@@ -45,12 +45,12 @@ const CREVASSE = ['rescue_pulley', 'ice_screws', 'cordelette', 'prusik_cords', '
 test('synonyms (2026-11-23): the new types and mig 196 map to the right type first', () => {
   const cases = {
     power_bank: ['power bank', 'battery pack', 'charger', 'cables', 'Anker powerbank'],
-    thermos: ['thermos', 'flask', 'vacuum flask'],
+    thermos: ['thermos', 'flask', 'vacuum flask', 'vacuum bottle'],
     emergency_bivvy: ['bivvy', 'bivy', 'emergency bag', 'space blanket'],
-    dry_bags: ['dry bag', 'drybag', 'stuff sack'],
+    dry_bags: ['dry bag', 'drybag', 'dry sack', 'stuff sack'],
     earplugs: ['earplugs', 'ear plugs'],
     cash: ['cash', 'money'],
-    food_snacks: ['food', 'snacks', 'gels', 'energy gel', 'bars'],
+    food_snacks: ['food', 'snacks', 'gels', 'energy gel', 'bars', 'energy bars'],
     cordelette: ['cordelette', 'anchor cord', 'cord loop'],
     personal_anchor: ['pas', 'daisy', 'daisy chain', 'tether', 'personal anchor', 'spider'],
   };
@@ -92,7 +92,8 @@ test('checklist types: earplugs, cash and food are labelled, gear is not', () =>
   assert.deepEqual(CHECKLIST_ITEM_TYPES, ['earplugs', 'cash', 'food_snacks']);
   assert.ok(isChecklistType('earplugs'));
   assert.ok(isChecklistType({ item_type: 'cash' }));
-  assert.ok(isChecklistType({ item_type: 'something_new', is_checklist: true }));
+  assert.ok(isChecklistType({ item_type: 'passport', checklist_only: true }));
+  assert.ok(!isChecklistType({ item_type: 'thermos', checklist_only: false }));
   assert.ok(!isChecklistType('power_bank'));
   assert.ok(!isChecklistType(null));
 });
@@ -165,6 +166,9 @@ function fakeClient(handler) {
         q.filters.push([k, v]);
         return b;
       },
+      order() {
+        return b;
+      },
       then(res, rej) {
         calls.push({ ...q });
         return Promise.resolve(handler({ ...q })).then(res, rej);
@@ -198,6 +202,20 @@ test('degrade: before 180 the profile loads without detail and role, drafts are 
   const profileCalls = client.calls.filter((c) => c.table === 'trail_gear_profile');
   assert.equal(profileCalls.length, 2);
   assert.deepEqual(profileCalls[1].filters, [['trail_id', 't1'], ['status', 'approved']]);
+});
+
+test('types: checklist_only is read when migration 203 is live, and skipped before it', async () => {
+  const live = fakeClient((q) => ({ data: [{ item_type: 'cash', checklist_only: true, cols: q.cols }], error: null }));
+  const after = await createGapsApi(live).loadTypes();
+  assert.ok(after[0].cols.includes('checklist_only'));
+  assert.ok(isChecklistType(after[0]));
+  const before = fakeClient((q) =>
+    q.cols.includes('checklist_only')
+      ? { data: null, error: { code: '42703', message: 'column gear_item_types.checklist_only does not exist' }, status: 400 }
+      : { data: [{ item_type: 'helmet' }], error: null },
+  );
+  assert.deepEqual(await createGapsApi(before).loadTypes(), [{ item_type: 'helmet' }]);
+  assert.equal(before.calls.filter((c) => c.table === 'gear_item_types').length, 2);
 });
 
 test('degrade: a write against a missing function throws with missing = true', async () => {

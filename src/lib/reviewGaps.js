@@ -32,13 +32,13 @@ export const GEAR_SYNONYMS = {
   // stays off power_bank's list so "batteries" still finds Spare Batteries;
   // 'bag' alone stays off dry_bags so it does not crowd Sleeping Bag.
   power_bank: ['power bank', 'powerbank', 'battery pack', 'battery bank', 'charger', 'cables', 'cable'],
-  thermos: ['thermos', 'flask', 'vacuum flask'],
+  thermos: ['thermos', 'flask', 'vacuum flask', 'vacuum bottle'],
   emergency_bivvy: ['bivvy', 'bivy', 'emergency bag', 'space blanket', 'survival bag'],
-  dry_bags: ['dry bag', 'drybag', 'stuff sack'],
+  dry_bags: ['dry bag', 'drybag', 'dry sack', 'stuff sack'],
   // Checklist-only types (no products, no score).
   earplugs: ['earplugs', 'ear plugs', 'earplug', 'ear plug'],
   cash: ['cash', 'money'],
-  food_snacks: ['food', 'snacks', 'snack', 'gels', 'gel', 'energy gel', 'bars', 'bar'],
+  food_snacks: ['food', 'snacks', 'snack', 'gels', 'gel', 'energy gel', 'bars', 'bar', 'energy bars'],
 };
 
 // A kit a reviewer names as one thing but the taxonomy holds as its parts
@@ -73,13 +73,14 @@ export function kitHit(itemType, query, kits = GEAR_KITS) {
 
 // Checklist-only types (Rishav's ruling 2026-11-23): things worth packing
 // that are not gear products, so they have no products and no score. The
-// database flags them on gear_item_types; until the page reads that flag it
-// keys off this list. The review page labels them "Checklist item".
+// database flags them with gear_item_types.checklist_only (hike migration
+// 203), which loadTypes reads; the fixed list is the fallback until 203 is
+// live everywhere. The review page labels them "Checklist item".
 export const CHECKLIST_ITEM_TYPES = ['earplugs', 'cash', 'food_snacks'];
 export const CHECKLIST_LABEL = 'Checklist item';
 export const isChecklistType = (t) => {
   const itemType = typeof t === 'string' ? t : t?.item_type;
-  return CHECKLIST_ITEM_TYPES.includes(itemType) || (!!t && typeof t === 'object' && t.is_checklist === true);
+  return CHECKLIST_ITEM_TYPES.includes(itemType) || (!!t && typeof t === 'object' && t.checklist_only === true);
 };
 
 // Lowercase, any run of punctuation or spaces becomes one space.
@@ -333,11 +334,23 @@ export function upsertSuggestion(list, row) {
 // ---- Data layer -----------------------------------------------------------
 
 const PROFILE_BASE = 'item_type, season, requirement_level, rationale';
+const TYPES_BASE = 'item_type, display_name, category_group, sort_order';
 
 export function createGapsApi(client) {
   const rpc = async (name, args) => unwrapKeep(await client.rpc(name, args));
 
   return {
+    // The gear taxonomy, with checklist_only when migration 203 is live.
+    async loadTypes() {
+      const query = (cols) => client.from('gear_item_types').select(cols).order('sort_order');
+      try {
+        return unwrapKeep(await query(`${TYPES_BASE}, checklist_only`)) || [];
+      } catch (e) {
+        if (!e.missing) throw e;
+        return unwrapKeep(await query(TYPES_BASE)) || [];
+      }
+    },
+
     // Live profile rows for a mountain, with detail and role when the
     // columns exist. Resolves { rows, specs: boolean }.
     async loadProfile(trailId) {
