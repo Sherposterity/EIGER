@@ -28,13 +28,19 @@ export const GEAR_SYNONYMS = {
   // Migration 196 (handoff-cordelette-pas-types task 5).
   cordelette: ['cordelette', 'anchor cord', 'cord loop'],
   personal_anchor: ['pas', 'daisy', 'daisy chain', 'tether', 'personal anchor', 'spider'],
-  // Reze's Mont Blanc review, Rishav's rulings 2026-11-23. 'battery' alone
-  // stays off power_bank's list so "batteries" still finds Spare Batteries;
-  // 'bag' alone stays off dry_bags so it does not crowd Sleeping Bag.
+  // Reze's Mont Blanc review, Rishav's rulings 2026-11-23. A bare 'battery'
+  // or 'batteries' belongs to Spare Batteries (listed below), and power_bank
+  // only takes the compound words; a bare 'bag' stays off dry_bags so it does
+  // not crowd Sleeping Bag.
+  spare_batteries: ['battery', 'batteries', 'aaa', 'aa'],
+  // A flask, bladder or Nalgene is a water bottle; a vacuum flask is a thermos.
+  water_bottles: ['flask', 'soft flask', 'nalgene', 'bladder', 'hydration'],
   power_bank: ['power bank', 'powerbank', 'battery pack', 'battery bank', 'charger', 'cables', 'cable'],
-  thermos: ['thermos', 'flask', 'vacuum flask', 'vacuum bottle'],
+  thermos: ['thermos', 'vacuum flask', 'vacuum bottle'],
   emergency_bivvy: ['bivvy', 'bivy', 'emergency bag', 'space blanket', 'survival bag'],
   dry_bags: ['dry bag', 'drybag', 'dry sack', 'stuff sack'],
+  // "food storage" is a bear canister, not food.
+  bear_canister: ['food storage', 'bear can', 'bear canister', 'bear barrel'],
   // Checklist-only types (no products, no score).
   earplugs: ['earplugs', 'ear plugs', 'earplug', 'ear plug'],
   cash: ['cash', 'money'],
@@ -50,6 +56,8 @@ export const GEAR_KITS = {
   'crevasse rescue': CREVASSE_RESCUE_PARTS,
   'crevasse rescue kit': CREVASSE_RESCUE_PARTS,
   'crevasse kit': CREVASSE_RESCUE_PARTS,
+  'rescue kit': CREVASSE_RESCUE_PARTS,
+  'glacier kit': CREVASSE_RESCUE_PARTS,
 };
 
 // The kit hit for one type: { score, length } or null, scored like

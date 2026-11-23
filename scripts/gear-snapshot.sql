@@ -3,6 +3,9 @@
 -- jsonb result into src/data/gear-snapshot.json. Public fields only: no
 -- rationale, reviewer_notes or staging rows are selected. Only approved
 -- trail_gear_profile rows are included.
+-- Checklist-only types (earplugs, cash, food; hike migration 203) are not
+-- gear and never reach the demo. to_jsonb(g) reads the flag whether or not
+-- the column exists yet, so this runs before and after 203.
 -- Season note: in the app, season is a user toggle (summer or winter), not
 -- derived from a date. The demo mirrors that; it does not map months to seasons.
 select jsonb_pretty(jsonb_build_object(
@@ -20,6 +23,7 @@ select jsonb_pretty(jsonb_build_object(
    'winter_essentials', coalesce(t.winter_loadout->'essentialGear','[]'::jsonb),
    'image', jsonb_build_object('url', t.image_url, 'credit', t.image_credit, 'license', t.image_license, 'source', t.image_source_url),
    'gear', (select jsonb_agg(jsonb_build_object('item', g.display_name, 'group', g.category_group, 'level', p.requirement_level, 'min_items', p.min_items) order by g.sort_order)
-            from trail_gear_profile p join gear_item_types g on g.item_type=p.item_type where p.trail_id=t.id and p.status='approved')
+            from trail_gear_profile p join gear_item_types g on g.item_type=p.item_type where p.trail_id=t.id and p.status='approved'
+              and coalesce((to_jsonb(g)->>'checklist_only')::boolean, false) = false)
   ) as m from trails t where t.name in ('Mount Rainier','Mount Whitney','Mount Elbert','Mont Blanc','Matterhorn','Ben Nevis','Mount Hood','Longs Peak')) s)
 ));

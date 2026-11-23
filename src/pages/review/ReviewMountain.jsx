@@ -264,7 +264,7 @@ function SlotRow({ slot, focused, editable, note, act, onNote, rowRef, onFocusRo
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="font-medium text-fg">{slot.display_name}</span>
-            {isChecklistType(slot.item_type) ? <Tag>{CHECKLIST_LABEL}</Tag> : null}
+            {slot.checklist_only || isChecklistType(slot.item_type) ? <Tag>{CHECKLIST_LABEL}</Tag> : null}
             {status === 'added' ? <Tag strong>Added</Tag> : status === 'changed' ? <Tag strong>Changed</Tag> : specChanged ? <Tag strong>Detail</Tag> : null}
             {editable ? (
               <button

@@ -171,6 +171,8 @@ export function deriveSlots(types, liveRows, changes) {
       display_name: t?.display_name || itemType,
       category_group: t?.category_group || 'Other',
       sort_order: t?.sort_order ?? 9999,
+      // gear_item_types.checklist_only (hike migration 203), for the "Checklist item" tag.
+      checklist_only: t?.checklist_only === true,
       rationale: rationale.get(itemType) || null,
       original,
       current,

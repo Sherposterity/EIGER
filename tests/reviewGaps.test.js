@@ -30,6 +30,7 @@ const reze = [
   T('water_bottles', 'Water Bottles', 'Essentials & Accessories'),
   T('backpack', 'Backpack', 'Essentials & Accessories'),
   T('sleeping_bag', 'Sleeping Bag', 'Camp & Sleep'),
+  T('bear_canister', 'Bear Canister', 'Camp & Sleep'),
   T('tent', 'Tent', 'Camp & Sleep'),
   T('navigation', 'Navigation', 'Essentials & Accessories'),
   T('power_bank', 'Power Bank & Cables', 'Essentials & Accessories'),
@@ -45,7 +46,7 @@ const CREVASSE = ['rescue_pulley', 'ice_screws', 'cordelette', 'prusik_cords', '
 test('synonyms (2026-11-23): the new types and mig 196 map to the right type first', () => {
   const cases = {
     power_bank: ['power bank', 'battery pack', 'charger', 'cables', 'Anker powerbank'],
-    thermos: ['thermos', 'flask', 'vacuum flask', 'vacuum bottle'],
+    thermos: ['thermos', 'vacuum flask', 'vacuum bottle'],
     emergency_bivvy: ['bivvy', 'bivy', 'emergency bag', 'space blanket'],
     dry_bags: ['dry bag', 'drybag', 'dry sack', 'stuff sack'],
     earplugs: ['earplugs', 'ear plugs'],
@@ -66,6 +67,11 @@ test('synonyms (2026-11-23): no collisions with the types that already existed',
   assert.equal(find(reze, 'backpack')[0], 'backpack');
   assert.equal(find(reze, 'prusik')[0], 'prusik_cords');
   assert.equal(find(reze, 'water bottle')[0], 'water_bottles');
+  for (const w of ['flask', 'soft flask', 'Nalgene', 'bladder', 'hydration']) assert.equal(find(reze, w)[0], 'water_bottles', w);
+  for (const w of ['battery', 'batteries', 'AAA', 'AA']) assert.equal(find(reze, w)[0], 'spare_batteries', w);
+  assert.equal(find(reze, 'battery pack')[0], 'power_bank');
+  assert.equal(find(reze, 'food storage')[0], 'bear_canister');
+  assert.equal(find(reze, 'food')[0], 'food_snacks');
   // 'bag' is a word in both names, so both show; the synonym lists add nothing more.
   assert.deepEqual(new Set(find(reze, 'bag')), new Set(['dry_bags', 'sleeping_bag']));
   assert.ok(!find(reze, 'compass').includes('personal_anchor'), "'pas' is a whole word, not inside compass");
@@ -75,7 +81,7 @@ test('synonyms (2026-11-23): no collisions with the types that already existed',
 
 test('kits: "crevasse rescue" offers all six crevasse rescue parts', () => {
   assert.deepEqual(GEAR_KITS['crevasse rescue'], CREVASSE);
-  for (const q of ['crevasse rescue', 'Crevasse rescue kit', 'crevasse kit', 'crev']) {
+  for (const q of ['crevasse rescue', 'Crevasse rescue kit', 'crevasse kit', 'crev', 'rescue kit', 'glacier kit']) {
     assert.deepEqual(new Set(find(reze, q)), new Set(CREVASSE), q);
   }
   assert.equal(kitHit('sling', 'cr'), null, 'prefix needs 4 characters');
