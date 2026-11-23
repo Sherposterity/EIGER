@@ -4,7 +4,7 @@ import {
   CHECKLIST_ITEM_TYPES, GEAR_KITS, GEAR_SYNONYMS, applySpec, isChecklistType, kitHit, createGapsApi, currentSpec, isMissingFeature, liveSpecs, specLine, specsMap, suggestionArgs,
   suggestionError, synonymScore, upsertSuggestion,
 } from '../src/lib/reviewGaps.js';
-import { searchTaxonomy, summarize, summaryLine } from '../src/lib/reviewSlots.js';
+import { checklistHits, searchTaxonomy, summarize, summaryLine } from '../src/lib/reviewSlots.js';
 
 const T = (item_type, display_name, category_group = 'Technical Hardware', sort_order = 10) => ({ item_type, display_name, category_group, sort_order });
 const before180 = [
@@ -49,9 +49,6 @@ test('synonyms (2026-11-23): the new types and mig 196 map to the right type fir
     thermos: ['thermos', 'vacuum flask', 'vacuum bottle'],
     emergency_bivvy: ['bivvy', 'bivy', 'emergency bag', 'space blanket'],
     dry_bags: ['dry bag', 'drybag', 'dry sack', 'stuff sack'],
-    earplugs: ['earplugs', 'ear plugs'],
-    cash: ['cash', 'money'],
-    food_snacks: ['food', 'snacks', 'gels', 'energy gel', 'bars', 'energy bars'],
     cordelette: ['cordelette', 'anchor cord', 'cord loop'],
     personal_anchor: ['pas', 'daisy', 'daisy chain', 'tether', 'personal anchor', 'spider'],
   };
@@ -71,7 +68,7 @@ test('synonyms (2026-11-23): no collisions with the types that already existed',
   for (const w of ['battery', 'batteries', 'AAA', 'AA']) assert.equal(find(reze, w)[0], 'spare_batteries', w);
   assert.equal(find(reze, 'battery pack')[0], 'power_bank');
   assert.equal(find(reze, 'food storage')[0], 'bear_canister');
-  assert.equal(find(reze, 'food')[0], 'food_snacks');
+  assert.equal(checklistHits(reze, 'food')[0].item_type, 'food_snacks');
   // 'bag' is a word in both names, so both show; the synonym lists add nothing more.
   assert.deepEqual(new Set(find(reze, 'bag')), new Set(['dry_bags', 'sleeping_bag']));
   assert.ok(!find(reze, 'compass').includes('personal_anchor'), "'pas' is a whole word, not inside compass");
@@ -92,6 +89,27 @@ test('kits: parts already on the mountain are not offered again', () => {
   const slots = [{ item_type: 'sling', status: 'same' }, { item_type: 'locking_carabiners', status: 'same' }];
   const hits = searchTaxonomy(reze, slots, 'crevasse rescue').map((t) => t.item_type);
   assert.deepEqual(new Set(hits), new Set(['rescue_pulley', 'ice_screws', 'cordelette', 'prusik_cords']));
+});
+
+test('checklist types are never offered in the add box; the query is answered as curated by Eiger', () => {
+  const curated = (q) => checklistHits(reze, q).map((t) => t.item_type);
+  const cases = {
+    earplugs: ['earplugs', 'ear plugs'],
+    cash: ['cash', 'money'],
+    food_snacks: ['food', 'snacks', 'gels', 'energy gel', 'bars', 'energy bars'],
+  };
+  for (const [type, words] of Object.entries(cases)) {
+    for (const w of words) {
+      assert.ok(!find(reze, w).includes(type), `${w} not offered`);
+      assert.equal(curated(w)[0], type, `${w} -> curated ${type}`);
+    }
+  }
+  // A flagged type outside the fixed list is held back the same way.
+  const flagged = [...reze, { ...T('passport', 'Passport', 'Essentials & Accessories'), checklist_only: true }];
+  assert.ok(!searchTaxonomy(flagged, [], 'passport').some((t) => t.item_type === 'passport'));
+  assert.equal(checklistHits(flagged, 'passport')[0].item_type, 'passport');
+  // Gear queries are untouched and name no checklist item.
+  assert.deepEqual(checklistHits(reze, 'thermos'), []);
 });
 
 test('checklist types: earplugs, cash and food are labelled, gear is not', () => {

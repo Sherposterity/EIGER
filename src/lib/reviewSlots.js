@@ -12,7 +12,7 @@
 // The server deletes a change row when the proposal equals the live row, and
 // applyWrites() mirrors that locally, so there is never an explicit "undo".
 
-import { GEAR_KITS, GEAR_SYNONYMS, kitHit, synonymHit } from './reviewGaps.js';
+import { GEAR_KITS, GEAR_SYNONYMS, isChecklistType, kitHit, synonymHit } from './reviewGaps.js';
 
 export const SEASONS = ['all', 'summer', 'winter'];
 export const LEVELS = ['essential', 'recommended', 'optional'];
@@ -230,12 +230,24 @@ export function summaryLine(sum) {
 // prefix) from GEAR_SYNONYMS, so "traxion" finds Rescue Pulley and "hms"
 // finds Locking Carabiners. A kit phrase ("crevasse rescue") offers every
 // part of the kit (GEAR_KITS) the same way. Only loaded types can match.
+// Checklist-only types (earplugs, cash, food; hike migration 203) are never
+// offered: they live in trail_checklist_items, which Eiger curates and the
+// review RPCs cannot write. checklistHits() says when a query meant one.
 export function searchTaxonomy(types, slots, query, limit = 8, synonyms = GEAR_SYNONYMS, kits = GEAR_KITS) {
+  return rankTypes((types || []).filter((t) => !isChecklistType(t)), slots, query, limit, synonyms, kits);
+}
+
+// The checklist-only types a query names, for the "curated by Eiger" line.
+export function checklistHits(types, query, limit = 3, synonyms = GEAR_SYNONYMS) {
+  return rankTypes((types || []).filter((t) => isChecklistType(t)), [], query, limit, synonyms, {});
+}
+
+function rankTypes(types, slots, query, limit, synonyms, kits) {
   const present = new Set(slots.filter((s) => s.status !== 'removed').map((s) => s.item_type));
   const q = (query || '').trim().toLowerCase();
   if (!q) return [];
   const hits = [];
-  for (const t of types || []) {
+  for (const t of types) {
     if (present.has(t.item_type)) continue;
     const name = (t.display_name || t.item_type).toLowerCase();
     const idx = name.indexOf(q);

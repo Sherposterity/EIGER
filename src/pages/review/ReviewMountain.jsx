@@ -7,13 +7,13 @@ import {
   submitReview,
 } from '@/lib/reviewApi';
 import {
-  CHECKLIST_LABEL, DETAIL_MAX, ROLES, ROLE_LABEL, SUGGESTIONS_PER_REVIEW, SUGGESTION_NAME_MAX, SUGGESTION_NOTE_MAX, applySpec, cleanName, currentSpec,
+  CHECKLIST_CURATED_LINE, CHECKLIST_LABEL, DETAIL_MAX, ROLES, ROLE_LABEL, SUGGESTIONS_PER_REVIEW, SUGGESTION_NAME_MAX, SUGGESTION_NOTE_MAX, applySpec, cleanName, currentSpec,
   SUGGESTION_STATUS_LABEL, detailError, isDefaultSpec, isTriaged, liveSpecs, reviewerMessage, sameSpec, specsMap, suggestionError,
   triagedWithName, upsertSuggestion, isChecklistType,
 } from '@/lib/reviewGaps';
 import {
   LEVELS, addedState, applyWrites, changesMap, currentState, deriveSlots, groupSlots, liveStates, mergeState, modeOf,
-  nextMode, planWrites, searchTaxonomy, splitState, summarize, summaryLine, withLevel, withMode,
+  nextMode, planWrites, searchTaxonomy, checklistHits, splitState, summarize, summaryLine, withLevel, withMode,
 } from '@/lib/reviewSlots';
 import { EYEBROW, FACTS, btnGhost, btnPrimary, btnQuiet, factValue, field, fieldSm, focusRing, surface } from './reviewStyles';
 
@@ -635,6 +635,8 @@ function AddSlot({ types, slots, onAdd, inputRef, disabled, suggestOn, suggestio
   const [active, setActive] = useState(0);
   const [suggesting, setSuggesting] = useState(null);
   const hits = useMemo(() => searchTaxonomy(types, slots, q), [types, slots, q]);
+  // Checklist items (earplugs, cash, food) are curated by Eiger, never added here.
+  const curated = useMemo(() => (hits.length ? [] : checklistHits(types, q)), [hits, types, q]);
   const canSuggest = suggestOn && !disabled;
   const atCap = suggestions.length >= SUGGESTIONS_PER_REVIEW;
 
@@ -673,7 +675,13 @@ function AddSlot({ types, slots, onAdd, inputRef, disabled, suggestOn, suggestio
   };
 
   let noMatch = null;
-  if (!hits.length && q.trim() && suggesting === null) {
+  if (!hits.length && q.trim() && suggesting === null && curated.length) {
+    noMatch = (
+      <p className="mt-2 text-small text-fg-subtle" data-testid="checklist-curated">
+        {curated.map((t) => t.display_name).join(', ')}: {CHECKLIST_CURATED_LINE}
+      </p>
+    );
+  } else if (!hits.length && q.trim() && suggesting === null) {
     if (!canSuggest) {
       noMatch = <p className="mt-2 text-small text-fg-subtle">Nothing in the taxonomy matches that, or it is already on the list.</p>;
     } else if (atCap) {

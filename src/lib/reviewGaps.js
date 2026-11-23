@@ -86,6 +86,9 @@ export function kitHit(itemType, query, kits = GEAR_KITS) {
 // live everywhere. The review page labels them "Checklist item".
 export const CHECKLIST_ITEM_TYPES = ['earplugs', 'cash', 'food_snacks'];
 export const CHECKLIST_LABEL = 'Checklist item';
+// Shown in the "Missing something?" box when a reviewer types one (the review
+// RPCs cannot write trail_checklist_items, so they are not offered there).
+export const CHECKLIST_CURATED_LINE = 'Checklist items are curated by Eiger.';
 export const isChecklistType = (t) => {
   const itemType = typeof t === 'string' ? t : t?.item_type;
   return CHECKLIST_ITEM_TYPES.includes(itemType) || (!!t && typeof t === 'object' && t.checklist_only === true);
