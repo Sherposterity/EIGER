@@ -136,6 +136,9 @@ select p.trail_id, p.item_type, p.requirement_level as level, p.season, p.min_it
        g.display_name, g.category_group, g.sort_order
 from trail_gear_profile p join gear_item_types g on g.item_type = p.item_type
 where p.status = 'approved'
+  -- Checklist-only types (hike migration 203) are not gear: never on the public
+  -- lists. to_jsonb(g) reads the flag whether or not the column exists yet.
+  and coalesce((to_jsonb(g)->>'checklist_only')::boolean, false) = false
 order by p.trail_id, g.sort_order, g.display_name, p.season
 """
 

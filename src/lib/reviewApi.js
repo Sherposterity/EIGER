@@ -41,7 +41,7 @@ const TRAIL_COLUMNS =
 export async function loadMountain(trailId, reviewerId) {
   const [trail, types, profile, reviews] = await Promise.all([
     supabase.from('trails').select(TRAIL_COLUMNS).eq('id', trailId).maybeSingle().then(unwrap),
-    supabase.from('gear_item_types').select('item_type, display_name, category_group, sort_order').order('sort_order').then(unwrap),
+    gaps.loadTypes(),
     gaps.loadProfile(trailId),
     supabase
       .from('mountain_reviews')

@@ -12,7 +12,7 @@
 // The server deletes a change row when the proposal equals the live row, and
 // applyWrites() mirrors that locally, so there is never an explicit "undo".
 
-import { GEAR_SYNONYMS, synonymHit } from './reviewGaps.js';
+import { GEAR_KITS, GEAR_SYNONYMS, isChecklistType, kitHit, synonymHit } from './reviewGaps.js';
 
 export const SEASONS = ['all', 'summer', 'winter'];
 export const LEVELS = ['essential', 'recommended', 'optional'];
@@ -171,6 +171,8 @@ export function deriveSlots(types, liveRows, changes) {
       display_name: t?.display_name || itemType,
       category_group: t?.category_group || 'Other',
       sort_order: t?.sort_order ?? 9999,
+      // gear_item_types.checklist_only (hike migration 203), for the "Checklist item" tag.
+      checklist_only: t?.checklist_only === true,
       rationale: rationale.get(itemType) || null,
       original,
       current,
@@ -226,13 +228,26 @@ export function summaryLine(sum) {
 // Taxonomy search for the "Add a slot" box: names not already present.
 // Direct name hits rank first (0 to 2), then synonym hits (3 whole word, 4
 // prefix) from GEAR_SYNONYMS, so "traxion" finds Rescue Pulley and "hms"
-// finds Locking Carabiners. Only loaded types can match.
-export function searchTaxonomy(types, slots, query, limit = 8, synonyms = GEAR_SYNONYMS) {
+// finds Locking Carabiners. A kit phrase ("crevasse rescue") offers every
+// part of the kit (GEAR_KITS) the same way. Only loaded types can match.
+// Checklist-only types (earplugs, cash, food; hike migration 203) are never
+// offered: they live in trail_checklist_items, which Eiger curates and the
+// review RPCs cannot write. checklistHits() says when a query meant one.
+export function searchTaxonomy(types, slots, query, limit = 8, synonyms = GEAR_SYNONYMS, kits = GEAR_KITS) {
+  return rankTypes((types || []).filter((t) => !isChecklistType(t)), slots, query, limit, synonyms, kits);
+}
+
+// The checklist-only types a query names, for the "curated by Eiger" line.
+export function checklistHits(types, query, limit = 3, synonyms = GEAR_SYNONYMS) {
+  return rankTypes((types || []).filter((t) => isChecklistType(t)), [], query, limit, synonyms, {});
+}
+
+function rankTypes(types, slots, query, limit, synonyms, kits) {
   const present = new Set(slots.filter((s) => s.status !== 'removed').map((s) => s.item_type));
   const q = (query || '').trim().toLowerCase();
   if (!q) return [];
   const hits = [];
-  for (const t of types || []) {
+  for (const t of types) {
     if (present.has(t.item_type)) continue;
     const name = (t.display_name || t.item_type).toLowerCase();
     const idx = name.indexOf(q);
@@ -242,7 +257,9 @@ export function searchTaxonomy(types, slots, query, limit = 8, synonyms = GEAR_S
       continue;
     }
     const syn = synonymHit(t.item_type, q, synonyms);
-    if (syn) hits.push({ t, score: 3 + syn.score, specific: syn.length });
+    const kit = kitHit(t.item_type, q, kits);
+    const best = syn && kit ? (kit.score < syn.score ? kit : syn) : syn || kit;
+    if (best) hits.push({ t, score: 3 + best.score, specific: best.length });
   }
   hits.sort((a, b) => a.score - b.score || (b.specific || 0) - (a.specific || 0) || a.t.display_name.localeCompare(b.t.display_name));
   return hits.slice(0, limit).map((h) => h.t);
